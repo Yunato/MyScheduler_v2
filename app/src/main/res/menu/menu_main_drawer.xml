@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/drawer_title">
+        <menu>
+            <item
+                android:id="@+id/top_today"
+                android:icon="@drawable/outline_view_day_black_24dp"
+                android:title="@string/menu_title_today" />
+            <item
+                android:id="@+id/top_calendar"
+                android:icon="@drawable/outline_view_module_black_24dp"
+                android:title="@string/menu_title_calendar"/>
+            <item
+                android:id="@+id/top_confirmation"
+                android:icon="@drawable/outline_view_agenda_black_24dp"
+                android:title="@string/menu_title_confirmation"/>
+            <item
+                android:id="@+id/top_analysis"
+                android:icon="@drawable/outline_equalizer_black_24dp"
+                android:title="@string/menu_title_analysis"/>
+        </menu>
+    </item>
+
+</menu>
