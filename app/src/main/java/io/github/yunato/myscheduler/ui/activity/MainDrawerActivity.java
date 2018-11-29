@@ -5,7 +5,11 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -52,11 +56,36 @@ public class MainDrawerActivity extends AppCompatActivity
         toggle.syncState();
 
         ((NavigationView)findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
+        switchUserInterface(R.id.top_calendar);
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item){
+        int id = item.getItemId();
+        switchUserInterface(id);
         return false;
+    }
+
+    /**
+     * パラメータを基に, 次の描画に適した Activity または Fragment へ画面を切り替える
+     * @param id メニューID
+     */
+    private void switchUserInterface(int id){
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment fragment;
+
+        switch (id) {
+            case R.id.top_calendar:
+                fragment = new CalendarFragment();
+                break;
+            default:
+                return;
+        }
+        transaction.replace(R.id.main_layout, fragment);
+        transaction.commit();
+
+        ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(GravityCompat.START);
     }
 
     @Override
