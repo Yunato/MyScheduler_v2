@@ -18,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
+import io.github.yunato.myscheduler.ui.fragment.DayPlanFragment;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -78,6 +80,9 @@ public class MainDrawerActivity extends AppCompatActivity
         switch (id) {
             case R.id.top_calendar:
                 fragment = new CalendarFragment();
+                break;
+            case R.id.top_today:
+                fragment = new DayPlanFragment();
                 break;
             default:
                 return;
