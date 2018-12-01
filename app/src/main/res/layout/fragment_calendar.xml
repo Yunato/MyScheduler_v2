@@ -1,11 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="io.github.yunato.myscheduler.ui.fragment.CalendarFragment">
 
     <CalendarView
-        android:id="@+id/calendarView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:id="@+id/calendarView"
+        android:dateTextAppearance="@style/TextAppearance.AppCompat.Large"
+        android:weekDayTextAppearance="@style/TextAppearance.AppCompat.Large"/>
+</FrameLayout>

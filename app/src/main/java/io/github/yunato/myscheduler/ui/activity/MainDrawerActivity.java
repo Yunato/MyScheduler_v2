@@ -22,7 +22,7 @@ import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayPlanFragment;
 
 public class MainDrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
 
@@ -61,6 +61,10 @@ public class MainDrawerActivity extends AppCompatActivity
         switchUserInterface(R.id.top_calendar);
     }
 
+    public void onSectionAttached(int resourceId){
+        setTitle(getString(resourceId));
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item){
         int id = item.getItemId();
@@ -79,7 +83,7 @@ public class MainDrawerActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.top_calendar:
-                fragment = new CalendarFragment();
+                fragment = CalendarFragment.newInstance();
                 break;
             case R.id.top_today:
                 fragment = new DayPlanFragment();
