@@ -8,15 +8,15 @@ import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnListFragmentInteractionListener;
-import io.github.yunato.myscheduler.ui.fragment.dummy.DummyContent.DummyItem;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 
 import java.util.List;
 
 public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecyclerViewAdapter.ViewHolder> {
-    private final List<DummyItem> mValues;
+    private final List<PlanItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyPlanRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyPlanRecyclerViewAdapter(List<PlanItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -31,8 +31,8 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mIdView.setText(mValues.get(position).calendarId);
+        holder.mContentView.setText(mValues.get(position).title);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +55,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public PlanItem mItem;
 
         public ViewHolder(View view) {
             super(view);

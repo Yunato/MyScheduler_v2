@@ -15,12 +15,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
-import io.github.yunato.myscheduler.ui.fragment.dummy.DummyContent;
+import io.github.yunato.myscheduler.model.item.PlanContent;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,DayFragment.OnListFragmentInteractionListener{
@@ -99,7 +100,9 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item){}
+    public void onListFragmentInteraction(PlanContent.PlanItem item){
+        Log.d("Debug", item.title);
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){

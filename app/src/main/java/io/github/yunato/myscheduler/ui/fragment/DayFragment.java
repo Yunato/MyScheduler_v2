@@ -12,9 +12,10 @@ import android.view.ViewGroup;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
+import io.github.yunato.myscheduler.ui.adapter.DividerItemDecoration;
 import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
-import io.github.yunato.myscheduler.ui.fragment.dummy.DummyContent;
-import io.github.yunato.myscheduler.ui.fragment.dummy.DummyContent.DummyItem;
+import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 
 public class DayFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -50,12 +51,13 @@ public class DayFragment extends Fragment {
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView.addItemDecoration(new DividerItemDecoration(context));
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyPlanRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyPlanRecyclerViewAdapter(PlanContent.ITEMS, mListener));
         }
         return view;
     }
@@ -79,6 +81,6 @@ public class DayFragment extends Fragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(PlanItem item);
     }
 }
