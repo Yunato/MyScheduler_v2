@@ -1,8 +1,6 @@
 package io.github.yunato.myscheduler.ui.fragment;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -26,6 +24,7 @@ public class CalendarFragment extends Fragment {
      * インスタンスの生成
      * @return CalendarFragment インスタンス
      */
+    @SuppressWarnings("unused")
     public static CalendarFragment newInstance() {
         CalendarFragment fragment = new CalendarFragment();
         //Bundle args = new Bundle();
@@ -37,6 +36,7 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             //mParam1 = getArguments().getString(ARG_PARAM1);
         }
@@ -51,21 +51,6 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onAttach(Context context){
         super.onAttach(context);
-        onAttachContext(context);
-    }
-
-    @Override
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) return;
-        onAttachContext(activity);
-    }
-
-    /**
-     * Activity に配置された場合の処理
-     * タイトル文字列の変更
-     */
-    private void onAttachContext(Context context){
-        ((MainDrawerActivity)context).onSectionAttached(R.string.menu_title_calendar);
+        ((MainDrawerActivity)context).onFragmentAttached(R.string.menu_title_calendar);
     }
 }

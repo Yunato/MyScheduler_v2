@@ -19,10 +19,11 @@ import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
-import io.github.yunato.myscheduler.ui.fragment.DayPlanFragment;
+import io.github.yunato.myscheduler.ui.fragment.DayFragment;
+import io.github.yunato.myscheduler.ui.fragment.dummy.DummyContent;
 
 public class MainDrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener ,DayFragment.OnListFragmentInteractionListener{
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
 
@@ -61,7 +62,7 @@ public class MainDrawerActivity extends AppCompatActivity
         switchUserInterface(R.id.top_calendar);
     }
 
-    public void onSectionAttached(int resourceId){
+    public void onFragmentAttached(int resourceId){
         setTitle(getString(resourceId));
     }
 
@@ -86,7 +87,7 @@ public class MainDrawerActivity extends AppCompatActivity
                 fragment = CalendarFragment.newInstance();
                 break;
             case R.id.top_today:
-                fragment = new DayPlanFragment();
+                fragment = DayFragment.newInstance(1);
                 break;
             default:
                 return;
@@ -96,6 +97,9 @@ public class MainDrawerActivity extends AppCompatActivity
 
         ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(GravityCompat.START);
     }
+
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item){}
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){

@@ -5,7 +5,7 @@
             <item
                 android:id="@+id/top_today"
                 android:icon="@drawable/outline_view_day_black_24dp"
-                android:title="@string/menu_title_today" />
+                android:title="@string/menu_title_day" />
             <item
                 android:id="@+id/top_calendar"
                 android:icon="@drawable/outline_view_module_black_24dp"

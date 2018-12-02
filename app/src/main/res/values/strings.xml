@@ -6,7 +6,7 @@
 
     <!-- DrawerMenu -->
     <string name="drawer_title">"Menu"</string>
-    <string name="menu_title_today">"Today"</string>
+    <string name="menu_title_day">"Day"</string>
     <string name="menu_title_calendar">"Calendar"</string>
     <string name="menu_title_confirmation">"Confirmation"</string>
     <string name="menu_title_analysis">"Analysis"</string>
