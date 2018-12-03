@@ -80,6 +80,7 @@ public class DayFragment extends Fragment {
         mListener = null;
     }
 
+    /** Activity へのコールバック用 */
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(PlanItem item);
     }

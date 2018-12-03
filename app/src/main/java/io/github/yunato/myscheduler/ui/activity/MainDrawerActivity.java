@@ -1,6 +1,7 @@
 package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -22,6 +23,7 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import io.github.yunato.myscheduler.model.item.PlanContent;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,DayFragment.OnListFragmentInteractionListener{
@@ -102,6 +104,11 @@ public class MainDrawerActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(PlanContent.PlanItem item){
         Log.d("Debug", item.title);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase){
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     @Override
