@@ -13,8 +13,8 @@ public class PlanContent {
 
     // item の初期化
     static {
-        for (int i = 1; i <= COUNT; i++) {
-            addItem(createDummyItem(i));
+        for (int i =1; i < COUNT; i++) {
+            addItem(createDummyItem(i * 100));
         }
     }
 
@@ -24,7 +24,7 @@ public class PlanContent {
     }
 
     private static PlanItem createDummyItem(int position) {
-        return new PlanItem(String.valueOf(position), "Item " + position, makeDetails(position));
+        return new PlanItem(String.valueOf(position), "予定名", makeDetails(position));
     }
 
     private static String makeDetails(int position) {
