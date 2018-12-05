@@ -13,7 +13,7 @@ public class PlanContent {
 
     // item の初期化
     static {
-        for (int i =1; i < COUNT; i++) {
+        for (int i = 0; i < COUNT; i++) {
             addItem(createDummyItem(i * 100));
         }
     }
@@ -23,16 +23,20 @@ public class PlanContent {
         ITEM_MAP.put(item.calendarId, item);
     }
 
-    private static PlanItem createDummyItem(int position) {
-        return new PlanItem(String.valueOf(position), "予定名", makeDetails(position));
+    private static PlanItem createDummyItem(int time) {
+        return new PlanItem(makeStartMill(time), "予定名", "予定の内容");
     }
 
-    private static String makeDetails(int position) {
+    private static String makeStartMill(int time) {
         StringBuilder builder = new StringBuilder();
-        builder.append("Details about Item: ").append(position);
-        for (int i = 0; i < position; i++) {
-            builder.append("\nMore details information here.");
+        if(time / 100 == 0){
+            builder.append("0");
+        }else if(time / 100 < 10){
+            builder.append("0").append(Integer.toString(time/100));
+        }else{
+            builder.append(Integer.toString(time/100));
         }
+        builder.append(" : 00");
         return builder.toString();
     }
 

@@ -1,6 +1,7 @@
 package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -19,6 +20,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+
+import java.util.Arrays;
+
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -30,12 +37,17 @@ public class MainDrawerActivity extends AppCompatActivity
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
 
+    GoogleAccountCredential mCredential;
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_drawer);
         checkPermission();
         setupUIElements();
+
+        mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
     }
 
     /**
