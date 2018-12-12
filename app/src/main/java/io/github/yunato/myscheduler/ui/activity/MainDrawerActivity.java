@@ -30,6 +30,7 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainDrawerActivity extends AppCompatActivity
@@ -115,7 +116,11 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(PlanContent.PlanItem item){
-        Log.d("Debug", item.title);
+        Fragment fragment = ShowPlanFragment.newInstance(item);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_layout, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

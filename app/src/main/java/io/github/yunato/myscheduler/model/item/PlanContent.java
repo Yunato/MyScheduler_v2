@@ -1,5 +1,6 @@
 package io.github.yunato.myscheduler.model.item;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +10,12 @@ public class PlanContent {
     public static final List<PlanItem> ITEMS = new ArrayList<>();
     private static final Map<String, PlanItem> ITEM_MAP = new HashMap<>();
 
-    private static final int COUNT = 25;
+    private static final int COUNT = 24;
 
     // item の初期化
     static {
         for (int i = 0; i < COUNT; i++) {
-            addItem(createDummyItem(i * 100));
+            addItem(createDummyItem(i));
         }
     }
 
@@ -23,24 +24,11 @@ public class PlanContent {
         ITEM_MAP.put(item.calendarId, item);
     }
 
-    private static PlanItem createDummyItem(int time) {
-        return new PlanItem(makeStartMill(time), "予定名", "予定の内容");
+    private static PlanItem createDummyItem(int index) {
+        return new PlanItem(Integer.toString(index), "予定名", "予定の内容", index * 100, (index + 1) * 100);
     }
 
-    private static String makeStartMill(int time) {
-        StringBuilder builder = new StringBuilder();
-        if(time / 100 == 0){
-            builder.append("0");
-        }else if(time / 100 < 10){
-            builder.append("0").append(Integer.toString(time/100));
-        }else{
-            builder.append(Integer.toString(time/100));
-        }
-        builder.append(" : 00");
-        return builder.toString();
-    }
-
-    public static class PlanItem {
+    public static class PlanItem implements Serializable{
         public final String calendarId;
         public final String title;
         public final String description;
@@ -48,12 +36,12 @@ public class PlanContent {
         public final long startMillis;
         public final long endMillis;
 
-        public PlanItem(String calendarId, String title, String description) {
+        public PlanItem(String calendarId, String title, String description, long startMillis, long endMillis) {
             this.calendarId = calendarId;
             this.title = title;
             this.description = description;
-            this.startMillis = 0L;
-            this.endMillis = 0L;
+            this.startMillis = startMillis;
+            this.endMillis = endMillis;
         }
 
         @Override
