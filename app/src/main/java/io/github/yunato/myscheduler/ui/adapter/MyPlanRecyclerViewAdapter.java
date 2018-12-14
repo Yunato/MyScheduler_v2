@@ -16,6 +16,11 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     private final List<PlanItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
+    /**
+     * コンストラクタ
+     * @param items     リストアイテム群
+     * @param listener  リストアイテムのタップ時におけるリスナー
+     */
     public MyPlanRecyclerViewAdapter(List<PlanItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
@@ -31,8 +36,8 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).calendarId);
-        holder.mContentView.setText(mValues.get(position).title);
+        holder.mIdView.setText(holder.mItem.getPlanId());
+        holder.mContentView.setText(holder.mItem.getTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,22 +54,17 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public PlanItem mItem;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        private final View mView;
+        private final TextView mIdView;
+        private final TextView mContentView;
+        private PlanItem mItem;
 
-        public ViewHolder(View view) {
+        private ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.time);
             mContentView = (TextView) view.findViewById(R.id.plan_title);
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
         }
     }
 }

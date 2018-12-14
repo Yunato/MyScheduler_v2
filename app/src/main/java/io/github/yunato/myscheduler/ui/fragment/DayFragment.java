@@ -22,9 +22,15 @@ public class DayFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
-    public DayFragment() {
-    }
+    /**
+     * コンストラクタ
+     */
+    public DayFragment() {}
 
+    /**
+     * インスタンスの生成
+     * @return CalendarFragment インスタンス
+     */
     @SuppressWarnings("unused")
     public static DayFragment newInstance(int columnCount) {
         DayFragment fragment = new DayFragment();
@@ -80,7 +86,9 @@ public class DayFragment extends Fragment {
         mListener = null;
     }
 
-    /** Activity へのコールバック用 */
+    /**
+     * Activity へのコールバック用
+     */
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(PlanItem item);
     }

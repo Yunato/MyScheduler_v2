@@ -44,4 +44,5 @@ dependencies {
     compile('com.google.apis:google-api-services-calendar:v3-rev214-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    testCompile 'junit:junit:4.12'
 }

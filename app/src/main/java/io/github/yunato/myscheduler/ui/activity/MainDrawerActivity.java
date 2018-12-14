@@ -1,7 +1,6 @@
 package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -17,7 +16,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -29,7 +27,7 @@ import java.util.Arrays;
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
-import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -115,7 +113,7 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(PlanContent.PlanItem item){
+    public void onListFragmentInteraction(PlanItem item){
         Fragment fragment = ShowPlanFragment.newInstance(item);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_layout, fragment)

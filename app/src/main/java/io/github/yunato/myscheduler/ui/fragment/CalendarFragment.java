@@ -11,14 +11,10 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
 
 public class CalendarFragment extends Fragment {
-    //private static final String ARG_PARAM1 = "param1";
-    //private String mParam1;
-
     /**
      * コンストラクタ
      */
-    public CalendarFragment() {
-    }
+    public CalendarFragment() {}
 
     /**
      * インスタンスの生成
@@ -26,20 +22,7 @@ public class CalendarFragment extends Fragment {
      */
     @SuppressWarnings("unused")
     public static CalendarFragment newInstance() {
-        CalendarFragment fragment = new CalendarFragment();
-        //Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            //mParam1 = getArguments().getString(ARG_PARAM1);
-        }
+        return new CalendarFragment();
     }
 
     @Override

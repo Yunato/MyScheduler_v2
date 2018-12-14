@@ -8,15 +8,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 
 public class ShowPlanFragment extends Fragment {
     private static final String ARG_PARAM_ITEM = "PLAN_ITEM";
-    private PlanContent.PlanItem itemInfo;
+    private PlanItem itemInfo;
 
     public ShowPlanFragment() {}
 
-    public static ShowPlanFragment newInstance(PlanContent.PlanItem item) {
+    public static ShowPlanFragment newInstance(PlanItem item) {
         ShowPlanFragment fragment = new ShowPlanFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM_ITEM, item);
@@ -28,7 +28,7 @@ public class ShowPlanFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            itemInfo = (PlanContent.PlanItem)getArguments().getSerializable(ARG_PARAM_ITEM);
+            itemInfo = (PlanItem)getArguments().getSerializable(ARG_PARAM_ITEM);
         }
     }
 
@@ -41,10 +41,10 @@ public class ShowPlanFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        ((TextView)view.findViewById(R.id.text_title)).setText(itemInfo.title);
-        ((TextView)view.findViewById(R.id.text_startMillis)).setText(makeMill(itemInfo.startMillis));
-        ((TextView)view.findViewById(R.id.text_endMillis)).setText(makeMill(itemInfo.endMillis));
-        ((TextView)view.findViewById(R.id.text_description)).setText(itemInfo.description);
+        ((TextView)view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
+        ((TextView)view.findViewById(R.id.text_startMillis)).setText(makeMill(itemInfo.getStartMillis()));
+        ((TextView)view.findViewById(R.id.text_endMillis)).setText(makeMill(itemInfo.getEndMillis()));
+        ((TextView)view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
     }
 
     private static String makeMill(long time) {
