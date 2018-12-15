@@ -1,8 +1,11 @@
 package io.github.yunato.myscheduler.model.item;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class PlanContent {
     public static final List<PlanItem> ITEMS = new ArrayList<>();
@@ -21,12 +24,20 @@ public class PlanContent {
         //ITEM_MAP.put(item.calendarId, item);
     }
 
+    public static PlanItem createPlanItem() {
+        Calendar date = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
+        long time = Long.parseLong(sdf.format(date.getTime()));
+        return new PlanItem("noNumber", "", "", time, time);
+    }
+
     //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
     //TODO: このクラスを通さないと PlanItem のインスタンスを作成できない
     private static PlanItem createPlanItem(int index) {
         return new PlanItem(Integer.toString(index),
                 "予定名", "予定の内容", index * 100, (index + 1) * 100);
     }
+
 
     public static class PlanItem implements Serializable{
         private final String planId;

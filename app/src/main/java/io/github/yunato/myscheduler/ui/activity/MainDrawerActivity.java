@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.ExponentialBackOff;
@@ -25,6 +27,8 @@ import com.google.api.services.calendar.CalendarScopes;
 import java.util.Arrays;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.ui.fragment.AddPlanFragment;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
@@ -35,6 +39,9 @@ public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,DayFragment.OnListFragmentInteractionListener{
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
+
+    /** FloatingActionButton */
+    private FloatingActionButton fab;
 
     GoogleAccountCredential mCredential;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
@@ -72,6 +79,14 @@ public class MainDrawerActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        fab = (FloatingActionButton)findViewById(R.id.button_floating_action);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                transitionAddPlanFragment();
+            }
+        });
+
         ((NavigationView)findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
         switchUserInterface(R.id.top_calendar);
     }
@@ -98,9 +113,11 @@ public class MainDrawerActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.top_calendar:
+                fab.hide();
                 fragment = CalendarFragment.newInstance();
                 break;
             case R.id.top_today:
+                fab.show();
                 fragment = DayFragment.newInstance(1);
                 break;
             default:
@@ -114,11 +131,7 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(PlanItem item){
-        Fragment fragment = ShowPlanFragment.newInstance(item);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_layout, fragment)
-                .addToBackStack(null)
-                .commit();
+        transitionShowPlanFragment(item);
     }
 
     @Override
@@ -134,5 +147,25 @@ public class MainDrawerActivity extends AppCompatActivity
                 finish();
             }
         }
+    }
+
+    //TODO: FloatingActionButton を表示できるように ShowPlanFragment と AddPlanFragment の遷移はスタックに積まない方がよい
+    public void transitionShowPlanFragment(PlanItem item){
+        fab.show();
+        Fragment fragment = ShowPlanFragment.newInstance(item);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_layout, fragment)
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    public void transitionAddPlanFragment(){
+        fab.hide();
+        Fragment fragment = AddPlanFragment.newInstance(PlanContent.createPlanItem());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_layout, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
