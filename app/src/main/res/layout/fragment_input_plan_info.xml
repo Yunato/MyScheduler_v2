@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment">
+
+    <EditText
+        android:id="@+id/input_text_title"
+        android:labelFor="@+id/input_text_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/input_text_startMillis"
+        android:labelFor="@+id/input_text_startMillis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/input_text_endMillis"
+        android:labelFor="@+id/input_text_endMillis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/input_text_description"
+        android:labelFor="@+id/input_text_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

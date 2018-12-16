@@ -28,7 +28,7 @@ import java.util.Arrays;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent;
-import io.github.yunato.myscheduler.ui.fragment.AddPlanFragment;
+import io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
@@ -83,7 +83,7 @@ public class MainDrawerActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                transitionAddPlanFragment();
+                transitionInputPlanInfoFragment();
             }
         });
 
@@ -160,9 +160,9 @@ public class MainDrawerActivity extends AppCompatActivity
 
     }
 
-    public void transitionAddPlanFragment(){
+    public void transitionInputPlanInfoFragment(){
         fab.hide();
-        Fragment fragment = AddPlanFragment.newInstance(PlanContent.createPlanItem());
+        Fragment fragment = InputPlanInfoFragment.newInstance(PlanContent.createPlanItem());
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_layout, fragment)
                 .addToBackStack(null)

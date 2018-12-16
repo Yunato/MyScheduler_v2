@@ -31,6 +31,19 @@ public class PlanContent {
         return new PlanItem("noNumber", "", "", time, time);
     }
 
+    public static String convertMillToString(long time) {
+        StringBuilder builder = new StringBuilder();
+        if(time / 100 == 0){
+            builder.append("00");
+        }else if(time / 100 < 10){
+            builder.append("0").append(Long.toString(time/100));
+        }else{
+            builder.append(Long.toString(time/100));
+        }
+        builder.append(" : 00");
+        return builder.toString();
+    }
+
     //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
     //TODO: このクラスを通さないと PlanItem のインスタンスを作成できない
     private static PlanItem createPlanItem(int index) {

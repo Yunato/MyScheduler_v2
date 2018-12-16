@@ -11,14 +11,14 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 
-public class ShowPlanFragment extends Fragment {
+public class InputPlanInfoFragment extends Fragment {
     private static final String ARG_PARAM_ITEM = "PLAN_ITEM";
     private PlanItem itemInfo;
 
-    public ShowPlanFragment() {}
+    public InputPlanInfoFragment() {}
 
-    public static ShowPlanFragment newInstance(PlanItem item) {
-        ShowPlanFragment fragment = new ShowPlanFragment();
+    public static InputPlanInfoFragment newInstance(PlanItem item) {
+        InputPlanInfoFragment fragment = new InputPlanInfoFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM_ITEM, item);
         fragment.setArguments(args);
@@ -36,17 +36,18 @@ public class ShowPlanFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_show_plan, container, false);
+        return inflater.inflate(R.layout.fragment_input_plan_info, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        ((TextView)view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
-        ((TextView)view.findViewById(R.id.text_startMillis))
+        ((TextView)view.findViewById(R.id.input_text_title)).setText(itemInfo.getTitle());
+        ((TextView)view.findViewById(R.id.input_text_startMillis))
                 .setText(PlanContent.convertMillToString(itemInfo.getStartMillis()));
-        ((TextView)view.findViewById(R.id.text_endMillis))
+        ((TextView)view.findViewById(R.id.input_text_endMillis))
                 .setText(PlanContent.convertMillToString(itemInfo.getEndMillis()));
-        ((TextView)view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
+        ((TextView)view.findViewById(R.id.input_text_description))
+                .setText(itemInfo.getDescription());
     }
 }
