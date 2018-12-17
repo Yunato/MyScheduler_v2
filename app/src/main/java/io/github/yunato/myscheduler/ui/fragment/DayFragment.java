@@ -2,7 +2,6 @@ package io.github.yunato.myscheduler.ui.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,14 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
 import io.github.yunato.myscheduler.ui.adapter.DividerItemDecoration;
 import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
-import io.github.yunato.myscheduler.model.item.PlanContent;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 
 public class DayFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -92,6 +90,6 @@ public class DayFragment extends Fragment {
      * Activity へのコールバック用
      */
     public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(PlanItem item);
+        void onListFragmentInteraction(PlanItem item, View view);
     }
 }

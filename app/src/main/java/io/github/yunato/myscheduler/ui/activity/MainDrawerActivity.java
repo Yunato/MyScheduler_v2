@@ -2,11 +2,14 @@ package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,10 +18,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.ExponentialBackOff;
@@ -28,15 +32,16 @@ import java.util.Arrays;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent;
-import io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment;
 import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainDrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,DayFragment.OnListFragmentInteractionListener{
+        implements NavigationView.OnNavigationItemSelectedListener,
+                    DayFragment.OnListFragmentInteractionListener{
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
 
@@ -46,9 +51,16 @@ public class MainDrawerActivity extends AppCompatActivity
     GoogleAccountCredential mCredential;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
+    // UI情報の保持はsetArguments()
+    // データやインプット状況の保持はonSavedInstanceState()
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setExitTransition(new Explode());
+
         setContentView(R.layout.activity_main_drawer);
         checkPermission();
         setupUIElements();
@@ -110,14 +122,13 @@ public class MainDrawerActivity extends AppCompatActivity
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Fragment fragment;
+        fab.show();
 
         switch (id) {
             case R.id.top_calendar:
-                fab.hide();
                 fragment = CalendarFragment.newInstance();
                 break;
             case R.id.top_today:
-                fab.show();
                 fragment = DayFragment.newInstance(1);
                 break;
             default:
@@ -130,8 +141,11 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(PlanItem item){
-        transitionShowPlanFragment(item);
+    public void onListFragmentInteraction(PlanItem item, View view){
+        ActivityOptionsCompat compat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, view.getTransitionName());
+        startActivity(new Intent(this, EditPlanInfoActivity.class), compat.toBundle());
+        //transitionShowPlanFragment(item);
     }
 
     @Override
@@ -140,7 +154,8 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == REQUEST_WRITE_STORAGE){
             if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED){
@@ -157,7 +172,6 @@ public class MainDrawerActivity extends AppCompatActivity
                 .replace(R.id.main_layout, fragment)
                 .addToBackStack(null)
                 .commit();
-
     }
 
     public void transitionInputPlanInfoFragment(){

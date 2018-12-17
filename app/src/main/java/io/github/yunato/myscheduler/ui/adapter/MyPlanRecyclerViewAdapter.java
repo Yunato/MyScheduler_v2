@@ -4,13 +4,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnListFragmentInteractionListener;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
-
 import java.util.List;
+
+import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnListFragmentInteractionListener;
 
 public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecyclerViewAdapter.ViewHolder> {
     private final List<PlanItem> mValues;
@@ -29,7 +30,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_plan, parent, false);
+                .inflate(R.layout.layout_plan_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -43,7 +44,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteraction(holder.mItem, holder.getmLayout());
                 }
             }
         });
@@ -56,6 +57,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
+        private final LinearLayout mLayout;
         private final TextView mIdView;
         private final TextView mContentView;
         private PlanItem mItem;
@@ -63,8 +65,13 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
         private ViewHolder(View view) {
             super(view);
             mView = view;
+            mLayout = (LinearLayout) view.findViewById(R.id.layout);
             mIdView = (TextView) view.findViewById(R.id.time);
             mContentView = (TextView) view.findViewById(R.id.plan_title);
+        }
+
+        private LinearLayout getmLayout() {
+            return mLayout;
         }
     }
 }

@@ -8,4 +8,4 @@
     android:layout_height="match_parent"
     app:layoutManager="LinearLayoutManager"
     tools:context="io.github.yunato.myscheduler.ui.fragment.DayFragment"
-    tools:listitem="@layout/fragment_plan"/>
+    tools:listitem="@layout/layout_plan_item"/>
