@@ -1,15 +1,64 @@
 package io.github.yunato.myscheduler.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.item.PlanContent;
+import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment;
+import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
-public class EditPlanInfoActivity extends AppCompatActivity{
+public class EditPlanInfoActivity extends AppCompatActivity {
+    /** FloatingActionButton */
+    private FloatingActionButton fab;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activty_edit_plan_info);
+        setContentView(R.layout.activity_edit_plan_info);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        Intent intent = getIntent();
+        PlanItem item = (PlanItem)intent.getSerializableExtra("TEST");
+        if(item != null){
+            setShowPlanFragment(item);
+        }else{
+            setInputPlanInfoFragment();
+        }
     }
+
+    //TODO: FloatingActionButton を表示できるように ShowPlanFragment と AddPlanFragment の遷移はスタックに積まない方がよい
+    public void setShowPlanFragment(PlanItem item){
+        fab.show();
+        Fragment fragment = ShowPlanFragment.newInstance(item);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment, fragment)
+                .commit();
+    }
+
+    public void setInputPlanInfoFragment(){
+        fab.hide();
+        Fragment fragment = InputPlanInfoFragment.newInstance(PlanContent.createPlanItem());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment, fragment)
+                .commit();
+    }
+
 }

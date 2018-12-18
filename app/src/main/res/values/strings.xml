@@ -10,5 +10,7 @@
     <string name="menu_title_calendar">"Calendar"</string>
     <string name="menu_title_confirmation">"Confirmation"</string>
     <string name="menu_title_analysis">"Analysis"</string>
+    <string name="title_activity_edit_plan_info">EditPlanInfoActivity</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
