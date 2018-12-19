@@ -3,7 +3,6 @@ package io.github.yunato.myscheduler.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,17 +29,22 @@ public class EditPlanInfoActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                setInputPlanInfoFragment();
             }
         });
 
-        Intent intent = getIntent();
-        PlanItem item = (PlanItem)intent.getSerializableExtra("TEST");
-        if(item != null){
-            setShowPlanFragment(item);
-        }else{
-            setInputPlanInfoFragment();
+        if (findViewById(R.id.fragment_container) != null) {
+            if(savedInstanceState != null){
+                return;
+            }
+
+            Intent intent = getIntent();
+            PlanItem item = (PlanItem)intent.getSerializableExtra("TEST");
+            if(item != null){
+                setShowPlanFragment(item);
+            }else{
+                setInputPlanInfoFragment();
+            }
         }
     }
 
@@ -49,16 +53,14 @@ public class EditPlanInfoActivity extends AppCompatActivity {
         fab.show();
         Fragment fragment = ShowPlanFragment.newInstance(item);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment, fragment)
-                .commit();
+                .add(R.id.fragment_container, fragment).commit();
     }
 
     public void setInputPlanInfoFragment(){
         fab.hide();
         Fragment fragment = InputPlanInfoFragment.newInstance(PlanContent.createPlanItem());
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment, fragment)
-                .commit();
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null).commit();
     }
-
 }

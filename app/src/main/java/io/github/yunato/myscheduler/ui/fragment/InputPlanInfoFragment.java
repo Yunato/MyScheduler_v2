@@ -43,10 +43,14 @@ public class InputPlanInfoFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         ((TextView)view.findViewById(R.id.input_text_title)).setText(itemInfo.getTitle());
-        ((TextView)view.findViewById(R.id.input_text_startMillis))
-                .setText(PlanContent.convertMillToString(itemInfo.getStartMillis()));
-        ((TextView)view.findViewById(R.id.input_text_endMillis))
-                .setText(PlanContent.convertMillToString(itemInfo.getEndMillis()));
+        ((TextView)view.findViewById(R.id.input_text_startDate))
+                .setText(PlanContent.convertDateToString(itemInfo.getStartMillis()));
+        ((TextView)view.findViewById(R.id.input_text_startTime))
+                .setText(PlanContent.convertTimeToString(itemInfo.getStartMillis()));
+        ((TextView)view.findViewById(R.id.input_text_endDate))
+                .setText(PlanContent.convertDateToString(itemInfo.getEndMillis()));
+        ((TextView)view.findViewById(R.id.input_text_endTime))
+                .setText(PlanContent.convertTimeToString(itemInfo.getEndMillis()));
         ((TextView)view.findViewById(R.id.input_text_description))
                 .setText(itemInfo.getDescription());
     }

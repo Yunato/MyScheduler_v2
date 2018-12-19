@@ -20,7 +20,7 @@ import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
 public class DayFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private OnListFragmentInteractionListener mListener = null;
 
     /**
      * コンストラクタ

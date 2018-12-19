@@ -31,17 +31,60 @@ public class PlanContent {
         return new PlanItem("noNumber", "", "", time, time);
     }
 
-    public static String convertMillToString(long time) {
-        StringBuilder builder = new StringBuilder();
-        if(time / 100 == 0){
-            builder.append("00");
-        }else if(time / 100 < 10){
-            builder.append("0").append(Long.toString(time/100));
-        }else{
-            builder.append(Long.toString(time/100));
+    /**
+     * 引数 time から日付を文字列として取得する
+     * @param time 時間(ミリ秒)
+     */
+    public static String convertDateToString(long time) {
+        if(100000000000000L > time) {
+            throw new RuntimeException("argument isn't appropriate");
         }
-        builder.append(" : 00");
+        time /= 1000000;
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(Long.toString(time / 10000));
+        builder.append("年");
+        time %= 10000;
+        builder.append(Long.toString(time / 100));
+        builder.append("月");
+        time %= 100;
+        builder.append(Long.toString(time));
+        builder.append("日");
         return builder.toString();
+    }
+
+    /**
+     * 引数 time から時刻を文字列として取得する
+     * @param time 時間(ミリ秒)
+     */
+    public static String convertTimeToString(long time) {
+        if(100000000000000L > time) {
+            throw new RuntimeException("argument isn't appropriate");
+        }
+        time = (time % 1000000) / 100;
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(getDoubleDigit(time / 100));
+        time %= 100;
+        builder.append(":").append(getDoubleDigit(time));
+        return builder.toString();
+    }
+
+    /**
+     * 引数 value から 2桁 の数値を表す文字列を取得する
+     * @param value 数値
+     */
+    private static String getDoubleDigit(long value){
+        if(value < 0 || 100 <= value) {
+            throw new RuntimeException("argument isn't appropriate");
+        }
+        if(10 <= value){
+            return Long.toString(value);
+        }else if(0 < value){
+            return "0" + value;
+        }else{
+            return "00";
+        }
     }
 
     //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
