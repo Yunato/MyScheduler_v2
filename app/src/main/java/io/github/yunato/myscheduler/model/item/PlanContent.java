@@ -36,7 +36,7 @@ public class PlanContent {
      * @param time 時間(ミリ秒)
      */
     public static String convertDateToString(long time) {
-        if(100000000000000L > time) {
+        if(10000000000000L > time) {
             throw new RuntimeException("argument isn't appropriate");
         }
         time /= 1000000;
@@ -58,7 +58,7 @@ public class PlanContent {
      * @param time 時間(ミリ秒)
      */
     public static String convertTimeToString(long time) {
-        if(100000000000000L > time) {
+        if(10000000000000L > time) {
             throw new RuntimeException("argument isn't appropriate");
         }
         time = (time % 1000000) / 100;

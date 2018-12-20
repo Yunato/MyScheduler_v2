@@ -24,23 +24,31 @@
             android:layout_height="wrap_content"
             android:background="@drawable/border_top">
 
+            <Space android:layout_width="match_parent"
+                   android:layout_height="5dp"/>
+
             <LinearLayout
+                android:id="@+id/start_time_layout"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="8"/>
 
                 <TextView
                     android:id="@+id/input_text_startDate"
                     android:labelFor="@+id/input_text_startDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:clickable="true"
-                    android:layout_marginTop="5dp"
+                    android:layout_weight="4"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
-                    android:textSize="16sp"
-                    android:foreground="?android:attr/selectableItemBackground"/>
+                    android:textSize="16sp"/>
 
                 <TextView
                     android:id="@+id/input_text_startTime"
@@ -49,7 +57,6 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="8"
                     android:clickable="true"
-                    android:layout_marginTop="5dp"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
                     android:textSize="16sp"
@@ -58,21 +65,28 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/end_time_layout"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:layout_marginTop="5dp"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="8"/>
 
                 <TextView
                     android:id="@+id/input_text_endDate"
                     android:labelFor="@+id/input_text_endDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:clickable="true"
+                    android:layout_weight="4"
                     android:textSize="16sp"
                     android:paddingTop="15dp"
-                    android:paddingBottom="15dp"
-                    android:foreground="?android:attr/selectableItemBackground"/>
+                    android:paddingBottom="15dp"/>
 
                 <TextView
                     android:id="@+id/input_text_endTime"
