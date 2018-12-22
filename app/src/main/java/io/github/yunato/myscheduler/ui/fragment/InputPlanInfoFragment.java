@@ -14,6 +14,7 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.dialog.DatePick;
+import io.github.yunato.myscheduler.ui.dialog.TimePick;
 
 public class InputPlanInfoFragment extends Fragment {
     private static final String ARG_PLAN_ITEM = "PLAN_ITEM";
@@ -87,20 +88,47 @@ public class InputPlanInfoFragment extends Fragment {
             }
         });
 
-        TextView startTimeText = (TextView)view.findViewById(R.id.input_text_startTime);
+        final TextView startTimeText = (TextView)view.findViewById(R.id.input_text_startTime);
         startTimeText.setText(PlanContent.convertTimeToString(itemInfo.getStartMillis()));
         startTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TimePick fragment = TimePick.newInstance();
+                fragment.setOnTimeSetListener(new TimePick.OnTimeSetListener(){
+                    @Override
+                    public void onTimeSet(int hourOfDay, int minute){
+                        StringBuilder minBuilder = new StringBuilder();
+                        if(minute < 10){
+                            minBuilder.append(0);
+                        }
+                        minBuilder.append(minute);
+                        String str = String.format(Locale.JAPAN, "%d:%s", hourOfDay, minBuilder.toString());
+                        startTimeText.setText(str);
+                    }
+                });
+                fragment.show(getActivity().getSupportFragmentManager(), "timePicker");
             }
         });
 
-        TextView endTimeText = (TextView)view.findViewById(R.id.input_text_endTime);
+        final TextView endTimeText = (TextView)view.findViewById(R.id.input_text_endTime);
         endTimeText.setText(PlanContent.convertTimeToString(itemInfo.getEndMillis()));
-        endTimeText.setOnContextClickListener(new View.OnContextClickListener() {
+        endTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onContextClick(View v) {
-                return false;
+            public void onClick(View v) {
+                TimePick fragment = TimePick.newInstance();
+                fragment.setOnTimeSetListener(new TimePick.OnTimeSetListener(){
+                    @Override
+                    public void onTimeSet(int hourOfDay, int minute){
+                        StringBuilder minBuilder = new StringBuilder();
+                        if(minute < 10){
+                            minBuilder.append(0);
+                        }
+                        minBuilder.append(minute);
+                        String str = String.format(Locale.JAPAN, "%d:%s", hourOfDay, minBuilder.toString());
+                        endTimeText.setText(str);
+                    }
+                });
+                fragment.show(getActivity().getSupportFragmentManager(), "timePicker");
             }
         });
     }

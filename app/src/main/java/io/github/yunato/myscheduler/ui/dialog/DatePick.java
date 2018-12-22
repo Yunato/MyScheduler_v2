@@ -41,7 +41,7 @@ public class DatePick extends DialogFragment implements
     }
 
     /**
-     * Activity へのコールバック用
+     * 呼び出し元 Fragment へのコールバック用
      */
     public interface OnDateSetListener {
         void onDateSet(int year, int month, int dayOfMonth);
