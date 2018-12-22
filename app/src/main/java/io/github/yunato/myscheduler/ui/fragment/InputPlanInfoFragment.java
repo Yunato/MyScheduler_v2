@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Locale;
-
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
@@ -61,10 +59,9 @@ public class InputPlanInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DatePick fragment = DatePick.newInstance();
-                fragment.setOnDateSetListener(new DatePick.OnDateSetListener(){
+                fragment.setOnDateSetListener(new DatePick.OnSetTextToUItListener(){
                     @Override
-                    public void onDateSet(int year, int month, int dayOfMonth){
-                        String str = String.format(Locale.JAPAN, "%d年%d月%d日", year, month + 1, dayOfMonth);
+                    public void setTextToUI(String str){
                         startDateTextView.setText(str);
                     }
                 });
@@ -77,10 +74,9 @@ public class InputPlanInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DatePick fragment = DatePick.newInstance();
-                fragment.setOnDateSetListener(new DatePick.OnDateSetListener(){
+                fragment.setOnDateSetListener(new DatePick.OnSetTextToUItListener(){
                     @Override
-                    public void onDateSet(int year, int month, int dayOfMonth){
-                        String str = String.format(Locale.JAPAN, "%d年%d月%d日", year, month + 1, dayOfMonth);
+                    public void setTextToUI(String str){
                         endDateTextView.setText(str);
                     }
                 });
@@ -94,15 +90,9 @@ public class InputPlanInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 TimePick fragment = TimePick.newInstance();
-                fragment.setOnTimeSetListener(new TimePick.OnTimeSetListener(){
+                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener(){
                     @Override
-                    public void onTimeSet(int hourOfDay, int minute){
-                        StringBuilder minBuilder = new StringBuilder();
-                        if(minute < 10){
-                            minBuilder.append(0);
-                        }
-                        minBuilder.append(minute);
-                        String str = String.format(Locale.JAPAN, "%d:%s", hourOfDay, minBuilder.toString());
+                    public void setTextToUI(String str){
                         startTimeText.setText(str);
                     }
                 });
@@ -116,15 +106,9 @@ public class InputPlanInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 TimePick fragment = TimePick.newInstance();
-                fragment.setOnTimeSetListener(new TimePick.OnTimeSetListener(){
+                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener(){
                     @Override
-                    public void onTimeSet(int hourOfDay, int minute){
-                        StringBuilder minBuilder = new StringBuilder();
-                        if(minute < 10){
-                            minBuilder.append(0);
-                        }
-                        minBuilder.append(minute);
-                        String str = String.format(Locale.JAPAN, "%d:%s", hourOfDay, minBuilder.toString());
+                    public void setTextToUI(String str){
                         endTimeText.setText(str);
                     }
                 });

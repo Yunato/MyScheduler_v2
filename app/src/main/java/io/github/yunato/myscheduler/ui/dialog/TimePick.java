@@ -8,10 +8,11 @@ import android.support.v4.app.DialogFragment;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 public class TimePick extends DialogFragment implements
                         TimePickerDialog.OnTimeSetListener{
-    private TimePick.OnTimeSetListener mListener = null;
+    private OnSetTextToUItListener mListener = null;
 
     public TimePick() {}
 
@@ -30,20 +31,28 @@ public class TimePick extends DialogFragment implements
         return new TimePickerDialog(getActivity(), this, hour, minute, true);
     }
 
-    public void setOnTimeSetListener(OnTimeSetListener listener){
+    public void setOnTimeSetListener(OnSetTextToUItListener listener){
         mListener = listener;
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        mListener.onTimeSet(hourOfDay, minute);
+        mListener.setTextToUI(createDateString(hourOfDay, minute));
+    }
+
+    private String createDateString(int hourOfDay, int minute){
+        StringBuilder minBuilder = new StringBuilder();
+        if(minute < 10){
+            minBuilder.append(0);
+        }
+        minBuilder.append(minute);
+        return String.format(Locale.JAPAN, "%d:%s", hourOfDay, minBuilder.toString());
     }
 
     /**
      * 呼び出し元 Fragment へのコールバック用
      */
-    public interface OnTimeSetListener {
-        void onTimeSet(int hourOfDay, int minute);
+    public interface OnSetTextToUItListener {
+        void setTextToUI(String str);
     }
-
 }

@@ -8,10 +8,11 @@ import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 public class DatePick extends DialogFragment implements
                                 DatePickerDialog.OnDateSetListener{
-    private OnDateSetListener mListener = null;
+    private OnSetTextToUItListener mListener = null;
 
     public DatePick() {}
 
@@ -31,19 +32,23 @@ public class DatePick extends DialogFragment implements
         return new DatePickerDialog(getActivity(), this, year, month, day);
     }
 
-    public void setOnDateSetListener(OnDateSetListener listener){
+    public void setOnDateSetListener(OnSetTextToUItListener listener){
         mListener = listener;
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        mListener.onDateSet(year, month, dayOfMonth);
+        mListener.setTextToUI(createDateString(year, month, dayOfMonth));
+    }
+
+    private String createDateString(int year, int month, int dayOfMonth){
+        return String.format(Locale.JAPAN, "%d年%d月%d日", year, month + 1, dayOfMonth);
     }
 
     /**
      * 呼び出し元 Fragment へのコールバック用
      */
-    public interface OnDateSetListener {
-        void onDateSet(int year, int month, int dayOfMonth);
+    public interface OnSetTextToUItListener {
+        void setTextToUI(String str);
     }
 }
