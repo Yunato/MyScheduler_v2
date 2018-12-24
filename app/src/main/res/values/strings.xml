@@ -13,7 +13,13 @@
     <string name="title_activity_edit_plan_info">EditPlanInfoActivity</string>
     <string name="action_settings">Settings</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- InputPlanInfo -->
+    <string name="text_title">Input Title</string>
+    <string name="text_memo">Input Memo</string>
+
+    <!-- Imge -->
+    <string name="image_start_time">image_startTime</string>
+    <string name="image_end_time">image_endTime</string>
+    <string name="image_memo">image_memo</string>
 
 </resources>

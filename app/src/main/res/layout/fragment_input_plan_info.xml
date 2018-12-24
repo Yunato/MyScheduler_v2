@@ -5,14 +5,38 @@
               android:orientation="vertical"
               tools:context="io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment">
 
-    <EditText
-        android:id="@+id/input_text_title"
-        android:labelFor="@+id/input_text_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:textSize="24sp"
-        android:background="#00000000"/>
+        android:orientation="horizontal">
+        <!--
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"
+            android:src="@drawable/outline_event_note_black_24dp"
+            android:scaleType="center"/>
+        -->
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"/>
+
+        <EditText
+            android:id="@+id/input_text_title"
+            android:labelFor="@+id/input_text_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="20dp"
+            android:layout_weight="2"
+            android:textSize="24sp"
+            android:hint="@string/text_title"
+            android:background="#00000000"/>
+
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -35,19 +59,24 @@
                 android:clickable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <Space
+                <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="8"/>
+                    android:layout_height="match_parent"
+                    android:layout_weight="9"
+                    android:src="@drawable/outline_vertical_align_bottom_black_24dp_up"
+                    android:contentDescription="@string/image_start_time"
+                    android:scaleType="center"/>
 
                 <TextView
                     android:id="@+id/input_text_startDate"
                     android:labelFor="@+id/input_text_startDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="0dp"
+                    android:layout_weight="5"
                     android:textSize="16sp"/>
 
                 <TextView
@@ -55,10 +84,13 @@
                     android:labelFor="@+id/input_text_startTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="8"
-                    android:clickable="true"
+                    android:layout_marginStart="10dp"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:layout_weight="8"
+                    android:clickable="true"
                     android:textSize="16sp"
                     android:foreground="?android:attr/selectableItemBackground"/>
 
@@ -69,24 +101,29 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
                 android:layout_marginTop="5dp"
+                android:clickable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <Space
+                <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="8"/>
+                    android:layout_height="match_parent"
+                    android:layout_weight="9"
+                    android:src="@drawable/outline_vertical_align_bottom_black_24dp"
+                    android:contentDescription="@string/image_end_time"
+                    android:scaleType="center"/>
 
                 <TextView
                     android:id="@+id/input_text_endDate"
                     android:labelFor="@+id/input_text_endDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:textSize="16sp"
                     android:paddingTop="15dp"
-                    android:paddingBottom="15dp"/>
+                    android:paddingBottom="15dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="0dp"
+                    android:layout_weight="5"
+                    android:textSize="16sp"/>
 
                 <TextView
                     android:id="@+id/input_text_endTime"
@@ -94,25 +131,48 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="8"
-                    android:clickable="true"
-                    android:textSize="16sp"
+                    android:layout_marginStart="10dp"
                     android:paddingTop="15dp"
                     android:paddingBottom="15dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    android:clickable="true"
+                    android:textSize="16sp"
                     android:foreground="?android:attr/selectableItemBackground"/>
 
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/input_text_description"
-                android:labelFor="@+id/input_text_description"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:paddingTop="15dp"
-                android:paddingBottom="15dp"
-                android:layout_marginBottom="5dp"
-                android:textSize="16sp"
-                android:background="@drawable/border_top"/>
+                android:orientation="horizontal"
+                android:background="@drawable/border_top">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="9"
+                    android:src="@drawable/outline_notes_black_24dp"
+                    android:contentDescription="@string/image_memo"
+                    android:scaleType="center"/>
+
+                <EditText
+                    android:id="@+id/input_text_description"
+                    android:labelFor="@+id/input_text_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:paddingTop="15dp"
+                    android:paddingBottom="15dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_weight="2"
+                    android:textSize="16sp"
+                    android:hint="@string/text_memo"
+                    android:background="#00000000"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
