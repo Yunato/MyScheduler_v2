@@ -24,20 +24,13 @@ public class PlanContent {
         //ITEM_MAP.put(item.calendarId, item);
     }
 
-    public static PlanItem createPlanItem() {
-        Calendar date = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
-        long time = Long.parseLong(sdf.format(date.getTime()));
-        return new PlanItem("noNumber", "", "", time, time);
-    }
-
     /**
      * 引数 time から日付を文字列として取得する
      * @param time 時間(ミリ秒)
      */
     public static String convertDateToString(long time) {
         if(10000000000000L > time) {
-            throw new RuntimeException("argument isn't appropriate");
+            throw new RuntimeException("argument isn't appropriate   # PlanContent::40");
         }
         time /= 1000000;
 
@@ -59,7 +52,7 @@ public class PlanContent {
      */
     public static String convertTimeToString(long time) {
         if(10000000000000L > time) {
-            throw new RuntimeException("argument isn't appropriate");
+            throw new RuntimeException("argument isn't appropriate   # PlanContent::62");
         }
         time = (time % 1000000) / 100;
 
@@ -87,13 +80,24 @@ public class PlanContent {
         }
     }
 
+    public static PlanItem createPlanItem() {
+        Calendar date = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
+        long time = Long.parseLong(sdf.format(date.getTime()));
+        return new PlanItem("noNumber", "", "", time, time);
+    }
+
     //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
     //TODO: このクラスを通さないと PlanItem のインスタンスを作成できない
     private static PlanItem createPlanItem(int index) {
-        return new PlanItem(Integer.toString(index),
-                "予定名", "予定の内容", index * 100, (index + 1) * 100);
+        Calendar date = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.JAPAN);
+        String startTime, endTime;
+        startTime = sdf.format(date.getTime()) + getDoubleDigit(index) + "0000";
+        endTime = sdf.format(date.getTime()) + getDoubleDigit(index + 1) + "0000";
+        return new PlanItem(Integer.toString(index), "予定名", "予定の内容"
+                                    , Long.parseLong(startTime), Long.parseLong(endTime));
     }
-
 
     public static class PlanItem implements Serializable{
         private final String planId;

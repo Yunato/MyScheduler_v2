@@ -44,9 +44,10 @@ public class EditPlanInfoActivity extends AppCompatActivity {
             }
 
             Intent intent = getIntent();
+            //TODO:識別子の変更
             PlanItem item = (PlanItem)intent.getSerializableExtra("TEST");
             if(item != null){
-                setShowPlanFragment(item);
+                setShowPlanInfoFragment(item);
             }else{
                 setInputPlanInfoFragment();
             }
@@ -54,7 +55,7 @@ public class EditPlanInfoActivity extends AppCompatActivity {
     }
 
     //TODO: FloatingActionButton を表示できるように ShowPlanFragment と AddPlanFragment の遷移はスタックに積まない方がよい
-    public void setShowPlanFragment(PlanItem item){
+    public void setShowPlanInfoFragment(PlanItem item){
         fab.show();
         Fragment fragment = ShowPlanFragment.newInstance(item);
         getSupportFragmentManager().beginTransaction()

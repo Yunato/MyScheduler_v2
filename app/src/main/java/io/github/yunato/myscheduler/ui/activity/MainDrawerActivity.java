@@ -138,6 +138,7 @@ public class MainDrawerActivity extends AppCompatActivity
         ActivityOptionsCompat compat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, view.getTransitionName());
         Intent intent = new Intent(this, EditPlanInfoActivity.class);
+        //TODO:識別子の変更
         intent.putExtra("TEST", item);
         startActivity(intent, compat.toBundle());
     }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.item.PlanContent;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnListFragmentInteractionListener;
 
@@ -37,8 +38,8 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(holder.mItem.getPlanId());
-        holder.mContentView.setText(holder.mItem.getTitle());
+        holder.mStatTimeView.setText(PlanContent.convertTimeToString(holder.mItem.getStartMillis()));
+        holder.mTitleView.setText(holder.mItem.getTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,16 +59,16 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     class ViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
         private final LinearLayout mLayout;
-        private final TextView mIdView;
-        private final TextView mContentView;
+        private final TextView mStatTimeView;
+        private final TextView mTitleView;
         private PlanItem mItem;
 
         private ViewHolder(View view) {
             super(view);
             mView = view;
             mLayout = (LinearLayout) view.findViewById(R.id.layout);
-            mIdView = (TextView) view.findViewById(R.id.time);
-            mContentView = (TextView) view.findViewById(R.id.plan_title);
+            mStatTimeView = (TextView) view.findViewById(R.id.time);
+            mTitleView = (TextView) view.findViewById(R.id.plan_title);
         }
 
         private LinearLayout getmLayout() {
