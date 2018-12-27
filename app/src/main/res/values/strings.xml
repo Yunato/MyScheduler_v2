@@ -22,4 +22,7 @@
     <string name="image_end_time">image_endTime</string>
     <string name="image_memo">image_memo</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

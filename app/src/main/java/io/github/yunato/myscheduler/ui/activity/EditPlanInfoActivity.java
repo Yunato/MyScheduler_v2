@@ -13,9 +13,11 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment;
+import io.github.yunato.myscheduler.ui.fragment.SaveAppBarFragment;
 import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
-public class EditPlanInfoActivity extends AppCompatActivity {
+public class EditPlanInfoActivity extends AppCompatActivity
+                    implements SaveAppBarFragment.OnSaveAppBarFragmentListener {
     /** FloatingActionButton */
     private FloatingActionButton fab;
 
@@ -64,9 +66,13 @@ public class EditPlanInfoActivity extends AppCompatActivity {
 
     public void setInputPlanInfoFragment(){
         fab.hide();
-        Fragment fragment = InputPlanInfoFragment.newInstance(PlanContent.createPlanItem());
+        Fragment containerFragment = InputPlanInfoFragment.newInstance(PlanContent.createPlanItem());
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
+                .replace(R.id.fragment_container, containerFragment)
+                .addToBackStack(null).commit();
+        Fragment appBarFragment = SaveAppBarFragment.newInstance();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_app_bar, appBarFragment)
                 .addToBackStack(null).commit();
     }
 
@@ -78,4 +84,7 @@ public class EditPlanInfoActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onClickSaveButton() {}
 }

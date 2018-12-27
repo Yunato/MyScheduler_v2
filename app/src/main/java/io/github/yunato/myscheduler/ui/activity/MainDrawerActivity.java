@@ -38,7 +38,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-                    DayFragment.OnListFragmentInteractionListener{
+        DayFragment.OnDayFragmentListener {
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
 

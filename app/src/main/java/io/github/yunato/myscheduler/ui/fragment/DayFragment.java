@@ -20,7 +20,7 @@ import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
 public class DayFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener = null;
+    private OnDayFragmentListener mListener = null;
 
     /**
      * コンストラクタ
@@ -71,8 +71,8 @@ public class DayFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnDayFragmentListener) {
+            mListener = (OnDayFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -89,7 +89,7 @@ public class DayFragment extends Fragment {
     /**
      * Activity へのコールバック用
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnDayFragmentListener {
         void onListFragmentInteraction(PlanItem item, View view);
     }
 }
