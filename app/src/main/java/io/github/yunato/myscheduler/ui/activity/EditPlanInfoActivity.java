@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -18,6 +19,10 @@ import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
 public class EditPlanInfoActivity extends AppCompatActivity
                     implements SaveAppBarFragment.OnSaveAppBarFragmentListener {
+    static private String STATUS_SHOW = "STATUS_SHOW";
+    static private String STATUS_EDIT = "STATUS_EDIT";
+    private String status;
+
     /** FloatingActionButton */
     private FloatingActionButton fab;
 
@@ -28,7 +33,7 @@ public class EditPlanInfoActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if(this.getSupportActionBar() != null){
-            this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.outline_close_black_24dp);
+            this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.outline_close_black_48dp);
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
@@ -49,8 +54,10 @@ public class EditPlanInfoActivity extends AppCompatActivity
             //TODO:識別子の変更
             PlanItem item = (PlanItem)intent.getSerializableExtra("TEST");
             if(item != null){
+                status = STATUS_SHOW;
                 setShowPlanInfoFragment(item);
             }else{
+                status = STATUS_EDIT;
                 setInputPlanInfoFragment();
             }
         }
@@ -77,10 +84,20 @@ public class EditPlanInfoActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(status.equals(STATUS_SHOW)){
+            getMenuInflater().inflate(R.menu.menu_edit_plan_info, menu);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == android.R.id.home){
             finish();
+        }else if(id == R.id.action_edit){
+            setInputPlanInfoFragment();
         }
         return super.onOptionsItemSelected(item);
     }

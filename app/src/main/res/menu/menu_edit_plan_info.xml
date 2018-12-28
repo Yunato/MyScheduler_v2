@@ -3,8 +3,8 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="io.github.yunato.myscheduler.ui.activity.EditPlanInfoActivity">
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:icon="@drawable/outline_close_white_24dp"
+        android:id="@+id/action_edit"
+        android:title="@string/action_edit"
+        android:icon="@drawable/outline_create_black_48dp"
         app:showAsAction="always"/>
 </menu>
