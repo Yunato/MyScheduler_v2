@@ -33,7 +33,7 @@ public class EditPlanInfoActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if(this.getSupportActionBar() != null){
-            this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.outline_close_black_48dp);
+            this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_outline_close_24px);
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 

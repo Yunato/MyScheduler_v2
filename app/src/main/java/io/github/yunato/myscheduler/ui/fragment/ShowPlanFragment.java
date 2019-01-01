@@ -44,9 +44,11 @@ public class ShowPlanFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ((TextView)view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
         ((TextView)view.findViewById(R.id.text_startMillis))
-                .setText(PlanContent.convertDateToString(itemInfo.getStartMillis()));
+                .setText(PlanContent.convertDateToString(itemInfo.getStartMillis())
+                            + "\n" + PlanContent.convertTimeToString(itemInfo.getStartMillis()));
         ((TextView)view.findViewById(R.id.text_endMillis))
-                .setText(PlanContent.convertDateToString(itemInfo.getEndMillis()));
+                .setText(PlanContent.convertDateToString(itemInfo.getEndMillis())
+                            + "\n" + PlanContent.convertTimeToString(itemInfo.getEndMillis()));
         ((TextView)view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
     }
 }

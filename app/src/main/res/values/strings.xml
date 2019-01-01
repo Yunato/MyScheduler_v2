@@ -15,6 +15,9 @@
     <string name="text_title">Input Title</string>
     <string name="text_memo">Input Memo</string>
 
+    <!-- ShowPlanInfo -->
+    <string name="text_hyphen"> - </string>
+
     <!-- Imge -->
     <string name="image_start_time">image_startTime</string>
     <string name="image_end_time">image_endTime</string>
