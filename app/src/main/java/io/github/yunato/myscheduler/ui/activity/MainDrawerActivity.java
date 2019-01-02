@@ -1,9 +1,14 @@
 package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
+import android.accounts.AccountManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -24,6 +29,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
@@ -34,16 +41,15 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        DayFragment.OnDayFragmentListener {
+                    DayFragment.OnDayFragmentListener{
     /** 要求コード  */
     private static final int REQUEST_WRITE_STORAGE = 1;
-
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
 
     // UI情報の保持はsetArguments()
     // データやインプット状況の保持はonSavedInstanceState()
@@ -156,6 +162,123 @@ public class MainDrawerActivity extends AppCompatActivity
             if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED){
                 finish();
             }
+        }
+    }
+
+
+    GoogleAccountCredential mCredential;
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
+    static final int REQUEST_ACCOUNT_PICKER = 1000;
+    static final int REQUEST_AUTHORIZATION = 1001;
+    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
+    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+
+    // Google Calendar API の呼び出し事前確認
+    private void getResultsFromApi() {
+        if (!isGooglePlayServicesAvailable()) {
+            acquireGooglePlayServices();
+        }
+        else if (mCredential.getSelectedAccountName() == null) {
+            chooseAccount();
+        }
+        /*
+        else {
+            new MakeRequestTask(mCredential).execute();
+        }*/
+    }
+
+    // Google Play Services のインストール, アップデート有無
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability apiAvailability =
+                GoogleApiAvailability.getInstance();
+        final int connectionStatusCode =
+                apiAvailability.isGooglePlayServicesAvailable(this);
+        return connectionStatusCode == ConnectionResult.SUCCESS;
+    }
+
+    // Google Play Services を利用可能な状態へ
+    private void acquireGooglePlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
+            showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
+        }
+    }
+
+    // エラー通告
+    void showGooglePlayServicesAvailabilityErrorDialog(
+            final int connectionStatusCode) {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        Dialog dialog =apiAvailability.getErrorDialog(
+                MainDrawerActivity.this,
+                connectionStatusCode,
+                REQUEST_GOOGLE_PLAY_SERVICES
+        );
+        dialog.show();
+    }
+
+    // Google アカウント設定
+    @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
+    private void chooseAccount() {
+        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
+            String accountName = getPreferences(Context.MODE_PRIVATE)
+                    .getString(PREF_ACCOUNT_NAME, null);
+            if (accountName != null) {
+                mCredential.setSelectedAccountName(accountName);
+                getResultsFromApi();
+            } else {
+                startActivityForResult(
+                        mCredential.newChooseAccountIntent(),
+                        REQUEST_ACCOUNT_PICKER);
+            }
+        }
+        else {
+            EasyPermissions.requestPermissions(
+                    this,
+                    "This app needs to access your Google account (via Contacts).",
+                    REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
+        }
+    }
+
+    // ネットに接続できるか
+    private boolean isDeviceOnline() {
+        ConnectivityManager connMgr =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode == RESULT_OK) {
+                    getResultsFromApi();
+                }
+                break;
+
+            case REQUEST_ACCOUNT_PICKER:
+                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
+                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    if (accountName != null) {
+                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.apply();
+                        mCredential.setSelectedAccountName(accountName);
+                        getResultsFromApi();
+                    }
+                }
+                break;
+
+            case REQUEST_AUTHORIZATION:
+                if (resultCode == RESULT_OK) {
+                    getResultsFromApi();
+                }
+                break;
         }
     }
 }
