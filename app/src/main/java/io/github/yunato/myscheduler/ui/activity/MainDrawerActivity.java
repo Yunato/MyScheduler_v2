@@ -49,7 +49,7 @@ public class MainDrawerActivity extends AppCompatActivity
                     DayFragment.OnDayFragmentListener,
                     EasyPermissions.PermissionCallbacks{
     /** 要求コード  */
-    private static final int REQUEST_WRITE_STORAGE = 1;
+    private static final int REQUEST_PERMISSION_WRITE_STORAGE = 1;
     private static final int REQUEST_ACCOUNT_PICKER = 1000;
     private static final int REQUEST_AUTHORIZATION = 1001;
     private static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
@@ -83,7 +83,7 @@ public class MainDrawerActivity extends AppCompatActivity
     private void checkPermission(){
         boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
         if(!hasPermission){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE_STORAGE);
         }
     }
 
@@ -154,8 +154,7 @@ public class MainDrawerActivity extends AppCompatActivity
                         mCredential.newChooseAccountIntent(),
                         REQUEST_ACCOUNT_PICKER);
             }
-        }
-        else {
+        } else {
             EasyPermissions.requestPermissions(
                     this,
                     "This app needs to access your Google account (via Contacts).",
@@ -244,10 +243,13 @@ public class MainDrawerActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == REQUEST_WRITE_STORAGE){
+        if(requestCode == REQUEST_PERMISSION_WRITE_STORAGE){
             if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED){
                 finish();
             }
+            getResultsFromApi();
+        }else if(requestCode == REQUEST_PERMISSION_GET_ACCOUNTS){
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
         }
     }
 
@@ -288,5 +290,4 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {}
-
 }
