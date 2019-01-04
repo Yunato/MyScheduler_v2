@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -29,10 +30,19 @@ import android.view.Window;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Calendar;
+import com.google.api.services.calendar.model.CalendarListEntry;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,11 +106,9 @@ public class MainDrawerActivity extends AppCompatActivity
         }
         else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        }
-        /*
-        else {
+        } else {
             new MakeRequestTask(mCredential).execute();
-        }*/
+        }
     }
 
     /**
@@ -290,4 +298,68 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {}
+
+    private class MakeRequestTask extends AsyncTask<Void, Void, String>{
+        private com.google.api.services.calendar.Calendar mService = null;
+        private Exception mLastError = null;
+
+        private MakeRequestTask(GoogleAccountCredential credential){
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar
+                    .Builder(transport, jsonFactory, credential)
+                    .setApplicationName("MyScheduler")
+                    .build();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                return createCalendar();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+        }
+
+        private String createCalendar() throws IOException {
+            com.google.api.services.calendar.model.Calendar calendar = new Calendar();
+            calendar.setSummary("MyScheduler");
+            calendar.setTimeZone("Asia/Tokyo");
+
+            Calendar createdCalendar = mService.calendars().insert(calendar).execute();
+            String calendarId = createdCalendar.getId();
+
+            CalendarListEntry calendarListEntry = mService.calendarList().get(calendarId).execute();
+
+            calendarListEntry.setBackgroundColor("#00ff00");
+            return calendarId;
+        }
+
+        @Override
+        protected void onCancelled() {
+            if (mLastError != null) {
+                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+                    showGooglePlayServicesAvailabilityErrorDialog(
+                            ((GooglePlayServicesAvailabilityIOException) mLastError)
+                                    .getConnectionStatusCode());
+                } else if (mLastError instanceof UserRecoverableAuthIOException) {
+                    startActivityForResult(
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+                            MainDrawerActivity.REQUEST_AUTHORIZATION);
+                }
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+    }
 }
