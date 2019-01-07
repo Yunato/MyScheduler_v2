@@ -40,7 +40,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Calendar;
-import com.google.api.services.calendar.model.CalendarListEntry;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -69,6 +68,10 @@ public class MainDrawerActivity extends AppCompatActivity
     GoogleAccountCredential mCredential;
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
     private static final String PREF_ACCOUNT_NAME = "accountName";
+
+    /** 識別子 **/
+    private static final String IDENTIFIER_PREF = "MY_PREFERENCE";
+    private static final String IDENTIFIER_ID = "CALENDAR_ID";
     // UI情報の保持はsetArguments()
     // データやインプット状況の保持はonSavedInstanceState()
 
@@ -324,16 +327,35 @@ public class MainDrawerActivity extends AppCompatActivity
         }
 
         private String createCalendar() throws IOException {
-            com.google.api.services.calendar.model.Calendar calendar = new Calendar();
-            calendar.setSummary("MyScheduler");
-            calendar.setTimeZone("Asia/Tokyo");
+            SharedPreferences pref = getSharedPreferences(IDENTIFIER_PREF, MODE_PRIVATE);
+            String calendarId = pref.getString(IDENTIFIER_ID, null);
 
-            Calendar createdCalendar = mService.calendars().insert(calendar).execute();
-            String calendarId = createdCalendar.getId();
+            if(calendarId == null) {
+                com.google.api.services.calendar.model.Calendar calendar = new Calendar();
+                calendar.setSummary("MyScheduler");
+                calendar.setTimeZone("Asia/Tokyo");
 
-            CalendarListEntry calendarListEntry = mService.calendarList().get(calendarId).execute();
+                Calendar createdCalendar = mService.calendars().insert(calendar).execute();
+                calendarId = createdCalendar.getId();
 
-            calendarListEntry.setBackgroundColor("#00ff00");
+                SharedPreferences.Editor e = pref.edit();
+                e.putString(IDENTIFIER_ID, calendarId);
+                e.apply();
+            }
+
+            /* Read
+            String pageToken = null;
+            do {
+                Events events = mService.events().list(calendarId).setPageToken(pageToken).execute();
+
+                List<Event> items = events.getItems();
+                for (Event event: items){
+                    Log.d("TEST", event.getSummary());
+                }
+                pageToken = events.getNextPageToken();
+            }while(pageToken != null);
+            */
+
             return calendarId;
         }
 
