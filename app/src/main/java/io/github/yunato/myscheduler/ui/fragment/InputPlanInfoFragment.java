@@ -10,8 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanContent;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 import io.github.yunato.myscheduler.ui.dialog.DatePick;
 import io.github.yunato.myscheduler.ui.dialog.TimePick;
 
@@ -49,9 +49,9 @@ public class InputPlanInfoFragment extends Fragment {
         ((TextView)view.findViewById(R.id.input_text_title)).setText(itemInfo.getTitle());
 
         final TextView startDateTextView = (TextView)view.findViewById(R.id.input_text_startDate);
-        startDateTextView.setText(PlanContent.convertDateToString(itemInfo.getStartMillis()));
+        startDateTextView.setText(PlanInfo.convertDateToString(itemInfo.getStartMillis()));
         final TextView endDateTextView = (TextView)view.findViewById(R.id.input_text_endDate);
-        endDateTextView.setText(PlanContent.convertDateToString(itemInfo.getEndMillis()));
+        endDateTextView.setText(PlanInfo.convertDateToString(itemInfo.getEndMillis()));
         ((TextView)view.findViewById(R.id.input_text_description))
                 .setText(itemInfo.getDescription());
 
@@ -86,7 +86,7 @@ public class InputPlanInfoFragment extends Fragment {
         });
 
         final TextView startTimeText = (TextView)view.findViewById(R.id.input_text_startTime);
-        startTimeText.setText(PlanContent.convertTimeToString(itemInfo.getStartMillis()));
+        startTimeText.setText(PlanInfo.convertTimeToString(itemInfo.getStartMillis()));
         startTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,7 +102,7 @@ public class InputPlanInfoFragment extends Fragment {
         });
 
         final TextView endTimeText = (TextView)view.findViewById(R.id.input_text_endTime);
-        endTimeText.setText(PlanContent.convertTimeToString(itemInfo.getEndMillis()));
+        endTimeText.setText(PlanInfo.convertTimeToString(itemInfo.getEndMillis()));
         endTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

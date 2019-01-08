@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanContent;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 
 public class ShowPlanFragment extends Fragment {
     private static final String ARG_PARAM_ITEM = "PLAN_ITEM";
@@ -44,11 +44,11 @@ public class ShowPlanFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ((TextView)view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
         ((TextView)view.findViewById(R.id.text_startMillis))
-                .setText(PlanContent.convertDateToString(itemInfo.getStartMillis())
-                            + "\n" + PlanContent.convertTimeToString(itemInfo.getStartMillis()));
+                .setText(PlanInfo.convertDateToString(itemInfo.getStartMillis())
+                            + "\n" + PlanInfo.convertTimeToString(itemInfo.getStartMillis()));
         ((TextView)view.findViewById(R.id.text_endMillis))
-                .setText(PlanContent.convertDateToString(itemInfo.getEndMillis())
-                            + "\n" + PlanContent.convertTimeToString(itemInfo.getEndMillis()));
+                .setText(PlanInfo.convertDateToString(itemInfo.getEndMillis())
+                            + "\n" + PlanInfo.convertTimeToString(itemInfo.getEndMillis()));
         ((TextView)view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
     }
 }

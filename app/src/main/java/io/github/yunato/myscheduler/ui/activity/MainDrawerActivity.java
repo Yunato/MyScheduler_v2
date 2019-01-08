@@ -30,23 +30,20 @@ import android.view.Window;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Calendar;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.model.dao.DaoFactory;
+import io.github.yunato.myscheduler.model.dao.PlanInfoCalendarDao;
+import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -303,16 +300,11 @@ public class MainDrawerActivity extends AppCompatActivity
     public void onPermissionsDenied(int requestCode, List<String> perms) {}
 
     private class MakeRequestTask extends AsyncTask<Void, Void, String>{
-        private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
+        private PlanInfoCalendarDao dao = null;
 
         private MakeRequestTask(GoogleAccountCredential credential){
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.calendar.Calendar
-                    .Builder(transport, jsonFactory, credential)
-                    .setApplicationName("MyScheduler")
-                    .build();
+            dao = DaoFactory.getPlanInfoDao(credential);
         }
 
         @Override
@@ -330,32 +322,12 @@ public class MainDrawerActivity extends AppCompatActivity
             SharedPreferences pref = getSharedPreferences(IDENTIFIER_PREF, MODE_PRIVATE);
             String calendarId = pref.getString(IDENTIFIER_ID, null);
 
-            if(calendarId == null) {
-                com.google.api.services.calendar.model.Calendar calendar = new Calendar();
-                calendar.setSummary("MyScheduler");
-                calendar.setTimeZone("Asia/Tokyo");
-
-                Calendar createdCalendar = mService.calendars().insert(calendar).execute();
-                calendarId = createdCalendar.getId();
-
+            if(calendarId == null){
+                calendarId = dao.createCalendar();
                 SharedPreferences.Editor e = pref.edit();
                 e.putString(IDENTIFIER_ID, calendarId);
                 e.apply();
             }
-
-            /* Read
-            String pageToken = null;
-            do {
-                Events events = mService.events().list(calendarId).setPageToken(pageToken).execute();
-
-                List<Event> items = events.getItems();
-                for (Event event: items){
-                    Log.d("TEST", event.getSummary());
-                }
-                pageToken = events.getNextPageToken();
-            }while(pageToken != null);
-            */
-
             return calendarId;
         }
 

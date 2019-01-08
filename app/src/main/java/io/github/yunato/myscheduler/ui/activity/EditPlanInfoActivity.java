@@ -11,8 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanContent;
-import io.github.yunato.myscheduler.model.item.PlanContent.PlanItem;
+import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.InputPlanInfoFragment;
 import io.github.yunato.myscheduler.ui.fragment.SaveAppBarFragment;
 import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
@@ -73,13 +73,15 @@ public class EditPlanInfoActivity extends AppCompatActivity
 
     public void setInputPlanInfoFragment(){
         fab.hide();
-        Fragment containerFragment = InputPlanInfoFragment.newInstance(PlanContent.createPlanItem());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, containerFragment)
-                .addToBackStack(null).commit();
+        // TODO: toolbar を fragment に持たせる
+        setSupportActionBar(null);
         Fragment appBarFragment = SaveAppBarFragment.newInstance();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_app_bar, appBarFragment)
+                .addToBackStack(null).commit();
+        Fragment containerFragment = InputPlanInfoFragment.newInstance(PlanInfo.createPlanItem());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, containerFragment)
                 .addToBackStack(null).commit();
     }
 

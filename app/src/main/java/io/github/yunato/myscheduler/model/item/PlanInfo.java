@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class PlanContent {
+public class PlanInfo {
     public static final List<PlanItem> ITEMS = new ArrayList<>();
     //private static final Map<String, PlanItem> ITEM_MAP = new HashMap<>();
 
