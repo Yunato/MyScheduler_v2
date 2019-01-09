@@ -15,6 +15,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        
         <activity
             android:name=".ui.activity.MainDrawerActivity"
             android:label="@string/app_name"
@@ -34,6 +35,11 @@
             android:name=".ui.activity.EditPlanInfoActivity"
             android:label="@string/title_activity_edit_plan_info"
             android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity android:name=".ui.activity.ShowPlanInfoActivity"
+                  android:label="@string/title_activity_show_plan_info"
+                  android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

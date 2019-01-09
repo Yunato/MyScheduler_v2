@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="io.github.yunato.myscheduler.ui.activity.EditPlanInfoActivity">
+    tools:context="io.github.yunato.myscheduler.ui.activity.ShowPlanInfoActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -26,19 +26,13 @@
             app:popupTheme="@style/AppTheme.PopupOverlay">
             <!-- android:background="?attr/colorPrimary" -->
 
-            <LinearLayout
+            <FrameLayout
+                android:id="@+id/fragment_app_bar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
-                    android:text="Save"
-                    tools:ignore="HardcodedText"/>
-
-            </LinearLayout>
+                android:layout_height="match_parent"
+                android:transitionName="PlanInfo"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            </FrameLayout>
 
         </android.support.v7.widget.Toolbar>
 

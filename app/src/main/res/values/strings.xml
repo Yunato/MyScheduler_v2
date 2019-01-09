@@ -24,6 +24,7 @@
     <string name="image_memo">image_memo</string>
 
     <string name="title_activity_edit_plan_info">EditPlanInfoActivity</string>
+    <string name="title_activity_show_plan_info">ShowPlanInfoActivity</string>
     <string name="action_edit">Edit</string>
 
 </resources>
