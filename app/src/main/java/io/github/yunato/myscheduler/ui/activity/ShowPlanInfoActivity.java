@@ -56,6 +56,7 @@ public class ShowPlanInfoActivity extends AppCompatActivity {
             finish();
         }else if(id == R.id.action_edit){
             startActivity(new Intent(getApplicationContext(), EditPlanInfoActivity.class));
+            overridePendingTransition(0, 0);
         }
         return super.onOptionsItemSelected(item);
     }
