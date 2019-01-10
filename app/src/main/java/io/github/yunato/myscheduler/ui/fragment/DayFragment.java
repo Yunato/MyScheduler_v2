@@ -90,6 +90,6 @@ public class DayFragment extends Fragment {
      * Activity へのコールバック用
      */
     public interface OnDayFragmentListener {
-        void onListFragmentInteraction(PlanItem item, View view);
+        void onDayFragmentInteraction(PlanItem item, View view);
     }
 }

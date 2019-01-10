@@ -2,12 +2,10 @@ package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -28,21 +26,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.CalendarScopes;
-
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.dao.DaoFactory;
-import io.github.yunato.myscheduler.model.dao.PlanInfoCalendarDao;
+import io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential;
 import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -50,125 +37,42 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
+import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
+import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
+
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                     DayFragment.OnDayFragmentListener,
                     EasyPermissions.PermissionCallbacks{
     /** 要求コード  */
     private static final int REQUEST_PERMISSION_WRITE_STORAGE = 1;
-    private static final int REQUEST_ACCOUNT_PICKER = 1000;
-    private static final int REQUEST_AUTHORIZATION = 1001;
-    private static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    private static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    /** Google API **/
-    GoogleAccountCredential mCredential;
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR};
-    private static final String PREF_ACCOUNT_NAME = "accountName";
+    /** 状態変数 */
+    private int state;
+    private static final int STATE_TODAY = 0;
+    private static final int STATE_CALENDAR = 1;
 
     /** 識別子 **/
-    private static final String IDENTIFIER_PREF = "MY_PREFERENCE";
-    private static final String IDENTIFIER_ID = "CALENDAR_ID";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+
+    // TODO: 「同期」ボタンをタップしたときに null チェックの必要あり
+    MyGoogleAccountCredential mCredential;
     // UI情報の保持はsetArguments()
     // データやインプット状況の保持はonSavedInstanceState()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         getWindow().setExitTransition(new Explode());
-
         setContentView(R.layout.activity_main_drawer);
+
         setupUIElements();
 
-        mCredential = GoogleAccountCredential.usingOAuth2(getApplicationContext(), Arrays.asList(SCOPES)).setBackOff(new ExponentialBackOff());
+        mCredential = MyGoogleAccountCredential.newMyGoogleAccountCredential(
+                                                        this.getApplicationContext());
         checkPermission();
-        getResultsFromApi();
-    }
-
-    /**
-     *  ユーザがアプリケーションに権限を付与しているか確認する
-     */
-    private void checkPermission(){
-        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-        if(!hasPermission){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE_STORAGE);
-        }
-    }
-
-    /**
-     *  Google Calendar API を呼び出せるか確認する
-     */
-    private void getResultsFromApi() {
-        if (!isGooglePlayServicesAvailable()) {
-            acquireGooglePlayServices();
-        }
-        else if (mCredential.getSelectedAccountName() == null) {
-            chooseAccount();
-        } else {
-            new MakeRequestTask(mCredential).execute();
-        }
-    }
-
-    /**
-     *  Google Play Services のインストールまたはアップデートの有無を確認する
-     *  @return インストール済みかつアップデート済みであればtrue, それ以外はfalse
-     */
-    private boolean isGooglePlayServicesAvailable() {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
-        return connectionStatusCode == ConnectionResult.SUCCESS;
-    }
-
-    /**
-     *  Google Play Services を利用可能な状態へする
-     */
-    private void acquireGooglePlayServices() {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(this);
-        if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
-            showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
-        }
-    }
-
-    /**
-     *  Google Play Services が利用できないことをダイアログで知らせる
-     *  @param connectionStatusCode Google Play Service の利用可能状態を示すコード
-     */
-    void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        Dialog dialog = apiAvailability.getErrorDialog(
-                MainDrawerActivity.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES
-        );
-        dialog.show();
-    }
-
-    /**
-     * Google アカウントの設定を行う
-     */
-    @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
-    private void chooseAccount() {
-        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
-            if (accountName != null) {
-                mCredential.setSelectedAccountName(accountName);
-                getResultsFromApi();
-            } else {
-                startActivityForResult(
-                        mCredential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
-            }
-        } else {
-            EasyPermissions.requestPermissions(
-                    this,
-                    "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
-        }
+        //getResultsFromApi();
     }
 
     /**
@@ -197,8 +101,44 @@ public class MainDrawerActivity extends AppCompatActivity
         switchUserInterface(R.id.top_calendar);
     }
 
+    /**
+     *  ユーザがアプリケーションに権限を付与しているか確認する
+     */
+    private void checkPermission(){
+        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if(!hasPermission){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE_STORAGE);
+        }
+    }
+
+    /**
+     * Google アカウントの設定を行う
+     */
+    @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
+    private void chooseAccount(){
+        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
+            String accountName =
+                    getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
+            if (accountName != null) {
+                mCredential.setAccountName(accountName);
+            } else {
+                this.startActivityForResult(
+                        mCredential.getChooseAccountIntent(),
+                        REQUEST_ACCOUNT_PICKER);
+            }
+        } else {
+            EasyPermissions.requestPermissions(
+                    this,
+                    "このアプリはあなたの Google アカウントにアクセスする必要があります.",
+                    REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
+        }
+    }
+
     public void onFragmentAttached(int resourceId){
-        setTitle(getString(resourceId));
+        if(STATE_TODAY == state){
+            setTitle(getString(resourceId));
+        }
     }
 
     @Override
@@ -219,9 +159,11 @@ public class MainDrawerActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.top_calendar:
+                state = STATE_CALENDAR;
                 fragment = CalendarFragment.newInstance();
                 break;
             case R.id.top_today:
+                state = STATE_TODAY;
                 fragment = DayFragment.newInstance(1);
                 break;
             default:
@@ -234,9 +176,12 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(PlanItem item, View view){
+    public void onDayFragmentInteraction(PlanItem item, View view){
         ActivityOptionsCompat compat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, view.getTransitionName());
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                                            this,
+                                                            view,
+                                                            view.getTransitionName());
         Intent intent = new Intent(this, ShowPlanInfoActivity.class);
         //TODO:識別子の変更
         intent.putExtra("TEST", item);
@@ -256,7 +201,7 @@ public class MainDrawerActivity extends AppCompatActivity
             if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED){
                 finish();
             }
-            getResultsFromApi();
+            chooseAccount();
         }else if(requestCode == REQUEST_PERMISSION_GET_ACCOUNTS){
             EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
         }
@@ -266,9 +211,10 @@ public class MainDrawerActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_GOOGLE_PLAY_SERVICES:
+            case MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode == RESULT_OK) {
-                    getResultsFromApi();
+                    // TODO: コメントアウトを解除する
+                    // getResultsFromApi();
                 }
                 break;
 
@@ -280,15 +226,14 @@ public class MainDrawerActivity extends AppCompatActivity
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
-                        mCredential.setSelectedAccountName(accountName);
-                        getResultsFromApi();
+                        mCredential.setAccountName(accountName);
                     }
                 }
                 break;
 
-            case REQUEST_AUTHORIZATION:
+            case MyGoogleAccountCredential.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
-                    getResultsFromApi();
+                    // getResultsFromApi();
                 }
                 break;
         }
@@ -299,62 +244,4 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {}
-
-    private class MakeRequestTask extends AsyncTask<Void, Void, String>{
-        private Exception mLastError = null;
-        private PlanInfoCalendarDao dao = null;
-
-        private MakeRequestTask(GoogleAccountCredential credential){
-            dao = DaoFactory.getPlanInfoDao(credential);
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            try {
-                return createCalendar();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        private String createCalendar() throws IOException {
-            SharedPreferences pref = getSharedPreferences(IDENTIFIER_PREF, MODE_PRIVATE);
-            String calendarId = pref.getString(IDENTIFIER_ID, null);
-
-            if(calendarId == null){
-                calendarId = dao.createCalendar();
-                SharedPreferences.Editor e = pref.edit();
-                e.putString(IDENTIFIER_ID, calendarId);
-                e.apply();
-            }
-            return calendarId;
-        }
-
-        @Override
-        protected void onCancelled() {
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainDrawerActivity.REQUEST_AUTHORIZATION);
-                }
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-        }
-    }
 }

@@ -45,7 +45,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    mListener.onListFragmentInteraction(holder.mItem, holder.getmLayout());
+                    mListener.onDayFragmentInteraction(holder.mItem, holder.getmLayout());
                 }
             }
         });
