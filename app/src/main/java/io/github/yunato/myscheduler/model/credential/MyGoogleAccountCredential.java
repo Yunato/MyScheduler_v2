@@ -22,8 +22,8 @@ import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import static android.content.Context.MODE_PRIVATE;
 
 public class MyGoogleAccountCredential {
-    private GoogleAccountCredential mCredential;
-    private Context context;
+    private final GoogleAccountCredential mCredential;
+    private final Context context;
     private OnGoogleAccountCredentialListener mListener = null;
 
     private static final String[] SCOPES = {CalendarScopes.CALENDAR};
@@ -132,20 +132,9 @@ public class MyGoogleAccountCredential {
                                                                     .getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     mListener.showUserRecoverableAuthDialog(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            REQUEST_AUTHORIZATION);
+                            ((UserRecoverableAuthIOException) mLastError).getIntent());
                 }
             }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
         }
     }
 
@@ -162,8 +151,7 @@ public class MyGoogleAccountCredential {
         /**
          *  OAuth の権限承認用ダイアログを表示する
          *  @param intent インテント
-         *  @param REQUEST_CODE 要求コード
          */
-        void showUserRecoverableAuthDialog(Intent intent, final int REQUEST_CODE);
+        void showUserRecoverableAuthDialog(Intent intent);
     }
 }

@@ -29,6 +29,7 @@ import android.view.Window;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
@@ -53,9 +54,7 @@ public class MainDrawerActivity extends AppCompatActivity
                     EasyPermissions.PermissionCallbacks,
                     MyGoogleAccountCredential.OnGoogleAccountCredentialListener{
     /** 要求コード  */
-    private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
-    private static final int REQUEST_PERMISSION_READ_CALENDAR = 2;
-    private static final int REQUEST_PERMISSION_WRITE_CALENDAR = 3;
+    private static final int REQUEST_MULTI_PERMISSIONS = 1;
 
     /** 状態変数 */
     private int state;
@@ -66,7 +65,7 @@ public class MainDrawerActivity extends AppCompatActivity
     private static final String PREF_ACCOUNT_NAME = "accountName";
 
     // TODO: 「同期」ボタンをタップしたときに null チェックの必要あり
-    MyGoogleAccountCredential mCredential;
+    private MyGoogleAccountCredential mCredential;
 
     // UI情報の保持はsetArguments()
     // データやインプット状況の保持はonSavedInstanceState()
@@ -81,7 +80,7 @@ public class MainDrawerActivity extends AppCompatActivity
         setupUIElements();
 
         mCredential = MyGoogleAccountCredential.newMyGoogleAccountCredential(this);
-        checkPermission();
+        checkPermissions();
     }
 
     /**
@@ -113,62 +112,38 @@ public class MainDrawerActivity extends AppCompatActivity
     /**
      *  ユーザがアプリケーションに実行に必要な権限を付与しているか確認する
      */
-    private void checkPermission(){
-        if(checkWriteExternalStoragePermission()
-                && checkReadCalendarPermission()
-                    && checkWriteCalendarPermission()){
-            chooseAccount();
-            CalendarLocalDao dao = DaoFactory.getLocalDao(this);
-            //dao.getCalendarInfo();
+    private void checkPermissions(){
+        ArrayList<String> reqPermissions = new ArrayList<>();
+        int permissionExtStorage = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionReadCalendar = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CALENDAR);
+        int permissionWriteCalendar = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_CALENDAR);
+
+        if(PackageManager.PERMISSION_GRANTED != permissionExtStorage){
+            reqPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if(PackageManager.PERMISSION_GRANTED != permissionReadCalendar){
+            reqPermissions.add(Manifest.permission.READ_CALENDAR);
+        }
+        if(PackageManager.PERMISSION_GRANTED != permissionWriteCalendar){
+            reqPermissions.add(Manifest.permission.WRITE_CALENDAR);
+        }
+        if(!reqPermissions.isEmpty()){
+            ActivityCompat.requestPermissions(this,
+                    reqPermissions.toArray(new String[reqPermissions.size()]),
+                    REQUEST_MULTI_PERMISSIONS);
+        }else {
+            checkedPermissions();
         }
     }
 
-    /**
-     *  ユーザがアプリケーションに WRITE_EXTERNAL_STORAGE の権限を付与しているか確認する
-     */
-    private boolean checkWriteExternalStoragePermission(){
-        boolean hasPermission = (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-
-        if(!hasPermission){
-            ActivityCompat.requestPermissions(this, new String[]{
-                                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                        REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
-        }
-        return hasPermission;
-    }
-
-    /**
-     *  ユーザがアプリケーションに READ_CALENDAR の権限を付与しているか確認する
-     */
-    private boolean checkReadCalendarPermission(){
-        boolean hasPermission = (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED);
-
-        if(!hasPermission){
-            ActivityCompat.requestPermissions(this, new String[]{
-                            Manifest.permission.READ_CALENDAR},
-                            REQUEST_PERMISSION_READ_CALENDAR);
-        }
-        return hasPermission;
-    }
-
-    /**
-     *  ユーザがアプリケーションに WRITE_CALENDAR の権限を付与しているか確認する
-     */
-    private boolean checkWriteCalendarPermission(){
-        boolean hasPermission = (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED);
-
-        if(!hasPermission){
-            ActivityCompat.requestPermissions(this, new String[]{
-                            Manifest.permission.WRITE_CALENDAR},
-                    REQUEST_PERMISSION_WRITE_CALENDAR);
-        }
-        return hasPermission;
+    @AfterPermissionGranted(REQUEST_MULTI_PERMISSIONS)
+    private void checkedPermissions(){
+        chooseAccount();
+        CalendarLocalDao dao = DaoFactory.getLocalDao(this);
+        //dao.getCalendarInfo();
     }
 
     /**
@@ -208,24 +183,20 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults){
+    public void onRequestPermissionsResult(int requestCode,
+            @NonNull String[] permissions, @NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+        if(requestCode == REQUEST_MULTI_PERMISSIONS){
+            if(grantResults.length > 0){
+                for(int grantResult : grantResults){
+                    if(grantResult != PackageManager.PERMISSION_GRANTED){
+                        finish();
+                    }
+                }
+                EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+            }else {
                 finish();
             }
-            checkPermission();
-        }else if(requestCode == REQUEST_PERMISSION_READ_CALENDAR){
-            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                finish();
-            }
-            checkPermission();
-        }else if(requestCode == REQUEST_PERMISSION_WRITE_CALENDAR){
-            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                finish();
-            }
-            checkPermission();
         }else if(requestCode == REQUEST_PERMISSION_GET_ACCOUNTS){
             EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
         }
@@ -335,8 +306,8 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
-    public void showUserRecoverableAuthDialog(Intent intent, int REQUEST_CODE) {
-        startActivityForResult(intent, REQUEST_CODE);
+    public void showUserRecoverableAuthDialog(Intent intent) {
+        startActivityForResult(intent, MyGoogleAccountCredential.REQUEST_AUTHORIZATION);
     }
     // endregion
 }

@@ -36,7 +36,7 @@ public class CalendarRemoteDao implements PlanInfoDao {
 
     public String createCalendar() throws IOException{
         com.google.api.services.calendar.model.Calendar calendar = new com.google.api.services.calendar.model.Calendar();
-        calendar.setSummary("MyScheduler");
+        calendar.setSummary("MyScheduler2");
         calendar.setTimeZone("Asia/Tokyo");
 
         com.google.api.services.calendar.model.Calendar createdCalendar = mService.calendars().insert(calendar).execute();

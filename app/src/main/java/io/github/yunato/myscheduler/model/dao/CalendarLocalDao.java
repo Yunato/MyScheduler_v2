@@ -47,7 +47,7 @@ public class CalendarLocalDao {
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private Context context;
+    private final Context context;
 
     private CalendarLocalDao(Context context){
         this.context = context;
@@ -85,11 +85,11 @@ public class CalendarLocalDao {
         }
         final Cursor cur = tmpCur;
 
-        String accontName = "TEST";
+        String accountName = "TEST";
         while(cur != null && cur.moveToNext()){
             final long id = cur.getLong(CALENDAR_PROJECTION_IDX_ID);
             final String name = cur.getString(CALENDAR_PROJECTION_IDX_NAME);
-            final String accountName = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
+            final String accountName2 = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
             final String accountType = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_TYPE);
             final String calendarDisplayName = cur.getString(CALENDAR_PROJECTION_IDX_CALENDAR_DISPLAY_NAME);
             final int calendarAccessLevel = cur.getInt(CALENDAR_PROJECTION_IDX_CALENDAR_ACCESS_LEVEL);
@@ -98,16 +98,16 @@ public class CalendarLocalDao {
             final int syncEvents = cur.getInt(CALENDAR_PROJECTION_IDX_SYNC_EVENTS);
             final String ownerAccount = cur.getString(CALENDAR_PROJECTION_IDX_OWNER_ACCOUNT);
             if(name.equals("MyScheduler")){
-                accontName = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
+                accountName = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
             }
-            Log.d(className + methodName, id + " " + name + " " + accountName);
+            Log.d(className + methodName, id + " " + name + " " + accountName2);
             Log.d(className + methodName, accountType + " " + calendarDisplayName + " " + calendarAccessLevel);
             Log.d(className + methodName, calendarTimeZone + " " + visible + " " + syncEvents);
         }
 
         final ContentValues values = new ContentValues();
         values.put(Calendars.NAME, "TEST");
-        values.put(Calendars.ACCOUNT_NAME, accontName);
+        values.put(Calendars.ACCOUNT_NAME, accountName);
         values.put(Calendars.ACCOUNT_TYPE, "google.com");
         values.put(Calendars.CALENDAR_DISPLAY_NAME, "TEST");
         values.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
@@ -118,7 +118,7 @@ public class CalendarLocalDao {
         Uri calUri = Calendars.CONTENT_URI;
 
         calUri = calUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, accontName)
+                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, accountName)
                 .appendQueryParameter(Calendars.ACCOUNT_TYPE, "google.com").build();
 
         final ContentResolver cr2 = context.getContentResolver();
