@@ -12,12 +12,12 @@ import java.util.List;
 
 import io.github.yunato.myscheduler.model.item.PlanInfo;
 
-public class PlanInfoCalendarDao implements PlanInfoDao {
+public class CalendarRemoteDao implements PlanInfoDao {
     private static Calendar mService;
 
-    private PlanInfoCalendarDao(){}
+    private CalendarRemoteDao(){}
 
-    private PlanInfoCalendarDao(GoogleAccountCredential credential){
+    private CalendarRemoteDao(GoogleAccountCredential credential){
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.calendar.Calendar
@@ -26,12 +26,12 @@ public class PlanInfoCalendarDao implements PlanInfoDao {
                 .build();
     }
 
-    static PlanInfoCalendarDao newPlanInfoCalendarDao(){
-        return new PlanInfoCalendarDao();
+    static CalendarRemoteDao newCalendarRemoteDao(){
+        return new CalendarRemoteDao();
     }
 
-    static PlanInfoCalendarDao newPlanInfoCalendarDao(GoogleAccountCredential credential){
-        return new PlanInfoCalendarDao(credential);
+    static CalendarRemoteDao newCalendarRemoteDao(GoogleAccountCredential credential){
+        return new CalendarRemoteDao(credential);
     }
 
     public String createCalendar() throws IOException{

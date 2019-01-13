@@ -2,6 +2,7 @@ package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
 import android.accounts.AccountManager;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,10 +27,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential;
+import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
+import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -38,15 +43,19 @@ import pub.devrel.easypermissions.EasyPermissions;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
+import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
+import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
 import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                     DayFragment.OnDayFragmentListener,
-                    EasyPermissions.PermissionCallbacks{
+                    EasyPermissions.PermissionCallbacks,
+                    MyGoogleAccountCredential.OnGoogleAccountCredentialListener{
     /** 要求コード  */
     private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 1;
     private static final int REQUEST_PERMISSION_READ_CALENDAR = 2;
+    private static final int REQUEST_PERMISSION_WRITE_CALENDAR = 3;
 
     /** 状態変数 */
     private int state;
@@ -71,10 +80,8 @@ public class MainDrawerActivity extends AppCompatActivity
 
         setupUIElements();
 
-        mCredential = MyGoogleAccountCredential.newMyGoogleAccountCredential(
-                                                        this.getApplicationContext());
+        mCredential = MyGoogleAccountCredential.newMyGoogleAccountCredential(this);
         checkPermission();
-        //getResultsFromApi();
     }
 
     /**
@@ -107,8 +114,12 @@ public class MainDrawerActivity extends AppCompatActivity
      *  ユーザがアプリケーションに実行に必要な権限を付与しているか確認する
      */
     private void checkPermission(){
-        if(checkWriteExternalStoragePermission() && checkReadCalendarPermission()){
+        if(checkWriteExternalStoragePermission()
+                && checkReadCalendarPermission()
+                    && checkWriteCalendarPermission()){
             chooseAccount();
+            CalendarLocalDao dao = DaoFactory.getLocalDao(this);
+            //dao.getCalendarInfo();
         }
     }
 
@@ -145,6 +156,22 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     /**
+     *  ユーザがアプリケーションに WRITE_CALENDAR の権限を付与しているか確認する
+     */
+    private boolean checkWriteCalendarPermission(){
+        boolean hasPermission = (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED);
+
+        if(!hasPermission){
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.WRITE_CALENDAR},
+                    REQUEST_PERMISSION_WRITE_CALENDAR);
+        }
+        return hasPermission;
+    }
+
+    /**
      * Google アカウントの設定を行う
      */
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
@@ -154,6 +181,7 @@ public class MainDrawerActivity extends AppCompatActivity
                     getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 mCredential.setAccountName(accountName);
+                mCredential.callGoogleApi();
             } else {
                 this.startActivityForResult(
                         mCredential.getChooseAccountIntent(),
@@ -174,6 +202,68 @@ public class MainDrawerActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase){
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                finish();
+            }
+            checkPermission();
+        }else if(requestCode == REQUEST_PERMISSION_READ_CALENDAR){
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                finish();
+            }
+            checkPermission();
+        }else if(requestCode == REQUEST_PERMISSION_WRITE_CALENDAR){
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                finish();
+            }
+            checkPermission();
+        }else if(requestCode == REQUEST_PERMISSION_GET_ACCOUNTS){
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode == RESULT_OK) {
+                    mCredential.callGoogleApi();
+                }
+                break;
+
+            case REQUEST_ACCOUNT_PICKER:
+                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
+                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    if (accountName != null) {
+                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.apply();
+                        mCredential.setAccountName(accountName);
+                        mCredential.callGoogleApi();
+                    }
+                }
+                break;
+
+            case REQUEST_AUTHORIZATION:
+                if (resultCode == RESULT_OK) {
+                    mCredential.callGoogleApi();
+                }
+                break;
+        }
+    }
+
+    // region NavigationView#OnNavigationItemSelectedListener & Relational method
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item){
         int id = item.getItemId();
@@ -207,79 +297,46 @@ public class MainDrawerActivity extends AppCompatActivity
 
         ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(GravityCompat.START);
     }
+    // endregion
 
+    // region DayFragment#OnDayFragmentListener
     @Override
     public void onDayFragmentInteraction(PlanItem item, View view){
         ActivityOptionsCompat compat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                            this,
-                                                            view,
-                                                            view.getTransitionName());
+                        this,
+                        view,
+                        view.getTransitionName());
         Intent intent = new Intent(this, ShowPlanInfoActivity.class);
         //TODO:識別子の変更
         intent.putExtra("TEST", item);
         startActivity(intent, compat.toBundle());
     }
+    // endregion
 
-    @Override
-    protected void attachBaseContext(Context newBase){
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults){
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                finish();
-            }
-            checkPermission();
-        }else if(requestCode == REQUEST_PERMISSION_READ_CALENDAR){
-            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                finish();
-            }
-            checkPermission();
-        }else if(requestCode == REQUEST_PERMISSION_GET_ACCOUNTS){
-            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES:
-                if (resultCode == RESULT_OK) {
-                    // TODO: コメントアウトを解除する
-                    // getResultsFromApi();
-                }
-                break;
-
-            case REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
-                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                    if (accountName != null) {
-                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
-                        mCredential.setAccountName(accountName);
-                    }
-                }
-                break;
-
-            case MyGoogleAccountCredential.REQUEST_AUTHORIZATION:
-                if (resultCode == RESULT_OK) {
-                    // getResultsFromApi();
-                }
-                break;
-        }
-    }
-
+    // region EasyPermissions#PermissionCallbacks
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {}
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {}
+    // endregion
+
+    // region MyGoogleAccountCredential#OnGoogleAccountCredentialListener
+    @Override
+    public void showGooglePlayServicesAvailabilityErrorDialog(int connectionStatusCode) {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        Dialog dialog = apiAvailability.getErrorDialog(
+                this,
+                connectionStatusCode,
+                REQUEST_GOOGLE_PLAY_SERVICES
+        );
+        dialog.show();
+    }
+
+    @Override
+    public void showUserRecoverableAuthDialog(Intent intent, int REQUEST_CODE) {
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+    // endregion
 }

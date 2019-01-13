@@ -15,14 +15,14 @@ import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
 import io.github.yunato.myscheduler.ui.dialog.DatePick;
 import io.github.yunato.myscheduler.ui.dialog.TimePick;
 
-public class InputPlanInfoFragment extends Fragment {
+public class EditPlanInfoFragment extends Fragment {
     private static final String ARG_PLAN_ITEM = "PLAN_ITEM";
     private PlanItem itemInfo;
 
-    public InputPlanInfoFragment() {}
+    public EditPlanInfoFragment() {}
 
-    public static InputPlanInfoFragment newInstance(PlanItem item) {
-        InputPlanInfoFragment fragment = new InputPlanInfoFragment();
+    public static EditPlanInfoFragment newInstance(PlanItem item) {
+        EditPlanInfoFragment fragment = new EditPlanInfoFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PLAN_ITEM, item);
         fragment.setArguments(args);
