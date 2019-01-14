@@ -143,7 +143,14 @@ public class MainDrawerActivity extends AppCompatActivity
     private void checkedPermissions(){
         chooseAccount();
         CalendarLocalDao dao = DaoFactory.getLocalDao(this);
-        //dao.getCalendarInfo();
+        String accountName = getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
+        if(accountName != null){
+            dao.checkExistLocalCalendar(accountName);
+        }else {
+            throw new IllegalStateException("AccountName isn't selected.");
+        }
+        dao.getCalendarInfo();
+        //dao.createCalendar(getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null));
     }
 
     /**

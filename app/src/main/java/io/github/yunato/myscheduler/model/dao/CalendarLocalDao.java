@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.List;
@@ -43,6 +44,9 @@ public class CalendarLocalDao {
     private static final int CALENDAR_PROJECTION_IDX_SYNC_EVENTS = 9;
     private static final int CALENDAR_PROJECTION_IDX_OWNER_ACCOUNT = 10;
 
+    /** 作成するローカルカレンダー情報 */
+    private final String calendarName = "io.github.yunato.myscheduler";
+
     /** Debug 用 */
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -57,59 +61,69 @@ public class CalendarLocalDao {
         return new CalendarLocalDao(context);
     }
 
-    /*
-    public String createCalendar(){
-    }
-    */
-
-    public void insertPlanInfo(PlanInfo planInfo){}
-
-    public List<PlanInfo> getPlanInfo(){
-        List<PlanInfo> result = null;
-        return result;
-    }
-
-    public void getCalendarInfo(){
-        final Uri uri = Calendars.CONTENT_URI;
-        final String[] projection = CALENDAR_PROJECTION;
-        final String selection = null;
-        final String[] selectionArgs = null;
-        final String sortOrder = null;
-
-        final ContentResolver cr = context.getContentResolver();
-        Cursor tmpCur = null;
-        try {
-            tmpCur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
-        }catch (SecurityException e){
-            Log.e(className + methodName, "SecurityException", e);
+    /**
+     * ローカルカレンダーがすでに存在するかどうかを確かめる．
+     * 存在しなければ作成する．
+     * @param accountName   Google アカウント名
+     */
+    public void checkExistLocalCalendar(@NonNull String accountName){
+        Cursor cur = getCalendarCursor("Calendars.NAME = ?",
+                                        new String[]{calendarName + accountName},
+                                        null);
+        if(cur.getCount() == 0){
+            createCalendar(accountName);
         }
-        final Cursor cur = tmpCur;
+        cur.close();
+    }
 
-        String accountName = "TEST";
-        while(cur != null && cur.moveToNext()){
+    /**
+     * 参照できるカレンダーの情報を取得する
+     */
+    public void getCalendarInfo(){
+        Cursor cur = getCalendarCursor(null, null, null);
+        while(cur.moveToNext()){
             final long id = cur.getLong(CALENDAR_PROJECTION_IDX_ID);
             final String name = cur.getString(CALENDAR_PROJECTION_IDX_NAME);
-            final String accountName2 = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
+            final String accountName = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
             final String accountType = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_TYPE);
             final String calendarDisplayName = cur.getString(CALENDAR_PROJECTION_IDX_CALENDAR_DISPLAY_NAME);
             final int calendarAccessLevel = cur.getInt(CALENDAR_PROJECTION_IDX_CALENDAR_ACCESS_LEVEL);
             final String calendarTimeZone = cur.getString(CALENDAR_PROJECTION_IDX_CALENDAR_TIME_ZONE);
             final int visible = cur.getInt(CALENDAR_PROJECTION_IDX_VISIBLE);
             final int syncEvents = cur.getInt(CALENDAR_PROJECTION_IDX_SYNC_EVENTS);
-            final String ownerAccount = cur.getString(CALENDAR_PROJECTION_IDX_OWNER_ACCOUNT);
-            if(name.equals("MyScheduler")){
-                accountName = cur.getString(CALENDAR_PROJECTION_IDX_ACCOUNT_NAME);
-            }
-            Log.d(className + methodName, id + " " + name + " " + accountName2);
+            //final String ownerAccount = cur.getString(CALENDAR_PROJECTION_IDX_OWNER_ACCOUNT);
+            Log.d(className + methodName, id + " " + name + " " + accountName);
             Log.d(className + methodName, accountType + " " + calendarDisplayName + " " + calendarAccessLevel);
             Log.d(className + methodName, calendarTimeZone + " " + visible + " " + syncEvents);
+            //deleteCalendar(id, accountName, accountType);
         }
+        cur.close();
+    }
 
+    @NonNull
+    private Cursor getCalendarCursor(final String selection,
+                                        final String[] selectionArgs, final String sortOrder){
+        final Uri uri = Calendars.CONTENT_URI;
+        final String[] projection = CALENDAR_PROJECTION;
+
+        final ContentResolver cr = context.getContentResolver();
+        Cursor cur = null;
+        try {
+            cur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
+        }catch (SecurityException e){
+            Log.e(className + methodName, "SecurityException", e);
+        }
+        if(cur == null){
+            throw new IllegalStateException("Cursor is null.");
+        }
+        return cur;
+    }
+
+    private void createCalendar(String accountName){
         final ContentValues values = new ContentValues();
-        values.put(Calendars.NAME, "TEST");
+        values.put(Calendars.NAME, calendarName + "." + accountName);
         values.put(Calendars.ACCOUNT_NAME, accountName);
-        values.put(Calendars.ACCOUNT_TYPE, "google.com");
-        values.put(Calendars.CALENDAR_DISPLAY_NAME, "TEST");
+        values.put(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
         values.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
         values.put(Calendars.OWNER_ACCOUNT, true);
         values.put(Calendars.CALENDAR_TIME_ZONE, "Asia/Tokyo");
@@ -117,18 +131,46 @@ public class CalendarLocalDao {
         values.put(Calendars.SYNC_EVENTS, 1);
         Uri calUri = Calendars.CONTENT_URI;
 
-        calUri = calUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+        calUri = calUri.buildUpon()
+                .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
                 .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, accountName)
-                .appendQueryParameter(Calendars.ACCOUNT_TYPE, "google.com").build();
+                .appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL)
+                .build();
 
         final ContentResolver cr2 = context.getContentResolver();
         try {
-            Uri uri2 = cr2.insert(calUri, values);
+            cr2.insert(calUri, values);
+            Log.d(className + methodName, "Create local calendar");
         }catch (SecurityException e){
             Log.e(className + methodName, "SecurityException", e);
         }
-        if(cur != null){
-            cur.close();
+    }
+
+    /**
+     * 引数を基にカレンダーを削除する
+     * @param id            カレンダーid
+     * @param accountName   カレンダー名
+     * @param type          カレンダーの種別
+     */
+    public void deleteCalendar(long id, String accountName, String type){
+        Uri calUri = Calendars.CONTENT_URI;
+        calUri = calUri.buildUpon().appendPath(Long.toString(id))
+                .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+                .appendQueryParameter(Calendars.ACCOUNT_NAME, accountName)
+                .appendQueryParameter(Calendars.ACCOUNT_TYPE, type).build();
+
+        final ContentResolver cr = context.getContentResolver();
+        try {
+            cr.delete(calUri, null, null);
+        }catch (SecurityException e){
+            Log.e(className + methodName, "SecurityException", e);
         }
+    }
+
+    public void insertPlanInfo(PlanInfo planInfo){}
+
+    public List<PlanInfo> getPlanInfo(){
+        List<PlanInfo> result = null;
+        return result;
     }
 }
