@@ -115,6 +115,7 @@ public class MyGoogleAccountCredential {
             String calendarId = pref.getString(IDENTIFIER_ID, null);
 
             if(calendarId == null){
+                dao.deleteCalendar();
                 calendarId = dao.createCalendar();
                 SharedPreferences.Editor e = pref.edit();
                 e.putString(IDENTIFIER_ID, calendarId);

@@ -6,6 +6,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,11 +38,26 @@ public class CalendarRemoteDao implements PlanInfoDao {
 
     public String createCalendar() throws IOException{
         com.google.api.services.calendar.model.Calendar calendar = new com.google.api.services.calendar.model.Calendar();
-        calendar.setSummary("MyScheduler2");
+        calendar.setSummary("MyScheduler");
         calendar.setTimeZone("Asia/Tokyo");
 
         com.google.api.services.calendar.model.Calendar createdCalendar = mService.calendars().insert(calendar).execute();
         return createdCalendar.getId();
+    }
+
+    public void deleteCalendar() throws IOException{
+        String  pageToken = null;
+        do {
+            CalendarList calendarList = mService.calendarList().list().setPageToken(pageToken).execute();
+            List<CalendarListEntry> items = calendarList.getItems();
+
+            for(CalendarListEntry calendarListEntry : items){
+                if("MyScheduler".equals(calendarListEntry.getSummary())){
+                    mService.calendars().delete(calendarListEntry.getId()).execute();
+                }
+            }
+            pageToken = calendarList.getNextPageToken();
+        }while (pageToken != null);
     }
 
     public void insertPlanInfo(PlanInfo planInfo){
