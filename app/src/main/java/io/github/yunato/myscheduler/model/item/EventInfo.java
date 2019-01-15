@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,21 +30,10 @@ public class EventInfo {
      * @param time 時間(ミリ秒)
      */
     public static String convertDateToString(long time) {
-        if(10000000000000L > time) {
-            throw new RuntimeException("argument isn't appropriate   # PlanContent::40");
-        }
-        time /= 1000000;
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(Long.toString(time / 10000));
-        builder.append("年");
-        time %= 10000;
-        builder.append(Long.toString(time / 100));
-        builder.append("月");
-        time %= 100;
-        builder.append(Long.toString(time));
-        builder.append("日");
-        return builder.toString();
+        Date date = new Date();
+        date.setTime(time);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日", Locale.JAPANESE);
+        return sdf.format(date);
     }
 
     /**
@@ -51,52 +41,34 @@ public class EventInfo {
      * @param time 時間(ミリ秒)
      */
     public static String convertTimeToString(long time) {
-        if(10000000000000L > time) {
-            throw new RuntimeException("argument isn't appropriate   # PlanContent::62");
-        }
-        time = (time % 1000000) / 100;
-
-        StringBuilder builder = new StringBuilder();
-        builder.append(getDoubleDigit(time / 100));
-        time %= 100;
-        builder.append(":").append(getDoubleDigit(time));
-        return builder.toString();
-    }
-
-    /**
-     * 引数 value から 2桁 の数値を表す文字列を取得する
-     * @param value 数値
-     */
-    private static String getDoubleDigit(long value){
-        if(value < 0 || 100 <= value) {
-            throw new RuntimeException("argument isn't appropriate");
-        }
-        if(10 <= value){
-            return Long.toString(value);
-        }else if(0 < value){
-            return "0" + value;
-        }else{
-            return "00";
-        }
+        Date date = new Date();
+        date.setTime(time);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
+        return sdf.format(date);
     }
 
     public static EventItem createPlanItem() {
-        Calendar date = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
-        long time = Long.parseLong(sdf.format(date.getTime()));
+        Calendar calendar = Calendar.getInstance();
+        //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
+        //long time = Long.parseLong(sdf.format(date.getTime()));
+        final long time = calendar.getTimeInMillis();
         return new EventItem("noNumber", "", "", time, time);
     }
 
     //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
-    //TODO: このクラスを通さないと PlanItem のインスタンスを作成できない
+    //TODO: このクラスを通さないと EventItem のインスタンスを作成できない
     private static EventItem createPlanItem(int index) {
-        Calendar date = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.JAPAN);
-        String startTime, endTime;
-        startTime = sdf.format(date.getTime()) + getDoubleDigit(index) + "0000";
-        endTime = sdf.format(date.getTime()) + getDoubleDigit(index + 1) + "0000";
-        return new EventItem(Integer.toString(index), "予定名", "予定の内容"
-                                    , Long.parseLong(startTime), Long.parseLong(endTime));
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, index);
+        calendar.set(Calendar.MINUTE, 0);
+        //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.JAPAN);
+        //String startTime, endTime;
+        //startTime = sdf.format(calendar.getTime()) + getDoubleDigit(index) + "0000";
+        //endTime = sdf.format(calendar.getTime()) + getDoubleDigit(index + 1) + "0000";
+        final long startTime = calendar.getTimeInMillis();
+        calendar.set(Calendar.HOUR_OF_DAY, index + 1);
+        final long endTime = calendar.getTimeInMillis();
+        return new EventItem(Integer.toString(index), "予定名", "予定の内容", startTime, endTime);
     }
 
     public static class EventItem implements Serializable{
