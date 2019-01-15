@@ -2,7 +2,6 @@ package io.github.yunato.myscheduler.model.credential;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -19,8 +18,6 @@ import java.util.Arrays;
 import io.github.yunato.myscheduler.model.dao.CalendarRemoteDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class MyGoogleAccountCredential {
     private final GoogleAccountCredential mCredential;
     private final Context context;
@@ -35,8 +32,7 @@ public class MyGoogleAccountCredential {
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
     /** 識別子 **/
-    private static final String IDENTIFIER_PREF = "MY_PREFERENCE";
-    private static final String IDENTIFIER_ID = "CALENDAR_ID";
+    private static final String IDENTIFIER_REMOTE_ID = "CALENDAR_ID";
 
     private MyGoogleAccountCredential(Context context){
         this.context = context;
@@ -96,7 +92,7 @@ public class MyGoogleAccountCredential {
         private CalendarRemoteDao dao = null;
 
         private MakeRequestTask(GoogleAccountCredential credential){
-            dao = DaoFactory.getRemoteDao(credential);
+            dao = DaoFactory.getRemoteDao(context, credential);
         }
 
         @Override
@@ -111,15 +107,11 @@ public class MyGoogleAccountCredential {
         }
 
         private String createCalendar() throws IOException {
-            SharedPreferences pref = context.getSharedPreferences(IDENTIFIER_PREF, MODE_PRIVATE);
-            String calendarId = pref.getString(IDENTIFIER_ID, null);
-
+            String calendarId = dao.getValueFromPref(IDENTIFIER_REMOTE_ID);
             if(calendarId == null){
                 dao.deleteCalendar();
                 calendarId = dao.createCalendar();
-                SharedPreferences.Editor e = pref.edit();
-                e.putString(IDENTIFIER_ID, calendarId);
-                e.apply();
+                dao.setValueToPref(IDENTIFIER_REMOTE_ID, calendarId);
             }
             return calendarId;
         }

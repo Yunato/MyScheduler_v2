@@ -15,7 +15,7 @@ import io.github.yunato.myscheduler.model.item.PlanInfo;
 
 import static android.provider.CalendarContract.Calendars;
 
-public class CalendarLocalDao {
+public class CalendarLocalDao extends CalendarDao {
     /** プロジェクション配列 */
     private static final String[] CALENDAR_PROJECTION = new String[]{
             Calendars._ID,
@@ -47,6 +47,9 @@ public class CalendarLocalDao {
     /** 作成するローカルカレンダー情報 */
     private final String calendarName = "io.github.yunato.myscheduler";
 
+    /** 識別子 **/
+    private static final String IDENTIFIER_LOCAL_ID = "CALENDAR_ID";
+
     /** Debug 用 */
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -54,6 +57,7 @@ public class CalendarLocalDao {
     private final Context context;
 
     private CalendarLocalDao(Context context){
+        super(context);
         this.context = context;
     }
 
@@ -70,8 +74,10 @@ public class CalendarLocalDao {
         Cursor cur = getCalendarCursor("Calendars.NAME = ?",
                                         new String[]{calendarName + accountName},
                                         null);
-        if(cur.getCount() == 0){
-            createCalendar(accountName);
+        String calendarId = getValueFromPref(IDENTIFIER_LOCAL_ID);
+        if(calendarId == null || cur.getCount() == 0){
+            calendarId = createCalendar(accountName);
+            setValueToPref(IDENTIFIER_LOCAL_ID, calendarId);
         }
         cur.close();
     }
@@ -119,7 +125,12 @@ public class CalendarLocalDao {
         return cur;
     }
 
-    private void createCalendar(String accountName){
+    /**
+     * ローカル上のカレンダーを作成する
+     * @param accountName   Google アカウント名
+     * @return              カレンダーID
+     */
+    private String createCalendar(String accountName){
         final ContentValues values = new ContentValues();
         values.put(Calendars.NAME, calendarName + "." + accountName);
         values.put(Calendars.ACCOUNT_NAME, accountName);
@@ -137,13 +148,18 @@ public class CalendarLocalDao {
                 .appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL)
                 .build();
 
-        final ContentResolver cr2 = context.getContentResolver();
+        final ContentResolver cr = context.getContentResolver();
+        String calendarId = null;
         try {
-            cr2.insert(calUri, values);
+            final Uri uri = cr.insert(calUri, values);
             Log.d(className + methodName, "Create local calendar");
+            if(uri != null){
+                calendarId = uri.getLastPathSegment();
+            }
         }catch (SecurityException e){
             Log.e(className + methodName, "SecurityException", e);
         }
+        return calendarId;
     }
 
     /**

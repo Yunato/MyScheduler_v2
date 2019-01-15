@@ -1,5 +1,7 @@
 package io.github.yunato.myscheduler.model.dao;
 
+import android.content.Context;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
@@ -14,12 +16,15 @@ import java.util.List;
 
 import io.github.yunato.myscheduler.model.item.PlanInfo;
 
-public class CalendarRemoteDao implements PlanInfoDao {
+public class CalendarRemoteDao extends CalendarDao {
     private static Calendar mService;
 
-    private CalendarRemoteDao(){}
+    private CalendarRemoteDao(Context context){
+        super(context);
+    }
 
-    private CalendarRemoteDao(GoogleAccountCredential credential){
+    private CalendarRemoteDao(Context context, GoogleAccountCredential credential){
+        super(context);
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.calendar.Calendar
@@ -28,12 +33,13 @@ public class CalendarRemoteDao implements PlanInfoDao {
                 .build();
     }
 
-    static CalendarRemoteDao newCalendarRemoteDao(){
-        return new CalendarRemoteDao();
+    static CalendarRemoteDao newCalendarRemoteDao(Context context){
+        return new CalendarRemoteDao(context);
     }
 
-    static CalendarRemoteDao newCalendarRemoteDao(GoogleAccountCredential credential){
-        return new CalendarRemoteDao(credential);
+    static CalendarRemoteDao newCalendarRemoteDao(Context context,
+                                                  GoogleAccountCredential credential){
+        return new CalendarRemoteDao(context, credential);
     }
 
     public String createCalendar() throws IOException{

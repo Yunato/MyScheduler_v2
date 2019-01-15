@@ -5,7 +5,6 @@ import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -143,14 +142,13 @@ public class MainDrawerActivity extends AppCompatActivity
     private void checkedPermissions(){
         chooseAccount();
         CalendarLocalDao dao = DaoFactory.getLocalDao(this);
-        String accountName = getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
+        String accountName = dao.getValueFromPref(PREF_ACCOUNT_NAME);
         if(accountName != null){
             dao.checkExistLocalCalendar(accountName);
         }else {
             throw new IllegalStateException("AccountName isn't selected.");
         }
         dao.getCalendarInfo();
-        //dao.createCalendar(getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null));
     }
 
     /**
@@ -159,8 +157,8 @@ public class MainDrawerActivity extends AppCompatActivity
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount(){
         if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName =
-                    getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
+            CalendarLocalDao dao = DaoFactory.getLocalDao(this);
+            String accountName = dao.getValueFromPref(PREF_ACCOUNT_NAME);
             if (accountName != null) {
                 mCredential.setAccountName(accountName);
                 mCredential.callGoogleApi();
@@ -223,10 +221,8 @@ public class MainDrawerActivity extends AppCompatActivity
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
+                        CalendarLocalDao dao = DaoFactory.getLocalDao(this);
+                        dao.setValueToPref(PREF_ACCOUNT_NAME, accountName);
                         mCredential.setAccountName(accountName);
                         mCredential.callGoogleApi();
                     }
