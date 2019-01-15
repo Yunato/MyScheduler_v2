@@ -10,18 +10,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanInfo;
-import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
+import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.dialog.DatePick;
 import io.github.yunato.myscheduler.ui.dialog.TimePick;
 
 public class EditPlanInfoFragment extends Fragment {
     private static final String ARG_PLAN_ITEM = "PLAN_ITEM";
-    private PlanItem itemInfo;
+    private EventItem itemInfo;
 
     public EditPlanInfoFragment() {}
 
-    public static EditPlanInfoFragment newInstance(PlanItem item) {
+    public static EditPlanInfoFragment newInstance(EventItem item) {
         EditPlanInfoFragment fragment = new EditPlanInfoFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PLAN_ITEM, item);
@@ -33,7 +33,7 @@ public class EditPlanInfoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            itemInfo = (PlanItem)getArguments().getSerializable(ARG_PLAN_ITEM);
+            itemInfo = (EventItem)getArguments().getSerializable(ARG_PLAN_ITEM);
         }
     }
 
@@ -49,9 +49,9 @@ public class EditPlanInfoFragment extends Fragment {
         ((TextView)view.findViewById(R.id.input_text_title)).setText(itemInfo.getTitle());
 
         final TextView startDateTextView = (TextView)view.findViewById(R.id.input_text_startDate);
-        startDateTextView.setText(PlanInfo.convertDateToString(itemInfo.getStartMillis()));
+        startDateTextView.setText(EventInfo.convertDateToString(itemInfo.getStartMillis()));
         final TextView endDateTextView = (TextView)view.findViewById(R.id.input_text_endDate);
-        endDateTextView.setText(PlanInfo.convertDateToString(itemInfo.getEndMillis()));
+        endDateTextView.setText(EventInfo.convertDateToString(itemInfo.getEndMillis()));
         ((TextView)view.findViewById(R.id.input_text_description))
                 .setText(itemInfo.getDescription());
 
@@ -86,7 +86,7 @@ public class EditPlanInfoFragment extends Fragment {
         });
 
         final TextView startTimeText = (TextView)view.findViewById(R.id.input_text_startTime);
-        startTimeText.setText(PlanInfo.convertTimeToString(itemInfo.getStartMillis()));
+        startTimeText.setText(EventInfo.convertTimeToString(itemInfo.getStartMillis()));
         startTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,7 +102,7 @@ public class EditPlanInfoFragment extends Fragment {
         });
 
         final TextView endTimeText = (TextView)view.findViewById(R.id.input_text_endTime);
-        endTimeText.setText(PlanInfo.convertTimeToString(itemInfo.getEndMillis()));
+        endTimeText.setText(EventInfo.convertTimeToString(itemInfo.getEndMillis()));
         endTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 abstract class CalendarDao {
     private final Context context;
@@ -33,7 +33,7 @@ abstract class CalendarDao {
         myPreferences.setValue(key, value);
     }
 
-    public abstract void insertPlanInfo(PlanInfo planInfo);
+    public abstract long insertEventItem(EventItem eventItem);
 
-    public abstract List<PlanInfo> getPlanInfo();
+    public abstract List<EventItem> getEventItems();
 }

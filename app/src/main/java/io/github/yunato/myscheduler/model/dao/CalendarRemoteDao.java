@@ -14,7 +14,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import java.io.IOException;
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 public class CalendarRemoteDao extends CalendarDao {
     private static Calendar mService;
@@ -66,12 +66,12 @@ public class CalendarRemoteDao extends CalendarDao {
         }while (pageToken != null);
     }
 
-    public void insertPlanInfo(PlanInfo planInfo){
-
+    public long insertEventItem(EventItem eventInfo){
+        return 0;
     }
 
-    public List<PlanInfo> getPlanInfo(){
-        List<PlanInfo> result = null;
+    public List<EventItem> getEventItems(){
+        List<EventItem> result = null;
         return result;
     }
 }

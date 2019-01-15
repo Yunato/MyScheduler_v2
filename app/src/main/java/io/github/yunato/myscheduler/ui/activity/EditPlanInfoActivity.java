@@ -8,8 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanInfo;
-import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
+import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.EditPlanInfoFragment;
 
 public class EditPlanInfoActivity extends AppCompatActivity{
@@ -33,9 +33,9 @@ public class EditPlanInfoActivity extends AppCompatActivity{
 
             Intent intent = getIntent();
             //TODO:識別子の変更
-            PlanItem item = (PlanItem)intent.getSerializableExtra("TEST");
+            EventItem item = (EventItem)intent.getSerializableExtra("TEST");
             //TODO: itemがnullの場合を記述する (新規オブジェクトを渡す)
-            Fragment containerFragment = EditPlanInfoFragment.newInstance(PlanInfo.createPlanItem());
+            Fragment containerFragment = EditPlanInfoFragment.newInstance(EventInfo.createPlanItem());
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, containerFragment)
                     .commit();

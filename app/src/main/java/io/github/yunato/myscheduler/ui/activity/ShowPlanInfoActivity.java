@@ -10,7 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
 public class ShowPlanInfoActivity extends AppCompatActivity {
@@ -36,7 +36,7 @@ public class ShowPlanInfoActivity extends AppCompatActivity {
 
             Intent intent = getIntent();
             //TODO:識別子の変更
-            PlanInfo.PlanItem item = (PlanInfo.PlanItem)intent.getSerializableExtra("TEST");
+            EventInfo.EventItem item = (EventInfo.EventItem)intent.getSerializableExtra("TEST");
             Fragment fragment = ShowPlanFragment.newInstance(item);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment).commit();

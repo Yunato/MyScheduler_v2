@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanInfo;
-import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
+import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
 import io.github.yunato.myscheduler.ui.adapter.DividerItemDecoration;
 import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
@@ -63,7 +63,7 @@ public class DayFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyPlanRecyclerViewAdapter(PlanInfo.ITEMS, mListener));
+            recyclerView.setAdapter(new MyPlanRecyclerViewAdapter(EventInfo.ITEMS, mListener));
         }
         return view;
     }
@@ -90,6 +90,6 @@ public class DayFragment extends Fragment {
      * Activity へのコールバック用
      */
     public interface OnDayFragmentListener {
-        void onDayFragmentInteraction(PlanItem item, View view);
+        void onDayFragmentInteraction(EventItem item, View view);
     }
 }

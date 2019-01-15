@@ -11,9 +11,10 @@ import android.util.Log;
 
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.PlanInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static android.provider.CalendarContract.Calendars;
+import static android.provider.CalendarContract.Events;
 
 public class CalendarLocalDao extends CalendarDao {
     /** プロジェクション配列 */
@@ -183,10 +184,35 @@ public class CalendarLocalDao extends CalendarDao {
         }
     }
 
-    public void insertPlanInfo(PlanInfo planInfo){}
+    /**
+     * イベントをローカルカレンダーへ追加する
+     * @param eventInfo     イベント情報
+     * @return              イベントID
+     */
+    public long insertEventItem(EventItem eventInfo){
+        final ContentResolver cr = context.getContentResolver();
 
-    public List<PlanInfo> getPlanInfo(){
-        List<PlanInfo> result = null;
+        final ContentValues values = new ContentValues();
+        values.put(Events.CALENDAR_ID, getValueFromPref(IDENTIFIER_LOCAL_ID));
+        values.put(Events.TITLE, eventInfo.getTitle());
+        values.put(Events.DESCRIPTION, eventInfo.getDescription());
+        values.put(Events.DTSTART, eventInfo.getStartMillis());
+        values.put(Events.DTEND, eventInfo.getEndMillis());
+
+        long eventId = -1;
+        try{
+            final Uri uri = cr.insert(Events.CONTENT_URI, values);
+            if(uri != null){
+                eventId = Long.parseLong(uri.getLastPathSegment());
+            }
+        }catch(SecurityException e){
+            Log.e(className + methodName, "SecurityException", e);
+        }
+        return eventId;
+    }
+
+    public List<EventItem> getEventItems(){
+        List<EventItem> result = null;
         return result;
     }
 }

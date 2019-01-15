@@ -35,7 +35,7 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential;
 import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
-import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -275,7 +275,7 @@ public class MainDrawerActivity extends AppCompatActivity
 
     // region DayFragment#OnDayFragmentListener
     @Override
-    public void onDayFragmentInteraction(PlanItem item, View view){
+    public void onDayFragmentInteraction(EventItem item, View view){
         ActivityOptionsCompat compat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this,

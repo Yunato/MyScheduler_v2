@@ -10,12 +10,12 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.PlanInfo;
-import io.github.yunato.myscheduler.model.item.PlanInfo.PlanItem;
+import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnDayFragmentListener;
 
 public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecyclerViewAdapter.ViewHolder> {
-    private final List<PlanItem> mValues;
+    private final List<EventItem> mValues;
     private final OnDayFragmentListener mListener;
 
     /**
@@ -23,7 +23,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
      * @param items     リストアイテム群
      * @param listener  リストアイテムのタップ時におけるリスナー
      */
-    public MyPlanRecyclerViewAdapter(List<PlanItem> items, OnDayFragmentListener listener) {
+    public MyPlanRecyclerViewAdapter(List<EventItem> items, OnDayFragmentListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -38,7 +38,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mStatTimeView.setText(PlanInfo.convertTimeToString(holder.mItem.getStartMillis()));
+        holder.mStatTimeView.setText(EventInfo.convertTimeToString(holder.mItem.getStartMillis()));
         holder.mTitleView.setText(holder.mItem.getTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +61,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
         private final LinearLayout mLayout;
         private final TextView mStatTimeView;
         private final TextView mTitleView;
-        private PlanItem mItem;
+        private EventItem mItem;
 
         private ViewHolder(View view) {
             super(view);
