@@ -54,14 +54,20 @@ public class MainDrawerActivity extends AppCompatActivity
                     MyGoogleAccountCredential.OnGoogleAccountCredentialListener{
     /** 要求コード  */
     private static final int REQUEST_MULTI_PERMISSIONS = 1;
+    private static final int REQUEST_ADD_EVENTITEM = 2;
 
     /** 状態変数 */
     private int state;
     private static final int STATE_TODAY = 0;
     private static final int STATE_CALENDAR = 1;
 
-    /** 識別子 **/
+    /** 識別子 */
     private static final String PREF_ACCOUNT_NAME = "accountName";
+    public static final String EXTRA_EVENTITEM
+                                = "io.github.yunato.myscheduler.ui.activity.EXTRA_EVENTITEM";
+
+    /** DAO */
+    private CalendarLocalDao localDao = null;
 
     // TODO: 「同期」ボタンをタップしたときに null チェックの必要あり
     private MyGoogleAccountCredential mCredential;
@@ -99,7 +105,9 @@ public class MainDrawerActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), EditPlanInfoActivity.class));
+                startActivityForResult(
+                        new Intent(getApplication(), EditPlanInfoActivity.class)
+                        , REQUEST_ADD_EVENTITEM);
                 overridePendingTransition(0, 0);
             }
         });
@@ -141,14 +149,14 @@ public class MainDrawerActivity extends AppCompatActivity
     @AfterPermissionGranted(REQUEST_MULTI_PERMISSIONS)
     private void checkedPermissions(){
         chooseAccount();
-        CalendarLocalDao dao = DaoFactory.getLocalDao(this);
-        String accountName = dao.getValueFromPref(PREF_ACCOUNT_NAME);
+        localDao = DaoFactory.getLocalDao(this);
+        String accountName = localDao.getValueFromPref(PREF_ACCOUNT_NAME);
         if(accountName != null){
-            dao.checkExistLocalCalendar(accountName);
+            localDao.checkExistLocalCalendar(accountName);
         }else {
             throw new IllegalStateException("AccountName isn't selected.");
         }
-        dao.getCalendarInfo();
+        localDao.getCalendarInfo();
     }
 
     /**
@@ -211,6 +219,7 @@ public class MainDrawerActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+            //region Google API 関連
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode == RESULT_OK) {
                     mCredential.callGoogleApi();
@@ -232,6 +241,16 @@ public class MainDrawerActivity extends AppCompatActivity
             case REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
                     mCredential.callGoogleApi();
+                }
+                break;
+            // endregion
+
+            case REQUEST_ADD_EVENTITEM:
+                if (resultCode == RESULT_OK) {
+                    if(localDao == null){
+                        localDao = DaoFactory.getLocalDao(this);
+                    }
+                    localDao.insertEventItem((EventItem) data.getParcelableExtra(EXTRA_EVENTITEM));
                 }
                 break;
         }
@@ -281,7 +300,7 @@ public class MainDrawerActivity extends AppCompatActivity
                         this,
                         view,
                         view.getTransitionName());
-        Intent intent = new Intent(this, ShowPlanInfoActivity.class);
+        Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
         //TODO:識別子の変更
         intent.putExtra("TEST", item);
         startActivity(intent, compat.toBundle());

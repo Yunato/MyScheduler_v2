@@ -2,10 +2,10 @@ package io.github.yunato.myscheduler.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.EventInfo;
@@ -31,11 +31,12 @@ public class EditPlanInfoActivity extends AppCompatActivity{
                 return;
             }
 
+            Button saveButton = (Button)findViewById(R.id.save_button);
             Intent intent = getIntent();
             //TODO:識別子の変更
-            EventItem item = (EventItem)intent.getSerializableExtra("TEST");
-            //TODO: itemがnullの場合を記述する (新規オブジェクトを渡す)
-            Fragment containerFragment = EditPlanInfoFragment.newInstance(EventInfo.createPlanItem());
+            EventItem item = intent.getParcelableExtra("TEST");
+            EditPlanInfoFragment containerFragment = EditPlanInfoFragment.newInstance(EventInfo.createEventItem());
+            saveButton.setOnClickListener(containerFragment.getSaveBtnOnClickListener());
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, containerFragment)
                     .commit();

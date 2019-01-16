@@ -20,7 +20,7 @@ public class ShowPlanFragment extends Fragment {
     public static ShowPlanFragment newInstance(EventItem item) {
         ShowPlanFragment fragment = new ShowPlanFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_PARAM_ITEM, item);
+        args.putParcelable(ARG_PARAM_ITEM, item);
         fragment.setArguments(args);
         return fragment;
     }
@@ -29,7 +29,7 @@ public class ShowPlanFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            itemInfo = (EventItem)getArguments().getSerializable(ARG_PARAM_ITEM);
+            itemInfo = getArguments().getParcelable(ARG_PARAM_ITEM);
         }
     }
 

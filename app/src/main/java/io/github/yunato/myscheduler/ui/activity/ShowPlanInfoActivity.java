@@ -2,7 +2,6 @@ package io.github.yunato.myscheduler.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,12 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
 public class ShowPlanInfoActivity extends AppCompatActivity {
     /** FloatingActionButton */
-    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +34,7 @@ public class ShowPlanInfoActivity extends AppCompatActivity {
 
             Intent intent = getIntent();
             //TODO:識別子の変更
-            EventInfo.EventItem item = (EventInfo.EventItem)intent.getSerializableExtra("TEST");
+            EventItem item = intent.getParcelableExtra("TEST");
             Fragment fragment = ShowPlanFragment.newInstance(item);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment).commit();
@@ -55,7 +53,7 @@ public class ShowPlanInfoActivity extends AppCompatActivity {
         if(id == android.R.id.home){
             finish();
         }else if(id == R.id.action_edit){
-            startActivity(new Intent(getApplicationContext(), EditPlanInfoActivity.class));
+            startActivity(new Intent(getApplication(), EditPlanInfoActivity.class));
             overridePendingTransition(0, 0);
         }
         return super.onOptionsItemSelected(item);

@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
@@ -136,6 +137,8 @@ public class CalendarLocalDao extends CalendarDao {
         values.put(Calendars.NAME, calendarName + "." + accountName);
         values.put(Calendars.ACCOUNT_NAME, accountName);
         values.put(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+        // Debug 用
+        values.put(Calendars.CALENDAR_DISPLAY_NAME, "TEST_Scheduler");
         values.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
         values.put(Calendars.OWNER_ACCOUNT, true);
         values.put(Calendars.CALENDAR_TIME_ZONE, "Asia/Tokyo");
@@ -196,6 +199,7 @@ public class CalendarLocalDao extends CalendarDao {
         values.put(Events.CALENDAR_ID, getValueFromPref(IDENTIFIER_LOCAL_ID));
         values.put(Events.TITLE, eventInfo.getTitle());
         values.put(Events.DESCRIPTION, eventInfo.getDescription());
+        values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
         values.put(Events.DTSTART, eventInfo.getStartMillis());
         values.put(Events.DTEND, eventInfo.getEndMillis());
 

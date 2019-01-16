@@ -1,6 +1,9 @@
 package io.github.yunato.myscheduler.model.item;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,7 +18,7 @@ public class EventInfo {
     static {
         final int COUNT = 24;
         for (int i = 0; i < COUNT; i++) {
-            addItem(createPlanItem(i));
+            addItem(createEventItem(i));
         }
     }
 
@@ -47,17 +50,17 @@ public class EventInfo {
         return sdf.format(date);
     }
 
-    public static EventItem createPlanItem() {
+    public static EventItem createEventItem() {
         Calendar calendar = Calendar.getInstance();
         //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
         //long time = Long.parseLong(sdf.format(date.getTime()));
         final long time = calendar.getTimeInMillis();
-        return new EventItem("noNumber", "", "", time, time);
+        return new EventItem("NoNumber", "", "", time, time);
     }
 
     //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
-    //TODO: このクラスを通さないと EventItem のインスタンスを作成できない
-    private static EventItem createPlanItem(int index) {
+    //TODO: このクラスを通さないと EventItem のインスタンスを作成できない (カレンダーからの読取)
+    private static EventItem createEventItem(int index) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, index);
         calendar.set(Calendar.MINUTE, 0);
@@ -71,7 +74,14 @@ public class EventInfo {
         return new EventItem(Integer.toString(index), "予定名", "予定の内容", startTime, endTime);
     }
 
-    public static class EventItem implements Serializable{
+    @Nullable
+    public static EventItem createEventItem(String eventId, String title, String description
+                                            , long startMillis, long endMillis){
+        //TODO: 不適切なら null を返す
+        return new EventItem(eventId, title, description, startMillis, endMillis);
+    }
+
+    public static class EventItem implements Parcelable{
         private final String eventId;
         private final String title;
         private final String description;
@@ -96,6 +106,14 @@ public class EventInfo {
             this.endMillis = endMillis;
         }
 
+        private EventItem(Parcel in){
+            eventId = in.readString();
+            title = in.readString();
+            description = in.readString();
+            startMillis = in.readLong();
+            endMillis = in.readLong();
+        }
+
         public String getEventId() {
             return eventId;
         }
@@ -108,14 +126,38 @@ public class EventInfo {
             return description;
         }
 
-        //TODO: 扱いやすい数値に変換する必要がある
         public long getStartMillis() {
             return startMillis;
         }
 
-        //TODO: 扱いやすい数値に変換する必要がある
         public long getEndMillis() {
             return endMillis;
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(eventId);
+            dest.writeString(title);
+            dest.writeString(description);
+            dest.writeLong(startMillis);
+            dest.writeLong(endMillis);
+        }
+
+        public static final Parcelable.Creator CREATOR = new Parcelable.Creator(){
+            @Override
+            public Object createFromParcel(Parcel source) {
+                return new EventItem(source);
+            }
+
+            @Override
+            public EventItem[] newArray(int size) {
+                return new EventItem[size];
+            }
+        };
     }
 }
