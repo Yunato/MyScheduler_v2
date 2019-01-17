@@ -177,6 +177,7 @@ public class EditPlanInfoFragment extends Fragment {
         super.onPrepareOptionsMenu(menu);
     }
 
+    //TODO: 保存前に入力内容のチェックをする
     /**
      * 入力された情報を基にイベントアイテムを作成する
      * @return イベントアイテム
