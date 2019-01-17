@@ -50,7 +50,7 @@ public class CalendarLocalDao extends CalendarDao {
     private final String calendarName = "io.github.yunato.myscheduler";
 
     /** 識別子 **/
-    private static final String IDENTIFIER_LOCAL_ID = "CALENDAR_ID";
+    private static final String IDENTIFIER_LOCAL_ID = "LOCAL_CALENDAR_ID";
 
     /** Debug 用 */
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
@@ -67,6 +67,7 @@ public class CalendarLocalDao extends CalendarDao {
         return new CalendarLocalDao(context);
     }
 
+    // TODO: プリファレンスをアクセスしてから引数に渡すのではなくアクセスは呼び出されてからでいいのでは
     /**
      * ローカルカレンダーがすでに存在するかどうかを確かめる．
      * 存在しなければ作成する．
@@ -74,12 +75,16 @@ public class CalendarLocalDao extends CalendarDao {
      */
     public void checkExistLocalCalendar(@NonNull String accountName){
         Cursor cur = getCalendarCursor("Calendars.NAME = ?",
-                                        new String[]{calendarName + accountName},
+                                        new String[]{calendarName + "." + accountName},
                                         null);
         String calendarId = getValueFromPref(IDENTIFIER_LOCAL_ID);
-        if(calendarId == null || cur.getCount() == 0){
+        if(cur.getCount() == 0){
             calendarId = createCalendar(accountName);
             setValueToPref(IDENTIFIER_LOCAL_ID, calendarId);
+        }else if(calendarId == null){
+            cur.moveToNext();
+            setValueToPref(IDENTIFIER_LOCAL_ID,
+                        Long.toString(cur.getLong(CALENDAR_PROJECTION_IDX_ID)));
         }
         cur.close();
     }
@@ -89,6 +94,7 @@ public class CalendarLocalDao extends CalendarDao {
      */
     public void getCalendarInfo(){
         Cursor cur = getCalendarCursor(null, null, null);
+        Log.d(className + methodName, "Local Calendar List");
         while(cur.moveToNext()){
             final long id = cur.getLong(CALENDAR_PROJECTION_IDX_ID);
             final String name = cur.getString(CALENDAR_PROJECTION_IDX_NAME);

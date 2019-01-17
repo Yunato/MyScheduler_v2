@@ -154,10 +154,12 @@ public class MainDrawerActivity extends AppCompatActivity
         String accountName = localDao.getValueFromPref(PREF_ACCOUNT_NAME);
         if(accountName != null){
             localDao.checkExistLocalCalendar(accountName);
+            mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_CREATE_CALENDAR);
         }else {
             throw new IllegalStateException("AccountName isn't selected.");
         }
         localDao.getCalendarInfo();
+        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
     }
 
     /**
@@ -170,7 +172,6 @@ public class MainDrawerActivity extends AppCompatActivity
             String accountName = dao.getValueFromPref(PREF_ACCOUNT_NAME);
             if (accountName != null) {
                 mCredential.setAccountName(accountName);
-                mCredential.callGoogleApi();
             } else {
                 this.startActivityForResult(
                         mCredential.getChooseAccountIntent(),
@@ -203,6 +204,15 @@ public class MainDrawerActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_synchronization:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode,
             @NonNull String[] permissions, @NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -227,12 +237,6 @@ public class MainDrawerActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             //region Google API 関連
-            case REQUEST_GOOGLE_PLAY_SERVICES:
-                if (resultCode == RESULT_OK) {
-                    mCredential.callGoogleApi();
-                }
-                break;
-
             case REQUEST_ACCOUNT_PICKER:
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
@@ -240,8 +244,14 @@ public class MainDrawerActivity extends AppCompatActivity
                         CalendarLocalDao dao = DaoFactory.getLocalDao(this);
                         dao.setValueToPref(PREF_ACCOUNT_NAME, accountName);
                         mCredential.setAccountName(accountName);
-                        mCredential.callGoogleApi();
+                        checkedPermissions();
                     }
+                }
+                break;
+
+            case REQUEST_GOOGLE_PLAY_SERVICES:
+                if (resultCode == RESULT_OK) {
+                    mCredential.callGoogleApi();
                 }
                 break;
 
@@ -257,7 +267,11 @@ public class MainDrawerActivity extends AppCompatActivity
                     if(localDao == null){
                         localDao = DaoFactory.getLocalDao(this);
                     }
-                    localDao.insertEventItem((EventItem) data.getParcelableExtra(EXTRA_EVENTITEM));
+                    EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
+                    localDao.insertEventItem(eventItem);
+                    mCredential.callGoogleApi(
+                            MyGoogleAccountCredential.STATE_WRITE_EVENT_ITEM,
+                            eventItem);
                 }
                 break;
         }

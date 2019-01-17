@@ -17,6 +17,7 @@ import java.util.Arrays;
 
 import io.github.yunato.myscheduler.model.dao.CalendarRemoteDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 public class MyGoogleAccountCredential {
     private final GoogleAccountCredential mCredential;
@@ -31,8 +32,12 @@ public class MyGoogleAccountCredential {
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    /** 識別子 **/
-    private static final String IDENTIFIER_REMOTE_ID = "CALENDAR_ID";
+    /** 状態変数 */
+    private int state;
+    private EventItem eventItem;
+    public static final int STATE_CREATE_CALENDAR = 0;
+    public static final int STATE_READ_CALENDAR_INFO = 1;
+    public static final int STATE_WRITE_EVENT_ITEM = 2;
 
     private MyGoogleAccountCredential(Context context){
         this.context = context;
@@ -41,6 +46,7 @@ public class MyGoogleAccountCredential {
                                     context.getApplicationContext(),
                                     Arrays.asList(SCOPES))
                                 .setBackOff(new ExponentialBackOff());
+        this.state = STATE_CREATE_CALENDAR;
     }
 
     public static MyGoogleAccountCredential newMyGoogleAccountCredential(Context context){
@@ -58,12 +64,32 @@ public class MyGoogleAccountCredential {
     /**
      *  Google Calendar API を呼び出せるか確認する
      */
-    public void callGoogleApi() {
+    public void callGoogleApi(){
+        callGoogleApi(this.state, this.eventItem);
+    }
+
+    /**
+     * Google Calendar API を呼び出せるか確認する
+     * @param nextState 次に移行する状態
+     */
+    public void callGoogleApi(int nextState) {
+        callGoogleApi(nextState, null);
+    }
+
+    /**
+     * Google Calendar API を呼び出せるか確認する
+     * @param nextState 次に移行する状態
+     * @param eventItem 扱うイベントアイテム
+     */
+    public void callGoogleApi(int nextState, EventItem eventItem){
+        this.state = nextState;
+        this.eventItem = eventItem;
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else {
-            new MakeRequestTask(mCredential).execute();
+            new MakeRequestTask(mCredential, nextState, eventItem).execute();
         }
+
     }
 
     /**
@@ -87,18 +113,34 @@ public class MyGoogleAccountCredential {
         }
     }
 
-    private class MakeRequestTask extends AsyncTask<Void, Void, String> {
+    private class MakeRequestTask extends AsyncTask<Void, Void, Void> {
         private Exception mLastError = null;
         private CalendarRemoteDao dao = null;
+        private int state;
+        private EventItem eventItem;
 
-        private MakeRequestTask(GoogleAccountCredential credential){
+        private MakeRequestTask(GoogleAccountCredential credential, int state, EventItem eventItem){
             dao = DaoFactory.getRemoteDao(context, credential);
+            this.state = state;
+            this.eventItem = eventItem;
         }
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
             try {
-                return createCalendar();
+                switch (this.state){
+                    case MyGoogleAccountCredential.STATE_CREATE_CALENDAR:
+                        createCalendar();
+                        break;
+                    case MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO:
+                        dao.getCalendarInfo();
+                        break;
+                    case MyGoogleAccountCredential.STATE_WRITE_EVENT_ITEM:
+                        dao.insertEventItem(eventItem);
+                        break;
+                    default:
+                }
+                return null;
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -107,13 +149,7 @@ public class MyGoogleAccountCredential {
         }
 
         private String createCalendar() throws IOException {
-            String calendarId = dao.getValueFromPref(IDENTIFIER_REMOTE_ID);
-            if(calendarId == null){
-                dao.deleteCalendar();
-                calendarId = dao.createCalendar();
-                dao.setValueToPref(IDENTIFIER_REMOTE_ID, calendarId);
-            }
-            return calendarId;
+            return dao.checkExistLocalCalendar();
         }
 
         @Override
