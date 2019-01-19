@@ -178,6 +178,7 @@ public class EditPlanInfoFragment extends Fragment {
     }
 
     //TODO: 保存前に入力内容のチェックをする
+    //TODO: テスト必須
     /**
      * 入力された情報を基にイベントアイテムを作成する
      * @return イベントアイテム
