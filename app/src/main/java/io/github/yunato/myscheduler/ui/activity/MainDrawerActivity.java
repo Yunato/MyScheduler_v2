@@ -36,6 +36,7 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential;
+import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -48,6 +49,7 @@ import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.R
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
+import static java.util.Collections.singletonList;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -156,6 +158,10 @@ public class MainDrawerActivity extends AppCompatActivity
         localDao.getCalendarInfo();
         //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
         //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_EVENT_INFO);
+        // 追加
+        //localDao.insertEventItems(EventInfo.ITEMS);
+        EventInfo.createEventList();
+        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO, EventInfo.ITEMS);
     }
 
     /**
@@ -267,7 +273,7 @@ public class MainDrawerActivity extends AppCompatActivity
                     localDao.insertEventItem(eventItem);
                     mCredential.callGoogleApi(
                             MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO,
-                            eventItem);
+                            singletonList(eventItem));
                 }
                 break;
         }

@@ -119,51 +119,6 @@ class CalendarRemoteDao extends CalendarDao {
         //deleteCalendar();
     }
 
-    public long insertEventItem(EventItem eventInfo){
-        Event event = new Event().setSummary(eventInfo.getTitle())
-                                 .setDescription(eventInfo.getDescription());
-
-        Date startDate = new Date();
-        startDate.setTime(eventInfo.getStartMillis());
-        DateTime startDateTime
-                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
-                    .format(startDate));
-        EventDateTime start = new EventDateTime().setDateTime(startDateTime)
-                                                 .setTimeZone("Asia/Tokyo");
-        event.setStart(start);
-
-        Date endDate = new Date();
-        endDate.setTime(eventInfo.getEndMillis());
-        DateTime endDateTime
-                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
-                    .format(endDate));
-        EventDateTime end = new EventDateTime().setDateTime(endDateTime)
-                                               .setTimeZone("Asia/Tokyo");
-        event.setEnd(end);
-
-        //region リマインダーの設定
-        /*
-        EventReminder[] reminderOverrides = new EventReminder[] {
-                new EventReminder().setMethod("email").setMinutes(24 * 60),
-                new EventReminder().setMethod("popup").setMinutes(10),
-        };
-        Event.Reminders reminders = new Event.Reminders()
-                .setUseDefault(false)
-                .setOverrides(Arrays.asList(reminderOverrides));
-        event.setReminders(reminders);
-        */
-        // endregion
-
-        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
-        //String calendarId = "pjqmod08j603i4jftjm803sgfo@group.calendar.google.com";
-        try{
-            event = mService.events().insert(calendarId, event).execute();
-        }catch (IOException e){
-            Log.e(className + methodName, "IOException", e);
-        }
-        return Long.parseLong(event.getId());
-    }
-
     public List<EventItem> getEventItems(){
         List<EventItem> result = new ArrayList<>();
         String pageToken = null;
@@ -194,6 +149,59 @@ class CalendarRemoteDao extends CalendarDao {
             }
         } while (pageToken != null);
 
+        return result;
+    }
+
+    private String insertEventItem(EventItem eventInfo){
+        Event event = new Event().setSummary(eventInfo.getTitle())
+                .setDescription(eventInfo.getDescription());
+
+        Date startDate = new Date();
+        startDate.setTime(eventInfo.getStartMillis());
+        DateTime startDateTime
+                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
+                .format(startDate));
+        EventDateTime start = new EventDateTime().setDateTime(startDateTime)
+                .setTimeZone("Asia/Tokyo");
+        event.setStart(start);
+
+        Date endDate = new Date();
+        endDate.setTime(eventInfo.getEndMillis());
+        DateTime endDateTime
+                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
+                .format(endDate));
+        EventDateTime end = new EventDateTime().setDateTime(endDateTime)
+                .setTimeZone("Asia/Tokyo");
+        event.setEnd(end);
+
+        //region リマインダーの設定
+        /*
+        EventReminder[] reminderOverrides = new EventReminder[] {
+                new EventReminder().setMethod("email").setMinutes(24 * 60),
+                new EventReminder().setMethod("popup").setMinutes(10),
+        };
+        Event.Reminders reminders = new Event.Reminders()
+                .setUseDefault(false)
+                .setOverrides(Arrays.asList(reminderOverrides));
+        event.setReminders(reminders);
+        */
+        // endregion
+
+        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        //String calendarId = "pjqmod08j603i4jftjm803sgfo@group.calendar.google.com";
+        try{
+            event = mService.events().insert(calendarId, event).execute();
+        }catch (IOException e){
+            Log.e(className + methodName, "IOException", e);
+        }
+        return event.getId();
+    }
+
+    public List<String> insertEventItems(List<EventItem> eventItems){
+        List<String> result = new ArrayList<>();
+        for(EventItem item : eventItems){
+            result.add(insertEventItem(item));
+        }
         return result;
     }
 

@@ -310,7 +310,7 @@ public class CalendarLocalDao extends CalendarDao {
      * @param eventInfo     イベント情報
      * @return              イベントID
      */
-    public long insertEventItem(EventItem eventInfo){
+    public String insertEventItem(EventItem eventInfo){
         final ContentResolver cr = context.getContentResolver();
 
         final ContentValues values = new ContentValues();
@@ -330,7 +330,15 @@ public class CalendarLocalDao extends CalendarDao {
         }catch(SecurityException e){
             Log.e(className + methodName, "SecurityException", e);
         }
-        return eventId;
+        return Long.toString(eventId);
+    }
+
+    public List<String> insertEventItems(List<EventItem> eventItems){
+        List<String> result = new ArrayList<>();
+        for(EventItem item : eventItems){
+            result.add(insertEventItem(item));
+        }
+        return result;
     }
 
     public void deleteEventItem(long eventId){

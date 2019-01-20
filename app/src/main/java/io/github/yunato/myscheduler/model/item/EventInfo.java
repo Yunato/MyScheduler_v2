@@ -12,20 +12,30 @@ import java.util.List;
 import java.util.Locale;
 
 public class EventInfo {
-    public static final List<EventItem> ITEMS = new ArrayList<>();
+    public static List<EventItem> ITEMS = new ArrayList<>();
     //private static final Map<String, PlanItem> ITEM_MAP = new HashMap<>();
 
+    //TODO: 保存の責務は別にある
+
     static {
+        //createEventList();
+        /*
         final int COUNT = 24;
         for (int i = 0; i < COUNT; i++) {
             addItem(createEventItem(i));
         }
+        */
     }
 
     //TODO: public に変更
     private static void addItem(EventItem item) {
         ITEMS.add(item);
         //ITEM_MAP.put(item.calendarId, item);
+    }
+
+    public static void createEventList(){
+        EventGenerator generator = new EventGenerator();
+        ITEMS = generator.generate();
     }
 
     /**

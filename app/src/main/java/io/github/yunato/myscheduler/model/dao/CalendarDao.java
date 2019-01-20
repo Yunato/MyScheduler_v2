@@ -33,7 +33,7 @@ abstract class CalendarDao {
         myPreferences.setValue(key, value);
     }
 
-    public abstract long insertEventItem(EventItem eventItem);
+    public abstract List<String> insertEventItems(List<EventItem> eventItems);
 
     public abstract List<EventItem> getEventItems();
 }

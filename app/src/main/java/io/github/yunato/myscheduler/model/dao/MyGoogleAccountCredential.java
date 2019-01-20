@@ -14,6 +14,7 @@ import com.google.api.services.calendar.CalendarScopes;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
@@ -32,7 +33,7 @@ public class MyGoogleAccountCredential {
 
     /** 状態変数 */
     private int state;
-    private EventItem eventItem;
+    private List<EventItem> eventItems;
     public static final int STATE_CREATE_CALENDAR = 0;
     public static final int STATE_READ_CALENDAR_INFO = 1;
     public static final int STATE_READ_EVENT_INFO = 2;
@@ -64,7 +65,7 @@ public class MyGoogleAccountCredential {
      *  Google Calendar API を呼び出せるか確認する
      */
     public void callGoogleApi(){
-        callGoogleApi(this.state, this.eventItem);
+        callGoogleApi(this.state, this.eventItems);
     }
 
     /**
@@ -78,15 +79,15 @@ public class MyGoogleAccountCredential {
     /**
      * Google Calendar API を呼び出せるか確認する
      * @param nextState 次に移行する状態
-     * @param eventItem 扱うイベントアイテム
+     * @param eventItems 扱うイベントアイテム群
      */
-    public void callGoogleApi(int nextState, EventItem eventItem){
+    public void callGoogleApi(int nextState, List<EventItem> eventItems){
         this.state = nextState;
-        this.eventItem = eventItem;
+        this.eventItems = eventItems;
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else {
-            new MakeRequestTask(mCredential, nextState, eventItem).execute();
+            new MakeRequestTask(mCredential, nextState, eventItems).execute();
         }
 
     }
@@ -116,12 +117,12 @@ public class MyGoogleAccountCredential {
         private Exception mLastError = null;
         private CalendarRemoteDao dao = null;
         private int state;
-        private EventItem eventItem;
+        private List<EventItem> eventItems;
 
-        private MakeRequestTask(GoogleAccountCredential credential, int state, EventItem eventItem){
+        private MakeRequestTask(GoogleAccountCredential credential, int state, List<EventItem> eventItems){
             dao = DaoFactory.getRemoteDao(context, credential);
             this.state = state;
-            this.eventItem = eventItem;
+            this.eventItems = eventItems;
         }
 
         @Override
@@ -138,7 +139,7 @@ public class MyGoogleAccountCredential {
                         dao.getEventItems();
                         break;
                     case STATE_WRITE_EVENT_INFO:
-                        dao.insertEventItem(eventItem);
+                        dao.insertEventItems(eventItems);
                         break;
                     default:
                 }
