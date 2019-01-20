@@ -5,10 +5,13 @@ import android.content.SharedPreferences;
 
 import static android.content.Context.MODE_PRIVATE;
 
-class MyPreferences {
+public class MyPreferences {
     private final SharedPreferences preferences;
+
     /** 識別子 **/
     private static final String IDENTIFIER_PREF = "MY_PREFERENCE";
+    public static final String PREF_ACCOUNT_NAME = "accountName";
+    static final String IDENTIFIER_LOCAL_ID = "LOCAL_CALENDAR_ID";
 
     MyPreferences(Context context){
         preferences = context.getSharedPreferences(IDENTIFIER_PREF , MODE_PRIVATE);

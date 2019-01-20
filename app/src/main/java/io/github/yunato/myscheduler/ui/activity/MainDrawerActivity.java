@@ -33,9 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential;
 import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
+import io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -47,6 +47,7 @@ import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.R
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
+import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -63,7 +64,6 @@ public class MainDrawerActivity extends AppCompatActivity
     private static final int STATE_CALENDAR = 1;
 
     /** 識別子 */
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     public static final String EXTRA_EVENTITEM
                                 = "io.github.yunato.myscheduler.ui.activity.EXTRA_EVENTITEM";
 
@@ -151,13 +151,8 @@ public class MainDrawerActivity extends AppCompatActivity
     private void checkedPermissions(){
         chooseAccount();
         localDao = DaoFactory.getLocalDao(this);
-        String accountName = localDao.getValueFromPref(PREF_ACCOUNT_NAME);
-        if(accountName != null){
-            localDao.checkExistLocalCalendar(accountName);
-            mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_CREATE_CALENDAR);
-        }else {
-            throw new IllegalStateException("AccountName isn't selected.");
-        }
+        localDao.checkExistLocalCalendar();
+        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_CREATE_CALENDAR);
         localDao.getCalendarInfo();
         localDao.getEventItems();
         mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);

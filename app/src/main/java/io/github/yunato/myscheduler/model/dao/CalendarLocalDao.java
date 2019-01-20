@@ -17,6 +17,8 @@ import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static android.provider.CalendarContract.Calendars;
 import static android.provider.CalendarContract.Events;
+import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_LOCAL_ID;
+import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 
 public class CalendarLocalDao extends CalendarDao {
     /** プロジェクション配列 (カレンダー) */
@@ -70,9 +72,6 @@ public class CalendarLocalDao extends CalendarDao {
     /** 作成するローカルカレンダー情報 */
     private final String calendarName = "io.github.yunato.myscheduler";
 
-    /** 識別子 **/
-    private static final String IDENTIFIER_LOCAL_ID = "LOCAL_CALENDAR_ID";
-
     /** Debug 用 */
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -88,13 +87,15 @@ public class CalendarLocalDao extends CalendarDao {
         return new CalendarLocalDao(context);
     }
 
-    // TODO: プリファレンスをアクセスしてから引数に渡すのではなくアクセスは呼び出されてからでいいのでは
     /**
      * ローカルカレンダーがすでに存在するかどうかを確かめる．
      * 存在しなければ作成する．
-     * @param accountName   Google アカウント名
      */
-    public void checkExistLocalCalendar(@NonNull String accountName){
+    public void checkExistLocalCalendar(){
+        String accountName = getValueFromPref(PREF_ACCOUNT_NAME);
+        if(accountName == null){
+            throw new IllegalStateException("AccountName isn't selected.");
+        }
         Cursor cur = getCalendarCursor("Calendars.NAME = ?",
                                         new String[]{calendarName + "." + accountName},
                                         null);
