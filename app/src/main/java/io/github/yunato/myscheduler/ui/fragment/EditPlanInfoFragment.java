@@ -26,6 +26,7 @@ public class EditPlanInfoFragment extends Fragment {
     private static final String ARG_PLAN_ITEM = "PLAN_ITEM";
     private EventItem itemInfo;
 
+    // TODO: Calendarクラスで統一するかDateTimeクラスで統一するか
     /** 入力情報保持 */
     private String eventId = null;
     private String title = null;

@@ -52,8 +52,6 @@ public class EventInfo {
 
     public static EventItem createEventItem() {
         Calendar calendar = Calendar.getInstance();
-        //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.JAPAN);
-        //long time = Long.parseLong(sdf.format(date.getTime()));
         final long time = calendar.getTimeInMillis();
         return new EventItem("NoNumber", "", "", time, time);
     }
@@ -64,10 +62,6 @@ public class EventInfo {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, index);
         calendar.set(Calendar.MINUTE, 0);
-        //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.JAPAN);
-        //String startTime, endTime;
-        //startTime = sdf.format(calendar.getTime()) + getDoubleDigit(index) + "0000";
-        //endTime = sdf.format(calendar.getTime()) + getDoubleDigit(index + 1) + "0000";
         final long startTime = calendar.getTimeInMillis();
         calendar.set(Calendar.HOUR_OF_DAY, index + 1);
         final long endTime = calendar.getTimeInMillis();

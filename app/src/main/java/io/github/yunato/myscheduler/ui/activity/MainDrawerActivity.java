@@ -154,9 +154,8 @@ public class MainDrawerActivity extends AppCompatActivity
         localDao.checkExistLocalCalendar();
         mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_CREATE_CALENDAR);
         localDao.getCalendarInfo();
-        localDao.getEventItems();
-        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
-        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_EVENT_INFO);
+        //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
+        //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_EVENT_INFO);
     }
 
     /**
