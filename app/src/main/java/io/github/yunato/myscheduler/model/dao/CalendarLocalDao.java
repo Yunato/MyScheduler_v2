@@ -1,6 +1,7 @@
 package io.github.yunato.myscheduler.model.dao;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -18,7 +19,7 @@ import static android.provider.CalendarContract.Calendars;
 import static android.provider.CalendarContract.Events;
 
 public class CalendarLocalDao extends CalendarDao {
-    /** プロジェクション配列 */
+    /** プロジェクション配列 (カレンダー) */
     private static final String[] CALENDAR_PROJECTION = new String[]{
             Calendars._ID,
             Calendars.NAME,
@@ -33,7 +34,7 @@ public class CalendarLocalDao extends CalendarDao {
             Calendars.OWNER_ACCOUNT,
     };
 
-    /** プロジェクション配列インデックス */
+    /** プロジェクション配列インデックス (カレンダー) */
     private static final int CALENDAR_PROJECTION_IDX_ID = 0;
     private static final int CALENDAR_PROJECTION_IDX_NAME = 1;
     private static final int CALENDAR_PROJECTION_IDX_ACCOUNT_NAME = 2;
@@ -45,6 +46,26 @@ public class CalendarLocalDao extends CalendarDao {
     private static final int CALENDAR_PROJECTION_IDX_VISIBLE = 8;
     private static final int CALENDAR_PROJECTION_IDX_SYNC_EVENTS = 9;
     private static final int CALENDAR_PROJECTION_IDX_OWNER_ACCOUNT = 10;
+
+    /** プロジェクション配列 (イベント) */
+    private static final String[] EVENTS_PROJECTION = new String[]{
+            Events._ID,
+            Events.CALENDAR_ID,
+            Events.TITLE,
+            Events.DESCRIPTION,
+            Events.EVENT_TIMEZONE,
+            Events.DTSTART,
+            Events.DTEND,
+    };
+
+    /** プロジェクション配列インデックス (イベント) */
+    private static final int EVENTS_PROJECTION_IDX_ID = 0;
+    private static final int EVENTS_PROJECTION_IDX_CALENDAR_ID = 1;
+    private static final int EVENTS_PROJECTION_IDX_TITLE = 2;
+    private static final int EVENTS_PROJECTION_IDX_DESCRIPTION = 3;
+    private static final int EVENTS_PROJECTION_IDX_EVENT_TIMEZONE = 4;
+    private static final int EVENTS_PROJECTION_IDX_DTSTART = 5;
+    private static final int EVENTS_PROJECTION_IDX_DTEND = 6;
 
     /** 作成するローカルカレンダー情報 */
     private final String calendarName = "io.github.yunato.myscheduler";
@@ -119,7 +140,6 @@ public class CalendarLocalDao extends CalendarDao {
                                         final String[] selectionArgs, final String sortOrder){
         final Uri uri = Calendars.CONTENT_URI;
         final String[] projection = CALENDAR_PROJECTION;
-
         final ContentResolver cr = context.getContentResolver();
         Cursor cur = null;
         try {
@@ -193,6 +213,42 @@ public class CalendarLocalDao extends CalendarDao {
         }
     }
 
+    public List<EventItem> getEventItems(){
+        final Uri uri = Events.CONTENT_URI;
+        final String[] projection = EVENTS_PROJECTION;
+        final ContentResolver cr = context.getContentResolver();
+        Cursor cur = null;
+        try{
+            cur = cr.query(uri, projection, null, null, null);
+        }catch(SecurityException e){
+            Log.e(className + methodName, "SecurityException", e);
+        }
+        if(cur == null) {
+            throw new IllegalStateException("Cursor is null.");
+        }
+
+        List<EventItem> result = null;
+        Log.d(className + methodName, "Events List of Local Calendar");
+        while(cur.moveToNext()){
+            final long id = cur.getLong(EVENTS_PROJECTION_IDX_ID);
+            final String calendar_id = cur.getString(EVENTS_PROJECTION_IDX_CALENDAR_ID);
+            final String title = cur.getString(EVENTS_PROJECTION_IDX_TITLE);
+            final String description = cur.getString(EVENTS_PROJECTION_IDX_DESCRIPTION);
+            final String timezone = cur.getString(EVENTS_PROJECTION_IDX_EVENT_TIMEZONE);
+            final long start = cur.getLong(EVENTS_PROJECTION_IDX_DTSTART);
+            final long end = cur.getLong(EVENTS_PROJECTION_IDX_DTEND);
+            Log.d(className + methodName, id + " " + calendar_id + " " + title);
+            Log.d(className + methodName, description + " " + start + " " + end);
+            /*
+            if(getValueFromPref(IDENTIFIER_LOCAL_ID).equals(calendar_id)){
+                deleteEventItem(id);
+            }
+            */
+        }
+        cur.close();
+        return result;
+    }
+
     /**
      * イベントをローカルカレンダーへ追加する
      * @param eventInfo     イベント情報
@@ -221,8 +277,13 @@ public class CalendarLocalDao extends CalendarDao {
         return eventId;
     }
 
-    public List<EventItem> getEventItems(){
-        List<EventItem> result = null;
-        return result;
+    public void deleteEventItem(long eventId){
+        final ContentResolver cr = context.getContentResolver();
+        Uri deleteUri = ContentUris.withAppendedId(Events.CONTENT_URI, eventId);
+        try{
+            int row = context.getContentResolver().delete(deleteUri, null, null);
+        }catch(SecurityException e){
+            Log.e(className + methodName, "SecurityException", e);
+        }
     }
 }

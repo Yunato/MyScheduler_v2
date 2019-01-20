@@ -1,4 +1,4 @@
-package io.github.yunato.myscheduler.model.credential;
+package io.github.yunato.myscheduler.model.dao;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +15,6 @@ import com.google.api.services.calendar.CalendarScopes;
 import java.io.IOException;
 import java.util.Arrays;
 
-import io.github.yunato.myscheduler.model.dao.CalendarRemoteDao;
-import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 public class MyGoogleAccountCredential {

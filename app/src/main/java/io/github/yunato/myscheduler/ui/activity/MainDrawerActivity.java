@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential;
+import io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential;
 import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
@@ -43,10 +43,10 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
-import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
-import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
-import static io.github.yunato.myscheduler.model.credential.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -159,6 +159,7 @@ public class MainDrawerActivity extends AppCompatActivity
             throw new IllegalStateException("AccountName isn't selected.");
         }
         localDao.getCalendarInfo();
+        localDao.getEventItems();
         mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
     }
 
