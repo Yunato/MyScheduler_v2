@@ -10,9 +10,11 @@ import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
+import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static android.provider.CalendarContract.Calendars;
@@ -228,7 +230,7 @@ public class CalendarLocalDao extends CalendarDao {
             throw new IllegalStateException("Cursor is null.");
         }
 
-        List<EventItem> result = null;
+        List<EventItem> result = new ArrayList<>();
         Log.d(className + methodName, "Events List of Local Calendar");
         while(cur.moveToNext()){
             final long id = cur.getLong(EVENTS_PROJECTION_IDX_ID);
@@ -240,6 +242,8 @@ public class CalendarLocalDao extends CalendarDao {
             final long end = cur.getLong(EVENTS_PROJECTION_IDX_DTEND);
             Log.d(className + methodName, id + " " + calendar_id + " " + title);
             Log.d(className + methodName, description + " " + start + " " + end);
+            result.add(EventInfo.createEventItem(Long.toString(id), title, description, start, end));
+
             /*
             if(getValueFromPref(IDENTIFIER_LOCAL_ID).equals(calendar_id)){
                 deleteEventItem(id);

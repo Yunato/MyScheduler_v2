@@ -12,6 +12,7 @@ public class MyPreferences {
     private static final String IDENTIFIER_PREF = "MY_PREFERENCE";
     public static final String PREF_ACCOUNT_NAME = "accountName";
     static final String IDENTIFIER_LOCAL_ID = "LOCAL_CALENDAR_ID";
+    static final String IDENTIFIER_REMOTE_ID = "REMOTE_CALENDAR_ID";
 
     MyPreferences(Context context){
         preferences = context.getSharedPreferences(IDENTIFIER_PREF , MODE_PRIVATE);

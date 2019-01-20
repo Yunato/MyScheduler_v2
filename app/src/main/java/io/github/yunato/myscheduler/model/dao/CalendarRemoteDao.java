@@ -14,20 +14,22 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
-public class CalendarRemoteDao extends CalendarDao {
-    private static Calendar mService;
+import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_REMOTE_ID;
 
-    /** 識別子 **/
-    private static final String IDENTIFIER_REMOTE_ID = "REMOTE_CALENDAR_ID";
+class CalendarRemoteDao extends CalendarDao {
+    private static Calendar mService;
 
     /** Debug 用 */
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
@@ -60,7 +62,7 @@ public class CalendarRemoteDao extends CalendarDao {
      * リモートカレンダーがすでに存在するかどうかを確かめる．
      * 存在しなければ作成する．
      */
-    public String checkExistLocalCalendar() throws IOException{
+    String checkExistLocalCalendar() throws IOException{
         String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
         if(calendarId == null){
             deleteCalendar();
@@ -97,7 +99,7 @@ public class CalendarRemoteDao extends CalendarDao {
     /**
      * 参照できるカレンダーの情報を取得する
      */
-    public void getCalendarInfo() throws IOException{
+    void getCalendarInfo() throws IOException{
         String pageToken = null;
         Log.d(className + methodName, "Remote Calendar List");
         do {
@@ -163,7 +165,44 @@ public class CalendarRemoteDao extends CalendarDao {
     }
 
     public List<EventItem> getEventItems(){
-        List<EventItem> result = null;
+        List<EventItem> result = new ArrayList<>();
+        String pageToken = null;
+        Log.d(className + methodName, "Events List of Remote Calendar");
+        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        do {
+            Events events = null;
+            try{
+                events = mService.events().list(calendarId).setPageToken(pageToken).execute();
+            }catch(IOException e){
+                Log.e(className + methodName, "IOException", e);
+            }
+            if(events != null){
+                List<Event> items = events.getItems();
+                for (Event event : items){
+                    final String id = event.getId();
+                    final String name = event.getSummary();
+                    final String description = event.getDescription();
+                    final long start = event.getStart().getDateTime().getValue();
+                    final long end = event.getEnd().getDateTime().getValue();
+                    Log.d(className + methodName, id + " " + name);
+                    Log.d(className + methodName, description);
+                    Log.d(className + methodName, Long.toString(start) + " " + Long.toString(end));
+                    result.add(EventInfo.createEventItem(id, name, description, start, end));
+                    //deleteEventItem(id);
+                }
+                pageToken = events.getNextPageToken();
+            }
+        } while (pageToken != null);
+
         return result;
+    }
+
+    private void deleteEventItem(String eventId){
+        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        try{
+            mService.events().delete(calendarId, eventId).execute();
+        }catch (IOException e){
+            Log.e(className + methodName, "IOException", e);
+        }
     }
 }

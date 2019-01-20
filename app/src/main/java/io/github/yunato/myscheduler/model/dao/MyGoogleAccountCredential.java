@@ -35,7 +35,8 @@ public class MyGoogleAccountCredential {
     private EventItem eventItem;
     public static final int STATE_CREATE_CALENDAR = 0;
     public static final int STATE_READ_CALENDAR_INFO = 1;
-    public static final int STATE_WRITE_EVENT_ITEM = 2;
+    public static final int STATE_READ_EVENT_INFO = 2;
+    public static final int STATE_WRITE_EVENT_INFO = 3;
 
     private MyGoogleAccountCredential(Context context){
         this.context = context;
@@ -127,13 +128,16 @@ public class MyGoogleAccountCredential {
         protected Void doInBackground(Void... params) {
             try {
                 switch (this.state){
-                    case MyGoogleAccountCredential.STATE_CREATE_CALENDAR:
+                    case STATE_CREATE_CALENDAR:
                         createCalendar();
                         break;
-                    case MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO:
+                    case STATE_READ_CALENDAR_INFO:
                         dao.getCalendarInfo();
                         break;
-                    case MyGoogleAccountCredential.STATE_WRITE_EVENT_ITEM:
+                    case STATE_READ_EVENT_INFO:
+                        dao.getEventItems();
+                        break;
+                    case STATE_WRITE_EVENT_INFO:
                         dao.insertEventItem(eventItem);
                         break;
                     default:

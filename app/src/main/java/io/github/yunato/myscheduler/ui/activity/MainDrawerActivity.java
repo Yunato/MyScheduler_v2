@@ -156,6 +156,7 @@ public class MainDrawerActivity extends AppCompatActivity
         localDao.getCalendarInfo();
         localDao.getEventItems();
         mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
+        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_EVENT_INFO);
     }
 
     /**
@@ -266,7 +267,7 @@ public class MainDrawerActivity extends AppCompatActivity
                     EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
                     localDao.insertEventItem(eventItem);
                     mCredential.callGoogleApi(
-                            MyGoogleAccountCredential.STATE_WRITE_EVENT_ITEM,
+                            MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO,
                             eventItem);
                 }
                 break;
