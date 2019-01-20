@@ -13,16 +13,26 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
+import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class MainDrawerActivityTest {
@@ -50,6 +60,14 @@ public class MainDrawerActivityTest {
         onView(withId(R.id.main_layout)).check(matches(isDisplayed()));
         onView(withId(R.id.nav_view)).check(matches(not(isDisplayed())));
         onView(getAt(withId(R.id.calendarView), 0)).check(matches(isDisplayed()));
+
+        List<EventInfo.EventItem> items = new ArrayList<>();
+        CalendarLocalDao dao = Mockito.mock(CalendarLocalDao.class);
+        when(dao.getEventItems(anyInt(), anyInt(), anyInt())).thenReturn(items);
+
+        activityRule.getActivity().localDao = dao;
+        onView(getAt(withId(R.id.calendarView), 1)).perform(click());
+        verify(dao).getEventItems(2019, 0, 9);
     }
 
     @Test
@@ -82,7 +100,7 @@ public class MainDrawerActivityTest {
 
         @Override
         protected boolean matchesSafely(T item){
-            return mParentMatcher.matches(item) ? (mCount++ == mNum) : false;
+            return mParentMatcher.matches(item) && (mCount++ == mNum);
         }
 
         @Override

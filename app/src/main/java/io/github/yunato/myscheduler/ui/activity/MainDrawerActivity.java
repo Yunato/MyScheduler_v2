@@ -71,7 +71,7 @@ public class MainDrawerActivity extends AppCompatActivity
                                 = "io.github.yunato.myscheduler.ui.activity.EXTRA_EVENTITEM";
 
     /** DAO */
-    private CalendarLocalDao localDao = null;
+    public CalendarLocalDao localDao = null;
 
     // TODO: 「同期」ボタンをタップしたときに null チェックの必要あり
     private MyGoogleAccountCredential mCredential;

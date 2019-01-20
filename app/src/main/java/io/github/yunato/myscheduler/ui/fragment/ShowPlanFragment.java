@@ -1,6 +1,7 @@
 package io.github.yunato.myscheduler.ui.fragment;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,7 @@ public class ShowPlanFragment extends Fragment {
 
     public ShowPlanFragment() {}
 
-    public static ShowPlanFragment newInstance(EventItem item) {
+    public static ShowPlanFragment newInstance(@NonNull EventItem item) {
         ShowPlanFragment fragment = new ShowPlanFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_PARAM_ITEM, item);
@@ -30,6 +31,9 @@ public class ShowPlanFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             itemInfo = getArguments().getParcelable(ARG_PARAM_ITEM);
+            if(itemInfo == null){
+                itemInfo = EventInfo.createEventItem();
+            }
         }
     }
 
