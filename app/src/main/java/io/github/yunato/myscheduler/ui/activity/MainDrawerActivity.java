@@ -161,8 +161,8 @@ public class MainDrawerActivity extends AppCompatActivity
         //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_EVENT_INFO);
         // 追加
         //localDao.insertEventItems(EventInfo.ITEMS);
-        EventInfo.createEventList();
-        mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO, EventInfo.ITEMS);
+        //EventInfo.createEventList();
+        //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO, EventInfo.ITEMS);
     }
 
     /**

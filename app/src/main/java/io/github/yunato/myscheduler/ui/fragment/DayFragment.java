@@ -52,7 +52,12 @@ public class DayFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_day_plan_list, container, false);
+        View view;
+        if(EventInfo.ITEMS.size() != 0) {
+            view = inflater.inflate(R.layout.fragment_day_plan_list, container, false);
+        }else{
+            view = inflater.inflate(R.layout.fragment_day_plan_list_no_item, container, false);
+        }
 
         if (view instanceof RecyclerView) {
             Context context = view.getContext();

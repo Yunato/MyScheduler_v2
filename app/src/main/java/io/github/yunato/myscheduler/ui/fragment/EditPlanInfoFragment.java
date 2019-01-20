@@ -3,17 +3,18 @@ package io.github.yunato.myscheduler.ui.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.EventInfo;
@@ -28,11 +29,14 @@ public class EditPlanInfoFragment extends Fragment {
 
     // TODO: Calendarクラスで統一するかDateTimeクラスで統一するか
     /** 入力情報保持 */
-    private String eventId = null;
-    private String title = null;
-    private String description = null;
     private Calendar startCalendar = Calendar.getInstance();
     private Calendar endCalendar = Calendar.getInstance();
+
+    private TextInputLayout titleTextInputLayout;
+    private TextView descriptionTextView;
+    private TextView startDateTextView;
+    private TextView endDateTextView;
+    private TextInputLayout endDateTextInputLayout;
 
     public EditPlanInfoFragment() {}
 
@@ -61,39 +65,23 @@ public class EditPlanInfoFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        TextView titleTextView = (TextView)view.findViewById(R.id.input_text_title);
-        titleTextView.setText(itemInfo.getTitle());
-        titleTextView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        titleTextInputLayout = (TextInputLayout)view.findViewById(R.id.input_text_title_layout);
+        EditText editText = titleTextInputLayout.getEditText();
+        if(editText == null){
+            throw new RuntimeException("EditText is null");
+        }
+        editText.setText(itemInfo.getTitle());
+        final CharSequence hint = titleTextInputLayout.getHint();
+        titleTextInputLayout.setHint(null);
+        titleTextInputLayout.getEditText().setHint(hint);
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        descriptionTextView = (TextView)view.findViewById(R.id.input_text_description);
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                title = s.toString();
-            }
-        } );
-
-        final TextView descriptionTextView = (TextView)view.findViewById(R.id.input_text_description);
-        descriptionTextView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                description = s.toString();
-            }
-        } );
-
-        final TextView startDateTextView = (TextView)view.findViewById(R.id.input_text_startDate);
+        startDateTextView = (TextView)view.findViewById(R.id.input_text_startDate);
         startDateTextView.setText(EventInfo.convertDateToString(itemInfo.getStartMillis()));
-        final TextView endDateTextView = (TextView)view.findViewById(R.id.input_text_endDate);
-        endDateTextView.setText(EventInfo.convertDateToString(itemInfo.getEndMillis()));
+        endDateTextView = (TextView)view.findViewById(R.id.input_text_endDate);
+        endDateTextView.setText(EventInfo.convertDateToString(itemInfo.getStartMillis()));
+        endDateTextInputLayout = (TextInputLayout)view.findViewById(R.id.input_endTime_title_layout);
 
         LinearLayout startTimeLayout = (LinearLayout)view.findViewById(R.id.start_time_layout);
         startTimeLayout.setOnClickListener(new View.OnClickListener() {
@@ -106,8 +94,8 @@ public class EditPlanInfoFragment extends Fragment {
                         startCalendar.set(Calendar.YEAR, year);
                         startCalendar.set(Calendar.MONTH, month);
                         startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        startDateTextView.setText(EventInfo.convertDateToString(
-                                                            startCalendar.getTimeInMillis()));
+                        startDateTextView.setText(
+                                EventInfo.convertDateToString(startCalendar.getTimeInMillis()));
                     }
                 });
                 fragment.show(getActivity().getSupportFragmentManager(), "datePicker");
@@ -125,8 +113,8 @@ public class EditPlanInfoFragment extends Fragment {
                         endCalendar.set(Calendar.YEAR, year);
                         endCalendar.set(Calendar.MONTH, month);
                         endCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        endDateTextView.setText(EventInfo.convertDateToString(
-                                                            endCalendar.getTimeInMillis()));
+                        endDateTextView.setText(
+                                EventInfo.convertDateToString(endCalendar.getTimeInMillis()));
                     }
                 });
                 fragment.show(getActivity().getSupportFragmentManager(), "datePicker");
@@ -144,8 +132,8 @@ public class EditPlanInfoFragment extends Fragment {
                     public void setTextToUI(int hourOfDay, int minute){
                         startCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         startCalendar.set(Calendar.MINUTE, minute);
-                        startTimeText.setText(EventInfo.convertTimeToString(
-                                                            startCalendar.getTimeInMillis()));
+                        startTimeText.setText(
+                                EventInfo.convertTimeToString(startCalendar.getTimeInMillis()));
                     }
                 });
                 fragment.show(getActivity().getSupportFragmentManager(), "timePicker");
@@ -163,8 +151,8 @@ public class EditPlanInfoFragment extends Fragment {
                     public void setTextToUI(int hourOfDay, int minute){
                         endCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         endCalendar.set(Calendar.MINUTE, minute);
-                        endTimeText.setText(EventInfo.convertTimeToString(
-                                                        endCalendar.getTimeInMillis()));
+                        endTimeText.setText(
+                                EventInfo.convertTimeToString(endCalendar.getTimeInMillis()));
                     }
                 });
                 fragment.show(getActivity().getSupportFragmentManager(), "timePicker");
@@ -178,6 +166,34 @@ public class EditPlanInfoFragment extends Fragment {
         super.onPrepareOptionsMenu(menu);
     }
 
+    private boolean isAppropriateInputData(){
+        boolean result = true;
+        Pattern p = Pattern.compile("^[\\s]*$");
+        EditText editText = titleTextInputLayout.getEditText();
+        if(editText == null){
+            throw new RuntimeException("EditText is null");
+        }
+        if(p.matcher(editText.getText().toString()).matches()){
+            final CharSequence error = "正しくタイトルが入力できていません．";
+            titleTextInputLayout.setErrorEnabled(true);
+            titleTextInputLayout.setError(error);
+            result = false;
+        }else{
+            titleTextInputLayout.setErrorEnabled(false);
+            titleTextInputLayout.setError(null);
+        }
+        if(startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()){
+            final CharSequence error = "入力日時が\n不適切です．";
+            endDateTextInputLayout.setErrorEnabled(true);
+            endDateTextInputLayout.setError(error);
+            result = false;
+        }else{
+            endDateTextInputLayout.setErrorEnabled(false);
+            endDateTextInputLayout.setError(null);
+        }
+        return result;
+    }
+
     //TODO: 保存前に入力内容のチェックをする
     //TODO: テスト必須
     /**
@@ -185,13 +201,17 @@ public class EditPlanInfoFragment extends Fragment {
      * @return イベントアイテム
      */
     private EventItem getItemInfo(){
-        return EventInfo.createEventItem(
+        EditText editText = titleTextInputLayout.getEditText();
+        if(editText == null){
+            throw new RuntimeException("EditText is null");
+        }
+        return isAppropriateInputData() ? EventInfo.createEventItem(
                 "NoNumber",
-                title,
-                description,
+                editText.getText().toString(),
+                descriptionTextView.getText().toString(),
                 startCalendar.getTimeInMillis(),
                 endCalendar.getTimeInMillis()
-        );
+        ) : null;
     }
 
     /**
