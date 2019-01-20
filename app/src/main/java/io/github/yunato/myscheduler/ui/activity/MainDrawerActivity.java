@@ -54,6 +54,7 @@ import static java.util.Collections.singletonList;
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                     DayFragment.OnDayFragmentListener,
+                    CalendarFragment.OnCalendarFragmentListener,
                     EasyPermissions.PermissionCallbacks,
                     MyGoogleAccountCredential.OnGoogleAccountCredentialListener{
     /** 要求コード  */
@@ -327,6 +328,14 @@ public class MainDrawerActivity extends AppCompatActivity
         //TODO:識別子の変更
         intent.putExtra("TEST", item);
         startActivity(intent, compat.toBundle());
+    }
+    // endregion
+
+    // region CalendarFragment#OnCalendarFragmentListener
+    @Override
+    public void onSelectedDate(int year, int month, int dayOfMonth) {
+        EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
+        switchUserInterface(R.id.top_today);
     }
     // endregion
 
