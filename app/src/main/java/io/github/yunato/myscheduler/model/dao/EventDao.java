@@ -2,11 +2,15 @@ package io.github.yunato.myscheduler.model.dao;
 
 import android.content.Context;
 
-abstract class CalendarDao {
+import java.util.List;
+
+import io.github.yunato.myscheduler.model.item.EventInfo;
+
+abstract class EventDao {
     private final Context context;
     private final MyPreferences myPreferences;
 
-    CalendarDao(Context context){
+    EventDao(Context context){
         this.context = context;
         this.myPreferences = new MyPreferences(context);
     }
@@ -28,4 +32,8 @@ abstract class CalendarDao {
     public void setValueToPref(String key, String value){
         myPreferences.setValue(key, value);
     }
+
+    public abstract List<String> insertEventItems(List<EventInfo.EventItem> eventItems);
+
+    public abstract List<EventInfo.EventItem> getEventItems();
 }
