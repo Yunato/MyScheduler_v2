@@ -36,7 +36,6 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential;
-import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -271,7 +270,8 @@ public class MainDrawerActivity extends AppCompatActivity
                         localDao = DaoFactory.getLocalDao(this);
                     }
                     EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
-                    localDao.insertEventItem(eventItem);
+                    //TODO:コメントアウトの解除
+                    //localDao.insertEventItem(eventItem);
                     mCredential.callGoogleApi(
                             MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO,
                             singletonList(eventItem));
@@ -334,7 +334,8 @@ public class MainDrawerActivity extends AppCompatActivity
     // region CalendarFragment#OnCalendarFragmentListener
     @Override
     public void onSelectedDate(int year, int month, int dayOfMonth) {
-        EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
+        //TODO:コメントアウトの解除
+        //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
         switchUserInterface(R.id.top_today);
     }
     // endregion
