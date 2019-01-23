@@ -136,10 +136,10 @@ public class MyGoogleAccountCredential {
                         dao.getCalendarInfo();
                         break;
                     case STATE_READ_EVENT_INFO:
-                        dao.getEventItems();
+                        //dao.getEventItems();
                         break;
                     case STATE_WRITE_EVENT_INFO:
-                        dao.insertEventItems(eventItems);
+                        //dao.insertEventItems(eventItems);
                         break;
                     default:
                 }
