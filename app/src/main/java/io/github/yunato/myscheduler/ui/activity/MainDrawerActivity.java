@@ -43,17 +43,13 @@ import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
-import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
-import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
-import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.*;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 import static java.util.Collections.singletonList;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         DayFragment.OnDayFragmentListener,
-        CalendarFragment.OnCalendarFragmentListener,
         EasyPermissions.PermissionCallbacks,
         MyGoogleAccountCredential.OnGoogleAccountCredentialListener {
     /** 要求コード */
@@ -301,7 +297,14 @@ public class MainDrawerActivity extends AppCompatActivity
         switch (id) {
             case R.id.top_calendar:
                 state = STATE_CALENDAR;
-                fragment = CalendarFragment.newInstance();
+                fragment = CalendarFragment.newInstance(new CalendarFragment.OnSelectedDateListener(){
+                    @Override
+                    public void onSelectedDate(int year, int month, int dayOfMonth) {
+                        //TODO:DAOの調整
+                        //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
+                        switchUserInterface(R.id.top_today);
+                    }
+                });
                 break;
             case R.id.top_today:
                 state = STATE_TODAY;
@@ -332,23 +335,12 @@ public class MainDrawerActivity extends AppCompatActivity
     }
     // endregion
 
-    // region CalendarFragment#OnCalendarFragmentListener
-    @Override
-    public void onSelectedDate(int year, int month, int dayOfMonth) {
-        //TODO:DAOの調整
-        //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
-        switchUserInterface(R.id.top_today);
-    }
-    // endregion
-
     // region EasyPermissions#PermissionCallbacks
     @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-    }
+    public void onPermissionsGranted(int requestCode, List<String> perms) {}
 
     @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-    }
+    public void onPermissionsDenied(int requestCode, List<String> perms) {}
     // endregion
 
     // region MyGoogleAccountCredential#OnGoogleAccountCredentialListener

@@ -13,11 +13,9 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
 
 public class CalendarFragment extends Fragment {
-    private OnCalendarFragmentListener mListener = null;
+    private OnSelectedDateListener mListener = null;
 
-    /**
-     * コンストラクタ
-     */
+    /** コンストラクタ */
     public CalendarFragment() {}
 
     /**
@@ -25,8 +23,14 @@ public class CalendarFragment extends Fragment {
      * @return CalendarFragment インスタンス
      */
     @SuppressWarnings("unused")
-    public static CalendarFragment newInstance() {
-        return new CalendarFragment();
+    public static CalendarFragment newInstance(OnSelectedDateListener listener) {
+        CalendarFragment fragment = new CalendarFragment();
+        fragment.setListener(listener);
+        return fragment;
+    }
+
+    private void setListener (OnSelectedDateListener listener){
+        mListener = listener;
     }
 
     @Override
@@ -36,33 +40,31 @@ public class CalendarFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        CalendarView calendarView = (CalendarView)view.findViewById(R.id.calendarView);
+
+        CalendarView calendarView = (CalendarView) view.findViewById(R.id.calendarView);
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+            public void onSelectedDayChange(@NonNull CalendarView view,
+                                            int year,
+                                            int month,
+                                            int dayOfMonth) {
                 mListener.onSelectedDate(year, month, dayOfMonth);
             }
         });
     }
 
     @Override
-    public void onAttach(Context context){
+    public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnCalendarFragmentListener) {
-            mListener = (OnCalendarFragmentListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-        ((MainDrawerActivity)context).onFragmentAttached(R.string.menu_title_calendar);
+        ((MainDrawerActivity) context).onFragmentAttached(R.string.menu_title_calendar);
     }
 
     /**
      * Activity へのコールバック用
      */
-    public interface OnCalendarFragmentListener {
+    public interface OnSelectedDateListener {
         void onSelectedDate(int year, int month, int dayOfMonth);
     }
 }
