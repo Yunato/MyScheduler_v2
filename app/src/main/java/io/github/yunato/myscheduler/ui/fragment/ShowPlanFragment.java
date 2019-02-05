@@ -29,9 +29,10 @@ public class ShowPlanFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             itemInfo = getArguments().getParcelable(ARG_PARAM_ITEM);
-            if(itemInfo == null){
+            if (itemInfo == null) {
                 itemInfo = EventInfo.createEventItem();
             }
         }
@@ -44,15 +45,16 @@ public class ShowPlanFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((TextView)view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
-        ((TextView)view.findViewById(R.id.text_startMillis))
+
+        ((TextView) view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
+        ((TextView) view.findViewById(R.id.text_startMillis))
                 .setText(EventInfo.convertDateToString(itemInfo.getStartMillis())
-                            + "\n" + EventInfo.convertTimeToString(itemInfo.getStartMillis()));
-        ((TextView)view.findViewById(R.id.text_endMillis))
+                        + "\n" + EventInfo.convertTimeToString(itemInfo.getStartMillis()));
+        ((TextView) view.findViewById(R.id.text_endMillis))
                 .setText(EventInfo.convertDateToString(itemInfo.getEndMillis())
-                            + "\n" + EventInfo.convertTimeToString(itemInfo.getEndMillis()));
-        ((TextView)view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
+                        + "\n" + EventInfo.convertTimeToString(itemInfo.getEndMillis()));
+        ((TextView) view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
     }
 }
