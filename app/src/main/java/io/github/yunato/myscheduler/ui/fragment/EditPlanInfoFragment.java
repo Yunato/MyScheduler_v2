@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -27,7 +26,6 @@ public class EditPlanInfoFragment extends Fragment {
     private static final String ARG_PLAN_ITEM = "PLAN_ITEM";
     private EventItem itemInfo;
 
-    // TODO: Calendarクラスで統一するかDateTimeクラスで統一するか
     /** 入力情報保持 */
     private Calendar startCalendar = Calendar.getInstance();
     private Calendar endCalendar = Calendar.getInstance();
@@ -51,6 +49,7 @@ public class EditPlanInfoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             itemInfo = getArguments().getParcelable(ARG_PLAN_ITEM);
         }
@@ -63,11 +62,13 @@ public class EditPlanInfoFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        titleTextInputLayout = (TextInputLayout)view.findViewById(R.id.input_text_title_layout);
+
+        // タイトル入力設定
+        titleTextInputLayout = (TextInputLayout) view.findViewById(R.id.input_text_title_layout);
         EditText editText = titleTextInputLayout.getEditText();
-        if(editText == null){
+        if (editText == null) {
             throw new RuntimeException("EditText is null");
         }
         editText.setText(itemInfo.getTitle());
@@ -75,44 +76,41 @@ public class EditPlanInfoFragment extends Fragment {
         titleTextInputLayout.setHint(null);
         titleTextInputLayout.getEditText().setHint(hint);
 
-        descriptionTextView = (TextView)view.findViewById(R.id.input_text_description);
+        // メモ入力設定
+        descriptionTextView = (TextView) view.findViewById(R.id.input_text_description);
 
-        startDateTextView = (TextView)view.findViewById(R.id.input_text_startDate);
+        // 時刻入力設定
+        startDateTextView = (TextView) view.findViewById(R.id.input_text_startDate);
         startDateTextView.setText(EventInfo.convertDateToString(itemInfo.getStartMillis()));
-        endDateTextView = (TextView)view.findViewById(R.id.input_text_endDate);
+        endDateTextView = (TextView) view.findViewById(R.id.input_text_endDate);
         endDateTextView.setText(EventInfo.convertDateToString(itemInfo.getStartMillis()));
-        endDateTextInputLayout = (TextInputLayout)view.findViewById(R.id.input_endTime_title_layout);
+        endDateTextInputLayout = (TextInputLayout) view.findViewById(R.id.input_endTime_title_layout);
 
-        LinearLayout startTimeLayout = (LinearLayout)view.findViewById(R.id.start_time_layout);
+        LinearLayout startTimeLayout = (LinearLayout) view.findViewById(R.id.start_time_layout);
         startTimeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePick fragment = DatePick.newInstance();
-                fragment.setOnDateSetListener(new DatePick.OnSetTextToUItListener(){
+                DatePick dialog = DatePick.newInstance();
+                dialog.setOnSetDateListener(new DatePick.OnSetTextToUItListener() {
                     @Override
-                    public void setTextToUI(int year, int month, int dayOfMonth){
-                        startCalendar.set(Calendar.YEAR, year);
-                        startCalendar.set(Calendar.MONTH, month);
-                        startCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    public void setTextToUI(int year, int month, int dayOfMonth) {
+                        setDateToCalendar(startCalendar, year, month, dayOfMonth);
                         startDateTextView.setText(
                                 EventInfo.convertDateToString(startCalendar.getTimeInMillis()));
                     }
                 });
-                fragment.show(getActivity().getSupportFragmentManager(), "datePicker");
+                dialog.show(getActivity().getSupportFragmentManager(), "datePicker");
             }
         });
-
-        LinearLayout endTimeLayout = (LinearLayout)view.findViewById(R.id.end_time_layout);
+        LinearLayout endTimeLayout = (LinearLayout) view.findViewById(R.id.end_time_layout);
         endTimeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePick fragment = DatePick.newInstance();
-                fragment.setOnDateSetListener(new DatePick.OnSetTextToUItListener(){
+                fragment.setOnSetDateListener(new DatePick.OnSetTextToUItListener() {
                     @Override
-                    public void setTextToUI(int year, int month, int dayOfMonth){
-                        endCalendar.set(Calendar.YEAR, year);
-                        endCalendar.set(Calendar.MONTH, month);
-                        endCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    public void setTextToUI(int year, int month, int dayOfMonth) {
+                        setDateToCalendar(endCalendar, year, month, dayOfMonth);
                         endDateTextView.setText(
                                 EventInfo.convertDateToString(endCalendar.getTimeInMillis()));
                     }
@@ -120,18 +118,16 @@ public class EditPlanInfoFragment extends Fragment {
                 fragment.show(getActivity().getSupportFragmentManager(), "datePicker");
             }
         });
-
-        final TextView startTimeText = (TextView)view.findViewById(R.id.input_text_startTime);
+        final TextView startTimeText = (TextView) view.findViewById(R.id.input_text_startTime);
         startTimeText.setText(EventInfo.convertTimeToString(itemInfo.getStartMillis()));
         startTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TimePick fragment = TimePick.newInstance();
-                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener(){
+                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener() {
                     @Override
-                    public void setTextToUI(int hourOfDay, int minute){
-                        startCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        startCalendar.set(Calendar.MINUTE, minute);
+                    public void setTextToUI(int hourOfDay, int minute) {
+                        setTimeToCalendar(startCalendar, hourOfDay, minute);
                         startTimeText.setText(
                                 EventInfo.convertTimeToString(startCalendar.getTimeInMillis()));
                     }
@@ -139,18 +135,16 @@ public class EditPlanInfoFragment extends Fragment {
                 fragment.show(getActivity().getSupportFragmentManager(), "timePicker");
             }
         });
-
-        final TextView endTimeText = (TextView)view.findViewById(R.id.input_text_endTime);
+        final TextView endTimeText = (TextView) view.findViewById(R.id.input_text_endTime);
         endTimeText.setText(EventInfo.convertTimeToString(itemInfo.getEndMillis()));
         endTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TimePick fragment = TimePick.newInstance();
-                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener(){
+                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener() {
                     @Override
-                    public void setTextToUI(int hourOfDay, int minute){
-                        endCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        endCalendar.set(Calendar.MINUTE, minute);
+                    public void setTextToUI(int hourOfDay, int minute) {
+                        setTimeToCalendar(endCalendar, hourOfDay, minute);
                         endTimeText.setText(
                                 EventInfo.convertTimeToString(endCalendar.getTimeInMillis()));
                     }
@@ -160,48 +154,67 @@ public class EditPlanInfoFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        menu.clear();
-        super.onPrepareOptionsMenu(menu);
+    /**
+     * カレンダーオブジェクトに年月日を設定する
+     * @param calendar      設定先カレンダーオブジェクト
+     * @param year          年
+     * @param month         月
+     * @param dayOfMonth    日
+     */
+    private void setDateToCalendar(Calendar calendar, int year, int month, int dayOfMonth){
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
     }
 
-    private boolean isAppropriateInputData(){
+    /**
+     * カレンダーオブジェクトに時分を設定する
+     * @param calendar      設定先カレンダーオブジェクト
+     * @param hourOfDay     時
+     * @param minute        分
+     */
+    private void setTimeToCalendar(Calendar calendar, int hourOfDay, int minute){
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(Calendar.MINUTE, minute);
+    }
+
+    private boolean isAppropriateInputData() {
         boolean result = true;
         Pattern p = Pattern.compile("^[\\s]*$");
         EditText editText = titleTextInputLayout.getEditText();
-        if(editText == null){
+        if (editText == null) {
             throw new RuntimeException("EditText is null");
         }
-        if(p.matcher(editText.getText().toString()).matches()){
+        if (p.matcher(editText.getText().toString()).matches()) {
             final CharSequence error = "正しくタイトルが入力できていません．";
             titleTextInputLayout.setErrorEnabled(true);
             titleTextInputLayout.setError(error);
             result = false;
-        }else{
+        } else {
             titleTextInputLayout.setErrorEnabled(false);
             titleTextInputLayout.setError(null);
         }
-        if(startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()){
+
+        if (startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis()) {
             final CharSequence error = "入力日時が\n不適切です．";
             endDateTextInputLayout.setErrorEnabled(true);
             endDateTextInputLayout.setError(error);
             result = false;
-        }else{
+        } else {
             endDateTextInputLayout.setErrorEnabled(false);
             endDateTextInputLayout.setError(null);
         }
+
         return result;
     }
 
-    //TODO: テスト必須
     /**
      * 入力された情報を基にイベントアイテムを作成する
      * @return イベントアイテム
      */
-    private EventItem getItemInfo(){
+    private EventItem getItemInfo() {
         EditText editText = titleTextInputLayout.getEditText();
-        if(editText == null){
+        if (editText == null) {
             throw new RuntimeException("EditText is null");
         }
         return isAppropriateInputData() ? EventInfo.createEventItem(
@@ -215,14 +228,14 @@ public class EditPlanInfoFragment extends Fragment {
 
     /**
      * 保存ボタンのリスナー生成メソッド
-     * @return      保存ボタン用リスナー
+     * @return 保存ボタン用リスナー
      */
-    public View.OnClickListener getSaveBtnOnClickListener(){
-        return new View.OnClickListener(){
+    public View.OnClickListener getSaveBtnOnClickListener() {
+        return new View.OnClickListener() {
             @Override
-            public void onClick(View view){
-                EventItem eventItem= getItemInfo();
-                if(eventItem == null){
+            public void onClick(View view) {
+                EventItem eventItem = getItemInfo();
+                if (eventItem == null) {
                     return;
                 }
                 Intent intent = new Intent();

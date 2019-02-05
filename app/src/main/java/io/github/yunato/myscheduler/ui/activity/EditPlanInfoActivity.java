@@ -12,7 +12,7 @@ import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.EditPlanInfoFragment;
 
-public class EditPlanInfoActivity extends AppCompatActivity{
+public class EditPlanInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,32 +21,32 @@ public class EditPlanInfoActivity extends AppCompatActivity{
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(this.getSupportActionBar() != null){
+        if (this.getSupportActionBar() != null) {
             this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_outline_close_24px);
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         if (findViewById(R.id.fragment_container) != null) {
-            if(savedInstanceState != null){
+            if (savedInstanceState != null) {
                 return;
             }
 
-            Button saveButton = (Button)findViewById(R.id.save_button);
+            Button saveButton = (Button) findViewById(R.id.save_button);
             Intent intent = getIntent();
-            //TODO:識別子の変更
-            EventItem item = intent.getParcelableExtra("TEST");
-            EditPlanInfoFragment containerFragment = EditPlanInfoFragment.newInstance(EventInfo.createEventItem());
+            EventItem tempItem = intent.getParcelableExtra(MainDrawerActivity.EXTRA_EVENTITEM);
+            EventItem item = tempItem != null ? tempItem : EventInfo.createEventItem();
+            EditPlanInfoFragment containerFragment =
+                    EditPlanInfoFragment.newInstance(item);
             saveButton.setOnClickListener(containerFragment.getSaveBtnOnClickListener());
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, containerFragment)
-                    .commit();
+                    .replace(R.id.fragment_container, containerFragment).commit();
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == android.R.id.home){
+        if (id == android.R.id.home) {
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -55,7 +55,6 @@ public class EditPlanInfoActivity extends AppCompatActivity{
     @Override
     public void finish() {
         super.finish();
-
         overridePendingTransition(0, 0);
     }
 }

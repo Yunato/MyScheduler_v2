@@ -31,7 +31,7 @@ public class DatePick extends DialogFragment implements
         return new DatePickerDialog(getActivity(), this, year, month, day);
     }
 
-    public void setOnDateSetListener(OnSetTextToUItListener listener){
+    public void setOnSetDateListener(OnSetTextToUItListener listener){
         mListener = listener;
     }
 
