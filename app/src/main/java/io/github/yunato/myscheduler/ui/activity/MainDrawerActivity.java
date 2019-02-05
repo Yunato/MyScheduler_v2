@@ -3,8 +3,8 @@ package io.github.yunato.myscheduler.ui.activity;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -36,12 +36,12 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
 import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential;
+import io.github.yunato.myscheduler.model.dao.MyPreferences;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
 import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
@@ -52,11 +52,11 @@ import static java.util.Collections.singletonList;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-                    DayFragment.OnDayFragmentListener,
-                    CalendarFragment.OnCalendarFragmentListener,
-                    EasyPermissions.PermissionCallbacks,
-                    MyGoogleAccountCredential.OnGoogleAccountCredentialListener{
-    /** 要求コード  */
+        DayFragment.OnDayFragmentListener,
+        CalendarFragment.OnCalendarFragmentListener,
+        EasyPermissions.PermissionCallbacks,
+        MyGoogleAccountCredential.OnGoogleAccountCredentialListener {
+    /** 要求コード */
     private static final int REQUEST_MULTI_PERMISSIONS = 1;
     private static final int REQUEST_ADD_EVENTITEM = 2;
 
@@ -67,16 +67,20 @@ public class MainDrawerActivity extends AppCompatActivity
 
     /** 識別子 */
     public static final String EXTRA_EVENTITEM
-                                = "io.github.yunato.myscheduler.ui.activity.EXTRA_EVENTITEM";
+            = "io.github.yunato.myscheduler.ui.activity.EXTRA_EVENTITEM";
 
     /** DAO */
     public CalendarLocalDao localDao = null;
 
     // TODO: 「同期」ボタンをタップしたときに null チェックの必要あり
+    /** Google 認証 */
     private MyGoogleAccountCredential mCredential;
 
+    // TODO: 画面の回転に対応させる
     // UI情報の保持はsetArguments()
     // データやインプット状況の保持はonSavedInstanceState()
+    // TODO:OnGoogleAccountCredentialListenerの実装の必要性を考え直せ．今のままだとMainDrawerActivityでしか使えない
+    // TODO:Fragmentのリスナーはsetterを設けた方がActivityの責務が減るのでは
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +90,6 @@ public class MainDrawerActivity extends AppCompatActivity
         setContentView(R.layout.activity_main_drawer);
 
         setupUIElements();
-
         mCredential = MyGoogleAccountCredential.newMyGoogleAccountCredential(this);
         checkPermissions();
     }
@@ -94,7 +97,7 @@ public class MainDrawerActivity extends AppCompatActivity
     /**
      * アクティビティ上の User Interface の設定を行う
      */
-    private void setupUIElements(){
+    private void setupUIElements() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -104,7 +107,7 @@ public class MainDrawerActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.button_floating_action);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.button_floating_action);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,14 +118,14 @@ public class MainDrawerActivity extends AppCompatActivity
             }
         });
 
-        ((NavigationView)findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
+        ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
         switchUserInterface(R.id.top_calendar);
     }
 
     /**
-     *  ユーザがアプリケーションに実行に必要な権限を付与しているか確認する
+     * ユーザがアプリケーションに実行に必要な権限を付与しているか確認する
      */
-    private void checkPermissions(){
+    private void checkPermissions() {
         ArrayList<String> reqPermissions = new ArrayList<>();
         int permissionExtStorage = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -131,26 +134,27 @@ public class MainDrawerActivity extends AppCompatActivity
         int permissionWriteCalendar = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_CALENDAR);
 
-        if(PackageManager.PERMISSION_GRANTED != permissionExtStorage){
+        if (PackageManager.PERMISSION_GRANTED != permissionExtStorage) {
             reqPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
-        if(PackageManager.PERMISSION_GRANTED != permissionReadCalendar){
+        if (PackageManager.PERMISSION_GRANTED != permissionReadCalendar) {
             reqPermissions.add(Manifest.permission.READ_CALENDAR);
         }
-        if(PackageManager.PERMISSION_GRANTED != permissionWriteCalendar){
+        if (PackageManager.PERMISSION_GRANTED != permissionWriteCalendar) {
             reqPermissions.add(Manifest.permission.WRITE_CALENDAR);
         }
-        if(!reqPermissions.isEmpty()){
-            ActivityCompat.requestPermissions(this,
+        if (!reqPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
                     reqPermissions.toArray(new String[reqPermissions.size()]),
                     REQUEST_MULTI_PERMISSIONS);
-        }else {
+        } else {
             checkedPermissions();
         }
     }
 
     @AfterPermissionGranted(REQUEST_MULTI_PERMISSIONS)
-    private void checkedPermissions(){
+    private void checkedPermissions() {
         chooseAccount();
         localDao = DaoFactory.getLocalDao(this);
         localDao.checkExistLocalCalendar();
@@ -168,10 +172,11 @@ public class MainDrawerActivity extends AppCompatActivity
      * Google アカウントの設定を行う
      */
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
-    private void chooseAccount(){
+    private void chooseAccount() {
         if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
-            CalendarLocalDao dao = DaoFactory.getLocalDao(this);
-            String accountName = dao.getValueFromPref(PREF_ACCOUNT_NAME);
+            SharedPreferences preferences =
+                    getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
+            String accountName = preferences.getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 mCredential.setAccountName(accountName);
             } else {
@@ -188,15 +193,10 @@ public class MainDrawerActivity extends AppCompatActivity
         }
     }
 
-    public void onFragmentAttached(int resourceId){
-        if(STATE_TODAY == state){
+    public void onFragmentAttached(int resourceId) {
+        if (STATE_TODAY == state) {
             setTitle(getString(resourceId));
         }
-    }
-
-    @Override
-    protected void attachBaseContext(Context newBase){
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     @Override
@@ -207,7 +207,7 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_synchronization:
                 break;
         }
@@ -216,21 +216,30 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-            @NonNull String[] permissions, @NonNull int[] grantResults){
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == REQUEST_MULTI_PERMISSIONS){
-            if(grantResults.length > 0){
-                for(int grantResult : grantResults){
-                    if(grantResult != PackageManager.PERMISSION_GRANTED){
+        if (requestCode == REQUEST_MULTI_PERMISSIONS) {
+            if (grantResults.length > 0) {
+                for (int grantResult : grantResults) {
+                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
                         finish();
                     }
                 }
-                EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-            }else {
+                EasyPermissions.onRequestPermissionsResult(
+                        requestCode,
+                        permissions,
+                        grantResults,
+                        this);
+            } else {
                 finish();
             }
-        }else if(requestCode == REQUEST_PERMISSION_GET_ACCOUNTS){
-            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        } else if (requestCode == REQUEST_PERMISSION_GET_ACCOUNTS) {
+            EasyPermissions.onRequestPermissionsResult(
+                    requestCode,
+                    permissions,
+                    grantResults,
+                    this);
         }
     }
 
@@ -238,39 +247,31 @@ public class MainDrawerActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            //region Google API 関連
             case REQUEST_ACCOUNT_PICKER:
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        CalendarLocalDao dao = DaoFactory.getLocalDao(this);
-                        dao.setValueToPref(PREF_ACCOUNT_NAME, accountName);
-                        mCredential.setAccountName(accountName);
+                        SharedPreferences preferences =
+                                getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
+                        SharedPreferences.Editor e = preferences.edit();
+                        e.putString(PREF_ACCOUNT_NAME, accountName).apply();
                         checkedPermissions();
                     }
                 }
                 break;
-
             case REQUEST_GOOGLE_PLAY_SERVICES:
-                if (resultCode == RESULT_OK) {
-                    mCredential.callGoogleApi();
-                }
-                break;
-
             case REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
                     mCredential.callGoogleApi();
                 }
                 break;
-            // endregion
-
             case REQUEST_ADD_EVENTITEM:
                 if (resultCode == RESULT_OK) {
-                    if(localDao == null){
+                    if (localDao == null) {
                         localDao = DaoFactory.getLocalDao(this);
                     }
                     EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
-                    //TODO:コメントアウトの解除
+                    //TODO:DAOの調整
                     //localDao.insertEventItem(eventItem);
                     mCredential.callGoogleApi(
                             MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO,
@@ -282,7 +283,7 @@ public class MainDrawerActivity extends AppCompatActivity
 
     // region NavigationView#OnNavigationItemSelectedListener & Relational method
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item){
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         switchUserInterface(id);
         return false;
@@ -292,11 +293,11 @@ public class MainDrawerActivity extends AppCompatActivity
      * パラメータを基に, 次の描画に適した Activity または Fragment へ画面を切り替える
      * @param id メニューID
      */
-    private void switchUserInterface(int id){
+    private void switchUserInterface(int id) {
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        Fragment fragment;
 
+        Fragment fragment;
         switch (id) {
             case R.id.top_calendar:
                 state = STATE_CALENDAR;
@@ -309,6 +310,7 @@ public class MainDrawerActivity extends AppCompatActivity
             default:
                 return;
         }
+
         transaction.replace(R.id.main_layout, fragment);
         transaction.commit();
 
@@ -318,15 +320,14 @@ public class MainDrawerActivity extends AppCompatActivity
 
     // region DayFragment#OnDayFragmentListener
     @Override
-    public void onDayFragmentInteraction(EventItem item, View view){
+    public void onDayFragmentInteraction(EventItem item, View view) {
         ActivityOptionsCompat compat =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this,
                         view,
                         view.getTransitionName());
         Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
-        //TODO:識別子の変更
-        intent.putExtra("TEST", item);
+        intent.putExtra(EXTRA_EVENTITEM, item);
         startActivity(intent, compat.toBundle());
     }
     // endregion
@@ -334,7 +335,7 @@ public class MainDrawerActivity extends AppCompatActivity
     // region CalendarFragment#OnCalendarFragmentListener
     @Override
     public void onSelectedDate(int year, int month, int dayOfMonth) {
-        //TODO:コメントアウトの解除
+        //TODO:DAOの調整
         //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
         switchUserInterface(R.id.top_today);
     }
@@ -342,10 +343,12 @@ public class MainDrawerActivity extends AppCompatActivity
 
     // region EasyPermissions#PermissionCallbacks
     @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {}
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+    }
 
     @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {}
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+    }
     // endregion
 
     // region MyGoogleAccountCredential#OnGoogleAccountCredentialListener

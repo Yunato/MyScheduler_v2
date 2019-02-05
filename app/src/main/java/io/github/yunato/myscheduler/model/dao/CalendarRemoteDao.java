@@ -52,11 +52,11 @@ class CalendarRemoteDao extends CalendarDao {
      * 存在しなければ作成する．
      */
     String checkExistLocalCalendar() throws IOException{
-        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         if(calendarId == null){
             deleteCalendar();
             calendarId = createCalendar();
-            setValueToPref(IDENTIFIER_REMOTE_ID, calendarId);
+            myPreferences.setValue(IDENTIFIER_REMOTE_ID, calendarId);
         }
         return calendarId;
     }

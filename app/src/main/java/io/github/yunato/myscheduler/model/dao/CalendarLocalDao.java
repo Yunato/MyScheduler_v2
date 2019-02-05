@@ -65,20 +65,20 @@ public class CalendarLocalDao extends CalendarDao {
      * 存在しなければ作成する．
      */
     public void checkExistLocalCalendar(){
-        String accountName = getValueFromPref(PREF_ACCOUNT_NAME);
+        String accountName = myPreferences.getValue(PREF_ACCOUNT_NAME);
         if(accountName == null){
             throw new IllegalStateException("AccountName isn't selected.");
         }
         Cursor cur = getCalendarCursor("Calendars.NAME = ?",
                                         new String[]{calendarName + "." + accountName},
                                         null);
-        String calendarId = getValueFromPref(IDENTIFIER_LOCAL_ID);
+        String calendarId = myPreferences.getValue(IDENTIFIER_LOCAL_ID);
         if(cur.getCount() == 0){
             calendarId = createCalendar(accountName);
-            setValueToPref(IDENTIFIER_LOCAL_ID, calendarId);
+            myPreferences.setValue(IDENTIFIER_LOCAL_ID, calendarId);
         }else if(calendarId == null){
             cur.moveToNext();
-            setValueToPref(IDENTIFIER_LOCAL_ID,
+            myPreferences.setValue(IDENTIFIER_LOCAL_ID,
                         Long.toString(cur.getLong(CALENDAR_PROJECTION_IDX_ID)));
         }
         cur.close();

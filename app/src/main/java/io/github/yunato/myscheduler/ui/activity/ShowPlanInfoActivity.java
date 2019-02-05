@@ -34,7 +34,7 @@ public class ShowPlanInfoActivity extends AppCompatActivity {
 
             Intent intent = getIntent();
             //TODO:識別子の変更
-            EventItem item = intent.getParcelableExtra("TEST");
+            EventItem item = intent.getParcelableExtra(MainDrawerActivity.EXTRA_EVENTITEM);
             Fragment fragment = ShowPlanFragment.newInstance(item);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment).commit();
