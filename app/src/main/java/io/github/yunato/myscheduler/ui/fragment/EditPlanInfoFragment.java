@@ -90,8 +90,7 @@ public class EditPlanInfoFragment extends Fragment {
         startTimeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePick dialog = DatePick.newInstance();
-                dialog.setOnSetDateListener(new DatePick.OnSetTextToUItListener() {
+                DatePick dialog = DatePick.newInstance(new DatePick.OnSetTextToUItListener() {
                     @Override
                     public void setTextToUI(int year, int month, int dayOfMonth) {
                         setDateToCalendar(startCalendar, year, month, dayOfMonth);
@@ -106,8 +105,7 @@ public class EditPlanInfoFragment extends Fragment {
         endTimeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePick fragment = DatePick.newInstance();
-                fragment.setOnSetDateListener(new DatePick.OnSetTextToUItListener() {
+                DatePick fragment = DatePick.newInstance(new DatePick.OnSetTextToUItListener() {
                     @Override
                     public void setTextToUI(int year, int month, int dayOfMonth) {
                         setDateToCalendar(endCalendar, year, month, dayOfMonth);
@@ -123,8 +121,7 @@ public class EditPlanInfoFragment extends Fragment {
         startTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePick fragment = TimePick.newInstance();
-                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener() {
+                TimePick fragment = TimePick.newInstance(new TimePick.OnSetTextToUItListener() {
                     @Override
                     public void setTextToUI(int hourOfDay, int minute) {
                         setTimeToCalendar(startCalendar, hourOfDay, minute);
@@ -140,8 +137,7 @@ public class EditPlanInfoFragment extends Fragment {
         endTimeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePick fragment = TimePick.newInstance();
-                fragment.setOnTimeSetListener(new TimePick.OnSetTextToUItListener() {
+                TimePick fragment = TimePick.newInstance(new TimePick.OnSetTextToUItListener() {
                     @Override
                     public void setTextToUI(int hourOfDay, int minute) {
                         setTimeToCalendar(endCalendar, hourOfDay, minute);

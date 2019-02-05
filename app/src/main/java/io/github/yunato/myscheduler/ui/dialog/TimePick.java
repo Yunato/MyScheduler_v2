@@ -10,13 +10,15 @@ import android.widget.TimePicker;
 import java.util.Calendar;
 
 public class TimePick extends DialogFragment implements
-                        TimePickerDialog.OnTimeSetListener{
+        TimePickerDialog.OnTimeSetListener {
     private OnSetTextToUItListener mListener = null;
 
     public TimePick() {}
 
-    public static TimePick newInstance() {
-        return new TimePick();
+    public static TimePick newInstance(OnSetTextToUItListener listener) {
+        TimePick timePick = new TimePick();
+        timePick.setOnSetTextToUItListener(listener);
+        return timePick;
     }
 
     @NonNull
@@ -30,7 +32,7 @@ public class TimePick extends DialogFragment implements
         return new TimePickerDialog(getActivity(), this, hour, minute, true);
     }
 
-    public void setOnTimeSetListener(OnSetTextToUItListener listener){
+    private void setOnSetTextToUItListener(OnSetTextToUItListener listener) {
         mListener = listener;
     }
 

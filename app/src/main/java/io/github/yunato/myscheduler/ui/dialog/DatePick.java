@@ -10,13 +10,15 @@ import android.widget.DatePicker;
 import java.util.Calendar;
 
 public class DatePick extends DialogFragment implements
-                                DatePickerDialog.OnDateSetListener{
+        DatePickerDialog.OnDateSetListener {
     private OnSetTextToUItListener mListener = null;
 
     public DatePick() {}
 
-    public static DatePick newInstance() {
-        return new DatePick();
+    public static DatePick newInstance(OnSetTextToUItListener listener) {
+        DatePick datePick = new DatePick();
+        datePick.setOnSetTextToUItListener(listener);
+        return datePick;
     }
 
     @NonNull
@@ -31,7 +33,7 @@ public class DatePick extends DialogFragment implements
         return new DatePickerDialog(getActivity(), this, year, month, day);
     }
 
-    public void setOnSetDateListener(OnSetTextToUItListener listener){
+    private void setOnSetTextToUItListener(OnSetTextToUItListener listener) {
         mListener = listener;
     }
 
