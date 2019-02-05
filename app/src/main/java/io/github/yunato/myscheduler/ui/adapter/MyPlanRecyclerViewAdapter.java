@@ -12,18 +12,18 @@ import java.util.List;
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
-import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnDayFragmentListener;
+import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnSelectedEventListener;
 
 public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecyclerViewAdapter.ViewHolder> {
     private final List<EventItem> mValues;
-    private final OnDayFragmentListener mListener;
+    private final OnSelectedEventListener mListener;
 
     /**
      * コンストラクタ
      * @param items     リストアイテム群
      * @param listener  リストアイテムのタップ時におけるリスナー
      */
-    public MyPlanRecyclerViewAdapter(List<EventItem> items, OnDayFragmentListener listener) {
+    public MyPlanRecyclerViewAdapter(List<EventItem> items, OnSelectedEventListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -45,7 +45,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    mListener.onDayFragmentInteraction(holder.mItem, holder.getmLayout());
+                    mListener.onSelectedEvent(holder.mItem, holder.getmLayout());
                 }
             }
         });

@@ -61,6 +61,12 @@ public class CalendarFragment extends Fragment {
         ((MainDrawerActivity) context).onFragmentAttached(R.string.menu_title_calendar);
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
     /**
      * Activity へのコールバック用
      */

@@ -43,13 +43,15 @@ import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.*;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_ACCOUNT_PICKER;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_AUTHORIZATION;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_GOOGLE_PLAY_SERVICES;
+import static io.github.yunato.myscheduler.model.dao.MyGoogleAccountCredential.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 import static java.util.Collections.singletonList;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        DayFragment.OnDayFragmentListener,
         EasyPermissions.PermissionCallbacks,
         MyGoogleAccountCredential.OnGoogleAccountCredentialListener {
     /** 要求コード */
@@ -308,7 +310,19 @@ public class MainDrawerActivity extends AppCompatActivity
                 break;
             case R.id.top_today:
                 state = STATE_TODAY;
-                fragment = DayFragment.newInstance(1);
+                fragment = DayFragment.newInstance(new DayFragment.OnSelectedEventListener() {
+                    @Override
+                    public void onSelectedEvent(EventItem item, View view) {
+                        ActivityOptionsCompat compat =
+                                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                        MainDrawerActivity.this,
+                                        view,
+                                        view.getTransitionName());
+                        Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
+                        intent.putExtra(EXTRA_EVENTITEM, item);
+                        startActivity(intent, compat.toBundle());
+                    }
+                });
                 break;
             default:
                 return;
@@ -318,20 +332,6 @@ public class MainDrawerActivity extends AppCompatActivity
         transaction.commit();
 
         ((DrawerLayout) findViewById(R.id.drawer_layout)).closeDrawer(GravityCompat.START);
-    }
-    // endregion
-
-    // region DayFragment#OnDayFragmentListener
-    @Override
-    public void onDayFragmentInteraction(EventItem item, View view) {
-        ActivityOptionsCompat compat =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        this,
-                        view,
-                        view.getTransitionName());
-        Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
-        intent.putExtra(EXTRA_EVENTITEM, item);
-        startActivity(intent, compat.toBundle());
     }
     // endregion
 

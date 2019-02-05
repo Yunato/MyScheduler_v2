@@ -3,7 +3,6 @@ package io.github.yunato.myscheduler.ui.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,9 +17,7 @@ import io.github.yunato.myscheduler.ui.adapter.DividerItemDecoration;
 import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
 
 public class DayFragment extends Fragment {
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
-    private OnDayFragmentListener mListener = null;
+    private OnSelectedEventListener mListener = null;
 
     /**
      * コンストラクタ
@@ -32,42 +29,28 @@ public class DayFragment extends Fragment {
      * @return CalendarFragment インスタンス
      */
     @SuppressWarnings("unused")
-    public static DayFragment newInstance(int columnCount) {
+    public static DayFragment newInstance(OnSelectedEventListener listener) {
         DayFragment fragment = new DayFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
+        fragment.setListener(listener);
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
+    private void setListener(OnSelectedEventListener listener) {
+        mListener = listener;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view;
-        if(EventInfo.ITEMS.size() != 0) {
-            view = inflater.inflate(R.layout.fragment_day_plan_list, container, false);
-        }else{
-            view = inflater.inflate(R.layout.fragment_day_plan_list_no_item, container, false);
-        }
+        View view = EventInfo.ITEMS.size() != 0 ?
+                inflater.inflate(R.layout.fragment_day_plan_list, container, false):
+                inflater.inflate(R.layout.fragment_day_plan_list_no_item, container, false);
 
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.addItemDecoration(new DividerItemDecoration(context));
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
             recyclerView.setAdapter(new MyPlanRecyclerViewAdapter(EventInfo.ITEMS, mListener));
         }
         return view;
@@ -76,13 +59,7 @@ public class DayFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnDayFragmentListener) {
-            mListener = (OnDayFragmentListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-        ((MainDrawerActivity)context).onFragmentAttached(R.string.menu_title_day);
+        ((MainDrawerActivity) context).onFragmentAttached(R.string.menu_title_day);
     }
 
     @Override
@@ -94,7 +71,7 @@ public class DayFragment extends Fragment {
     /**
      * Activity へのコールバック用
      */
-    public interface OnDayFragmentListener {
-        void onDayFragmentInteraction(EventItem item, View view);
+    public interface OnSelectedEventListener {
+        void onSelectedEvent(EventItem item, View view);
     }
 }
