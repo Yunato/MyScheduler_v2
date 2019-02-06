@@ -35,7 +35,7 @@ public class EventRemoteDao extends EventDao{
         List<EventInfo.EventItem> result = new ArrayList<>();
         String pageToken = null;
         Log.d(className + methodName, "Events List of Remote Calendar");
-        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         do {
             Events events = null;
             try{
@@ -99,7 +99,7 @@ public class EventRemoteDao extends EventDao{
         */
         // endregion
 
-        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         //String calendarId = "pjqmod08j603i4jftjm803sgfo@group.calendar.google.com";
         try{
             event = mService.events().insert(calendarId, event).execute();
@@ -118,7 +118,7 @@ public class EventRemoteDao extends EventDao{
     }
 
     private void deleteEventItem(String eventId){
-        String calendarId = getValueFromPref(IDENTIFIER_REMOTE_ID);
+        String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         try{
             mService.events().delete(calendarId, eventId).execute();
         }catch (IOException e){

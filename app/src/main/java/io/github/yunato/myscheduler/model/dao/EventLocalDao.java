@@ -116,7 +116,7 @@ public class EventLocalDao extends EventDao{
         final String selection = CalendarContract.Events.CALENDAR_ID + " = ? AND "
                 + CalendarContract.Events.DTSTART+ " > ? AND "
                 + CalendarContract.Events.DTEND + " < ?";
-        final String[] selectionArgs = new String[]{getValueFromPref(IDENTIFIER_LOCAL_ID),
+        final String[] selectionArgs = new String[]{myPreferences.getValue(IDENTIFIER_LOCAL_ID),
                 Long.toString(startTime),
                 Long.toString(endTime)};
         Cursor cur = getEventCursor(selection, selectionArgs, null);
@@ -147,7 +147,7 @@ public class EventLocalDao extends EventDao{
         final ContentResolver cr = context.getContentResolver();
 
         final ContentValues values = new ContentValues();
-        values.put(CalendarContract.Events.CALENDAR_ID, getValueFromPref(IDENTIFIER_LOCAL_ID));
+        values.put(CalendarContract.Events.CALENDAR_ID, myPreferences.getValue(IDENTIFIER_LOCAL_ID));
         values.put(CalendarContract.Events.TITLE, eventInfo.getTitle());
         values.put(CalendarContract.Events.DESCRIPTION, eventInfo.getDescription());
         values.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());

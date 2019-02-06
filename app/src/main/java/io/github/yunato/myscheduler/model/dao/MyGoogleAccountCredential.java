@@ -151,8 +151,8 @@ public class MyGoogleAccountCredential {
             }
         }
 
-        private String createCalendar() throws IOException {
-            return dao.checkExistRemoteCalendar();
+        private void createCalendar() throws IOException {
+            dao.checkExistCalendar();
         }
 
         @Override

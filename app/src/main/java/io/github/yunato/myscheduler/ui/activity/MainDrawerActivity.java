@@ -155,7 +155,7 @@ public class MainDrawerActivity extends AppCompatActivity
     private void checkedPermissions() {
         chooseAccount();
         localDao = DaoFactory.getLocalDao(this);
-        localDao.checkExistLocalCalendar();
+        localDao.checkExistCalendar();
         mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_CREATE_CALENDAR);
         localDao.getCalendarInfo();
         //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);

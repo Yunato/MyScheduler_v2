@@ -4,6 +4,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="calendar_name">io.github.yunato.myscheduler</string>
+
     <!-- ToolbarMenu -->
     <string name="menu_synchronization">"同期"</string>
 

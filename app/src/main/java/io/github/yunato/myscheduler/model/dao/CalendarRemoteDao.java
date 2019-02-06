@@ -48,18 +48,18 @@ class CalendarRemoteDao extends CalendarDao {
      * 本アプリケーションの起動でリモートにカレンダーが作成されたか確認する．
      * 作成されていなければ新規作成を行う．
      */
-    String checkExistRemoteCalendar() throws IOException {
+    void checkExistCalendar() throws IOException {
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         if (calendarId == null) {
             calendarId = createCalendar();
             myPreferences.setValue(IDENTIFIER_REMOTE_ID, calendarId);
         }
-        return calendarId;
     }
 
     /**
      * リモートカレンダーを作成する．
      * 本アプリケーションで作成するカレンダーと同名のカレンダーがすでに存在すればそれを削除する．
+     * @return カレンダーID
      */
     private String createCalendar() throws IOException {
         deleteCalendar();
@@ -71,6 +71,7 @@ class CalendarRemoteDao extends CalendarDao {
 
         com.google.api.services.calendar.model.Calendar createdCalendar =
                 mService.calendars().insert(calendar).execute();
+        Log.d(className + methodName, "Create Remote calendar");
         return createdCalendar.getId();
     }
 
