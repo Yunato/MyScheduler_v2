@@ -35,7 +35,7 @@ public class ShowPlanInfoActivityTest {
 
     @Test
     public void checkViewItem() throws Exception {
-        ShowPlanFragment fragment = ShowPlanFragment.newInstance(EventInfo.createEventItem());
+        ShowPlanFragment fragment = ShowPlanFragment.newInstance(EventInfo.createEmptyEventItem());
         activityRule.getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment).commit();
         onView(withId(R.id.text_title)).check(matches(isDisplayed()));

@@ -59,6 +59,7 @@ public class DayFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        //TODO:引数を日付に変更
         ((MainDrawerActivity) context).onFragmentAttached(R.string.menu_title_day);
     }
 

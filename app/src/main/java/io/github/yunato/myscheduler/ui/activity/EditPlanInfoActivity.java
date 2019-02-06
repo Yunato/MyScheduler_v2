@@ -34,7 +34,7 @@ public class EditPlanInfoActivity extends AppCompatActivity {
             Button saveButton = (Button) findViewById(R.id.save_button);
             Intent intent = getIntent();
             EventItem tempItem = intent.getParcelableExtra(MainDrawerActivity.EXTRA_EVENTITEM);
-            EventItem item = tempItem != null ? tempItem : EventInfo.createEventItem();
+            EventItem item = tempItem != null ? tempItem : EventInfo.createEmptyEventItem();
             EditPlanInfoFragment containerFragment =
                     EditPlanInfoFragment.newInstance(item);
             saveButton.setOnClickListener(containerFragment.getSaveBtnOnClickListener());

@@ -35,7 +35,7 @@ public class EditPlanInfoActivityTest {
 
     @Test
     public void checkViewItem() throws Exception {
-        EditPlanInfoFragment fragment = EditPlanInfoFragment.newInstance(EventInfo.createEventItem());
+        EditPlanInfoFragment fragment = EditPlanInfoFragment.newInstance(EventInfo.createEmptyEventItem());
         activityRule.getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment).commit();
         onView(withId(R.id.input_text_title)).check(matches(isDisplayed()));

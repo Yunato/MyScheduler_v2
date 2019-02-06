@@ -1,18 +1,18 @@
-package io.github.yunato.myscheduler.model.item;
+package io.github.yunato.myscheduler.model.usecase;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import io.github.yunato.myscheduler.model.item.EventInfo;
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static java.util.Calendar.getInstance;
 
-class EventGenerator {
+public class EventGenerator {
     // TODO: 自動生成における各工程のメソッドを追加
-    List<EventItem> generate(){
+    public List<EventItem> generate(){
         List<EventItem> newList = new ArrayList<>();
-
 
         Calendar calendar = getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 0);

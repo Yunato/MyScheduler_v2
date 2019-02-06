@@ -117,7 +117,7 @@ public class MainDrawerActivity extends AppCompatActivity
         });
 
         ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
-        switchUserInterface(R.id.top_calendar);
+        switchUserInterface(R.id.top_today);
     }
 
     /**
@@ -297,17 +297,6 @@ public class MainDrawerActivity extends AppCompatActivity
 
         Fragment fragment;
         switch (id) {
-            case R.id.top_calendar:
-                state = STATE_CALENDAR;
-                fragment = CalendarFragment.newInstance(new CalendarFragment.OnSelectedDateListener(){
-                    @Override
-                    public void onSelectedDate(int year, int month, int dayOfMonth) {
-                        //TODO:DAOの調整
-                        //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
-                        switchUserInterface(R.id.top_today);
-                    }
-                });
-                break;
             case R.id.top_today:
                 state = STATE_TODAY;
                 fragment = DayFragment.newInstance(new DayFragment.OnSelectedEventListener() {
@@ -321,6 +310,17 @@ public class MainDrawerActivity extends AppCompatActivity
                         Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
                         intent.putExtra(EXTRA_EVENTITEM, item);
                         startActivity(intent, compat.toBundle());
+                    }
+                });
+                break;
+            case R.id.top_calendar:
+                state = STATE_CALENDAR;
+                fragment = CalendarFragment.newInstance(new CalendarFragment.OnSelectedDateListener(){
+                    @Override
+                    public void onSelectedDate(int year, int month, int dayOfMonth) {
+                        //TODO:DAOの調整
+                        //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
+                        switchUserInterface(R.id.top_today);
                     }
                 });
                 break;

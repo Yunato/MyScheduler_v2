@@ -33,7 +33,7 @@ public class ShowPlanFragment extends Fragment {
         if (getArguments() != null) {
             itemInfo = getArguments().getParcelable(ARG_PARAM_ITEM);
             if (itemInfo == null) {
-                itemInfo = EventInfo.createEventItem();
+                itemInfo = EventInfo.createEmptyEventItem();
             }
         }
     }

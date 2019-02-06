@@ -11,35 +11,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.yunato.myscheduler.model.usecase.EventGenerator;
+
 public class EventInfo {
+    private Calendar targetDay = Calendar.getInstance();
     public static List<EventItem> ITEMS = new ArrayList<>();
     //private static final Map<String, PlanItem> ITEM_MAP = new HashMap<>();
 
-    //TODO: 保存の責務は別にある
-
-    static {
-        //createEventList();
-        /*
-        final int COUNT = 24;
-        for (int i = 0; i < COUNT; i++) {
-            addItem(createEventItem(i));
-        }
-        */
+    public Calendar getTargetDay() {
+        return targetDay;
     }
 
-    //TODO: public に変更
-    private static void addItem(EventItem item) {
-        ITEMS.add(item);
-        //ITEM_MAP.put(item.calendarId, item);
-    }
-
-    public static void createEventList(){
-        EventGenerator generator = new EventGenerator();
-        ITEMS = generator.generate();
+    public void setTargetDay(Calendar targetDay) {
+        this.targetDay = targetDay;
     }
 
     /**
-     * 引数 time から日付を文字列として取得する
      * @param time 時間(ミリ秒)
      */
     public static String convertDateToString(long time) {
@@ -51,6 +38,7 @@ public class EventInfo {
 
     /**
      * 引数 time から時刻を文字列として取得する
+     *
      * @param time 時間(ミリ秒)
      */
     public static String convertTimeToString(long time) {
@@ -60,32 +48,36 @@ public class EventInfo {
         return sdf.format(date);
     }
 
-    public static EventItem createEventItem() {
+    //TODO: 本来は引数として日付を受け取り予定一覧を作成する
+    public static void createEventList() {
+        EventGenerator generator = new EventGenerator();
+        ITEMS = generator.generate();
+    }
+
+    public static EventItem createEmptyEventItem() {
         Calendar calendar = Calendar.getInstance();
         final long time = calendar.getTimeInMillis();
         return new EventItem("NoNumber", "", "", time, time);
     }
 
-    //TODO: 本来は引数として日付を受け取り、SQLiteから予定を取得する
-    //TODO: このクラスを通さないと EventItem のインスタンスを作成できない (カレンダーからの読取)
-    private static EventItem createEventItem(int index) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, index);
-        calendar.set(Calendar.MINUTE, 0);
-        final long startTime = calendar.getTimeInMillis();
-        calendar.set(Calendar.HOUR_OF_DAY, index + 1);
-        final long endTime = calendar.getTimeInMillis();
-        return new EventItem(Integer.toString(index), "予定名", "予定の内容", startTime, endTime);
-    }
-
     @Nullable
-    public static EventItem createEventItem(String eventId, String title, String description
-                                            , long startMillis, long endMillis){
-        //TODO: 不適切なら null を返す
+    public static EventItem createEventItem(
+            String eventId,
+            String title,
+            String description,
+            long startMillis,
+            long endMillis) {
+        //TODO: 不適切なら null を返す (usecaseが担うべきか)
         return new EventItem(eventId, title, description, startMillis, endMillis);
     }
 
-    public static class EventItem implements Parcelable{
+    public static void addItem(EventItem item) {
+        //TODO: 日付が本日のものであれば追加を行えるようにEventItem のフィールドを比較する
+        ITEMS.add(item);
+        //ITEM_MAP.put(item.calendarId, item);
+    }
+
+    public static class EventItem implements Parcelable {
         private final String eventId;
         private final String title;
         private final String description;
@@ -95,11 +87,12 @@ public class EventInfo {
 
         /**
          * コンストラクタ
-         * @param eventId        プランID
-         * @param title         予定名
-         * @param description   予定の説明
-         * @param startMillis   予定の開始時刻
-         * @param endMillis     予定の終了時刻
+         *
+         * @param eventId     プランID
+         * @param title       予定名
+         * @param description 予定の説明
+         * @param startMillis 予定の開始時刻
+         * @param endMillis   予定の終了時刻
          */
         private EventItem(String eventId, String title,
                           String description, long startMillis, long endMillis) {
@@ -110,7 +103,7 @@ public class EventInfo {
             this.endMillis = endMillis;
         }
 
-        private EventItem(Parcel in){
+        private EventItem(Parcel in) {
             eventId = in.readString();
             title = in.readString();
             description = in.readString();
@@ -152,7 +145,7 @@ public class EventInfo {
             dest.writeLong(endMillis);
         }
 
-        public static final Parcelable.Creator CREATOR = new Parcelable.Creator(){
+        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
             @Override
             public Object createFromParcel(Parcel source) {
                 return new EventItem(source);
