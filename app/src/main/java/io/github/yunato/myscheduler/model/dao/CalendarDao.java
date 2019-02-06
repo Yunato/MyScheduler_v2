@@ -3,8 +3,8 @@ package io.github.yunato.myscheduler.model.dao;
 import android.content.Context;
 
 abstract class CalendarDao {
-    private final Context context;
-    final MyPreferences myPreferences;
+    protected final Context context;
+    protected final MyPreferences myPreferences;
 
     CalendarDao(Context context) {
         this.context = context;

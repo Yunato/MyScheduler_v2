@@ -10,7 +10,7 @@ public class DaoFactory {
         return CalendarRemoteDao.newCalendarRemoteDao(context, credential);
     }
 
-    public static CalendarLocalDao getLocalDao(Context context){
+    public static CalendarLocalDao getLocalDao(Context context) {
         return CalendarLocalDao.newLocalCalendarDao(context);
     }
 }

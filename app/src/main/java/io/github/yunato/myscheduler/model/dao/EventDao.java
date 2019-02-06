@@ -7,8 +7,8 @@ import java.util.List;
 import io.github.yunato.myscheduler.model.item.EventInfo;
 
 abstract class EventDao {
-    private final Context context;
-    private final MyPreferences myPreferences;
+    protected final Context context;
+    protected final MyPreferences myPreferences;
 
     EventDao(Context context) {
         this.context = context;
