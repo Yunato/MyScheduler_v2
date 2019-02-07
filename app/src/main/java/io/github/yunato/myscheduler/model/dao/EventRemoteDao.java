@@ -52,7 +52,7 @@ public class EventRemoteDao extends EventDao{
         return new EventRemoteDao(context, credential);
     }
 
-    public List<EventItem> getEventItems(){
+    public List<EventItem> getAllEventItems(){
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         List<EventItem> result = new ArrayList<>();
         String pageToken = null;
@@ -123,8 +123,8 @@ public class EventRemoteDao extends EventDao{
 
     public List<String> insertEventItems(List<EventItem> eventItems){
         List<String> eventIds = new ArrayList<>();
-        for(EventItem item : eventItems){
-            eventIds.add(insertEventItem(item));
+        for(EventItem eventItem : eventItems){
+            eventIds.add(insertEventItem(eventItem));
         }
         return eventIds;
     }

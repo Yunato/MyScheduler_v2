@@ -4,7 +4,7 @@ import android.content.Context;
 
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 abstract class EventDao {
     protected final Context context;
@@ -15,7 +15,7 @@ abstract class EventDao {
         this.myPreferences = new MyPreferences(context);
     }
 
-    public abstract List<String> insertEventItems(List<EventInfo.EventItem> eventItems);
+    public abstract List<String> insertEventItems(List<EventItem> eventItems);
 
-    public abstract List<EventInfo.EventItem> getEventItems();
+    public abstract List<EventItem> getAllEventItems();
 }

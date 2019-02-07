@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.TimeZone;
 
 import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_LOCAL_ID;
 import static java.util.Calendar.getInstance;
 
-public class EventLocalDao extends EventDao{
+public class EventLocalDao extends EventDao {
     /** プロジェクション配列 */
     private static final String[] EVENTS_PROJECTION = new String[]{
             CalendarContract.Events._ID,
@@ -43,37 +44,33 @@ public class EventLocalDao extends EventDao{
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private final Context context;
-
-    private EventLocalDao(Context context){
+    private EventLocalDao(Context context) {
         super(context);
-        this.context = context;
     }
 
     @NonNull
     private Cursor getEventCursor(final String selection,
-                                  final String[] selectionArgs, final String sortOrder){
+                                  final String[] selectionArgs, final String sortOrder) {
         final Uri uri = CalendarContract.Events.CONTENT_URI;
         final String[] projection = EVENTS_PROJECTION;
         final ContentResolver cr = context.getContentResolver();
         Cursor cur = null;
         try {
             cur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
-        }catch (SecurityException e){
+        } catch (SecurityException e) {
             Log.e(className + methodName, "SecurityException", e);
         }
-        if(cur == null){
+        if (cur == null) {
             throw new IllegalStateException("Cursor is null.");
         }
         return cur;
     }
 
-    public List<EventInfo.EventItem> getEventItems(){
+    public List<EventItem> getAllEventItems() {
+        List<EventItem> eventItems = new ArrayList<>();
         Cursor cur = getEventCursor(null, null, null);
-
-        List<EventInfo.EventItem> result = new ArrayList<>();
         Log.d(className + methodName, "Events List of Local Calendar");
-        while(cur.moveToNext()){
+        while (cur.moveToNext()) {
             final long id = cur.getLong(EVENTS_PROJECTION_IDX_ID);
             final String calendar_id = cur.getString(EVENTS_PROJECTION_IDX_CALENDAR_ID);
             final String title = cur.getString(EVENTS_PROJECTION_IDX_TITLE);
@@ -82,48 +79,35 @@ public class EventLocalDao extends EventDao{
             final long end = cur.getLong(EVENTS_PROJECTION_IDX_DTEND);
             Log.d(className + methodName, id + " " + calendar_id + " " + title);
             Log.d(className + methodName, description + " " + start + " " + end);
-            result.add(EventInfo.createEventItem(Long.toString(id), title, description, start, end));
-
-            /*
-            if(getValueFromPref(IDENTIFIER_LOCAL_ID).equals(calendar_id)){
-                deleteEventItem(id);
-            }
-            */
+            eventItems.add(
+                    EventInfo.createEventItem(Long.toString(id), title, description, start, end));
         }
         cur.close();
-        return result;
+        return eventItems;
     }
 
-    public List<EventInfo.EventItem> getEventItems(int year, int month, int dayOfMonth){
+    public List<EventItem> getEventItems(int year, int month, int dayOfMonth) {
         Calendar calendar = getInstance();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(year, month, dayOfMonth + 1, 0, 0, 0);
         long startTime = calendar.getTimeInMillis();
 
         Calendar nextCalendar = getInstance();
-        nextCalendar.set(Calendar.YEAR, year);
-        nextCalendar.set(Calendar.MONTH, month);
-        nextCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth + 1);
-        nextCalendar.set(Calendar.HOUR_OF_DAY, 0);
-        nextCalendar.set(Calendar.MINUTE, 0);
-        nextCalendar.set(Calendar.MILLISECOND, 0);
+        nextCalendar.set(year, month, dayOfMonth, 0, 0, 0);
         long endTime = nextCalendar.getTimeInMillis();
 
-        final String selection = CalendarContract.Events.CALENDAR_ID + " = ? AND "
-                + CalendarContract.Events.DTSTART+ " > ? AND "
-                + CalendarContract.Events.DTEND + " < ?";
-        final String[] selectionArgs = new String[]{myPreferences.getValue(IDENTIFIER_LOCAL_ID),
+        final String selection =
+                CalendarContract.Events.CALENDAR_ID + " = ? AND "
+                + CalendarContract.Events.DTSTART + " < ? AND "
+                + CalendarContract.Events.DTEND + " >= ?";
+        final String[] selectionArgs = new String[]{
+                myPreferences.getValue(IDENTIFIER_LOCAL_ID),
                 Long.toString(startTime),
                 Long.toString(endTime)};
         Cursor cur = getEventCursor(selection, selectionArgs, null);
 
-        List<EventInfo.EventItem> result = new ArrayList<>();
+        List<EventItem> eventItems = new ArrayList<>();
         Log.d(className + methodName, "Events List of Local Calendar");
-        while(cur.moveToNext()){
+        while (cur.moveToNext()) {
             final long id = cur.getLong(EVENTS_PROJECTION_IDX_ID);
             final String calendar_id = cur.getString(EVENTS_PROJECTION_IDX_CALENDAR_ID);
             final String title = cur.getString(EVENTS_PROJECTION_IDX_TITLE);
@@ -132,18 +116,19 @@ public class EventLocalDao extends EventDao{
             final long end = cur.getLong(EVENTS_PROJECTION_IDX_DTEND);
             Log.d(className + methodName, id + " " + calendar_id + " " + title);
             Log.d(className + methodName, description + " " + start + " " + end);
-            result.add(EventInfo.createEventItem(Long.toString(id), title, description, start, end));
+            eventItems.add(
+                    EventInfo.createEventItem(Long.toString(id), title, description, start, end));
         }
         cur.close();
-        return result;
+        return eventItems;
     }
 
     /**
      * イベントをローカルカレンダーへ追加する
-     * @param eventInfo     イベント情報
-     * @return              イベントID
+     * @param eventInfo イベント情報
+     * @return イベントID
      */
-    public String insertEventItem(EventInfo.EventItem eventInfo){
+    public String insertEventItem(EventItem eventInfo) {
         final ContentResolver cr = context.getContentResolver();
 
         final ContentValues values = new ContentValues();
@@ -154,32 +139,31 @@ public class EventLocalDao extends EventDao{
         values.put(CalendarContract.Events.DTSTART, eventInfo.getStartMillis());
         values.put(CalendarContract.Events.DTEND, eventInfo.getEndMillis());
 
-        long eventId = -1;
-        try{
+        try {
             final Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-            if(uri != null){
-                eventId = Long.parseLong(uri.getLastPathSegment());
+            if (uri != null) {
+                return uri.getLastPathSegment();
             }
-        }catch(SecurityException e){
+        } catch (SecurityException e) {
             Log.e(className + methodName, "SecurityException", e);
         }
-        return Long.toString(eventId);
+        return Long.toString(-1);
     }
 
-    public List<String> insertEventItems(List<EventInfo.EventItem> eventItems){
-        List<String> result = new ArrayList<>();
-        for(EventInfo.EventItem item : eventItems){
-            result.add(insertEventItem(item));
+    public List<String> insertEventItems(List<EventItem> eventItems) {
+        List<String> eventIds = new ArrayList<>();
+        for (EventItem eventItem : eventItems) {
+            eventIds.add(insertEventItem(eventItem));
         }
-        return result;
+        return eventIds;
     }
 
-    public void deleteEventItem(long eventId){
+    public void deleteEventItem(long eventId) {
         final ContentResolver cr = context.getContentResolver();
         Uri deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId);
-        try{
-            int row = context.getContentResolver().delete(deleteUri, null, null);
-        }catch(SecurityException e){
+        try {
+            cr.delete(deleteUri, null, null);
+        } catch (SecurityException e) {
             Log.e(className + methodName, "SecurityException", e);
         }
     }
