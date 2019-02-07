@@ -3,6 +3,11 @@ package io.github.yunato.myscheduler.model.dao;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
@@ -16,7 +21,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_REMOTE_ID;
 
@@ -27,15 +34,29 @@ public class EventRemoteDao extends EventDao{
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private EventRemoteDao(Context context){
+    private EventRemoteDao(Context context, GoogleAccountCredential credential){
         super(context);
+
+        if (mService == null) {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.calendar.Calendar
+                    .Builder(transport, jsonFactory, credential)
+                    .setApplicationName(context.getString(R.string.app_name))
+                    .build();
+        }
     }
 
-    public List<EventInfo.EventItem> getEventItems(){
-        List<EventInfo.EventItem> result = new ArrayList<>();
+    static EventRemoteDao newEventRemoteDao(Context context,
+                                            GoogleAccountCredential credential) {
+        return new EventRemoteDao(context, credential);
+    }
+
+    public List<EventItem> getEventItems(){
+        String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
+        List<EventItem> result = new ArrayList<>();
         String pageToken = null;
         Log.d(className + methodName, "Events List of Remote Calendar");
-        String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         do {
             Events events = null;
             try{
@@ -44,8 +65,8 @@ public class EventRemoteDao extends EventDao{
                 Log.e(className + methodName, "IOException", e);
             }
             if(events != null){
-                List<Event> items = events.getItems();
-                for (Event event : items){
+                List<Event> eventList = events.getItems();
+                for (Event event : eventList){
                     final String id = event.getId();
                     final String name = event.getSummary();
                     final String description = event.getDescription();
@@ -55,36 +76,28 @@ public class EventRemoteDao extends EventDao{
                     Log.d(className + methodName, description);
                     Log.d(className + methodName, Long.toString(start) + " " + Long.toString(end));
                     result.add(EventInfo.createEventItem(id, name, description, start, end));
-                    //deleteEventItem(id);
                 }
                 pageToken = events.getNextPageToken();
             }
         } while (pageToken != null);
-
         return result;
     }
 
-    private String insertEventItem(EventInfo.EventItem eventInfo){
+    private EventDateTime convertTimeToRFC3339(long time){
+        Date date = new Date();
+        date.setTime(time);
+        DateTime dateTime
+                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
+                .format(date));
+        return new EventDateTime().setDateTime(dateTime).setTimeZone("Asia/Tokyo");
+    }
+
+    private String insertEventItem(EventItem eventInfo){
         Event event = new Event().setSummary(eventInfo.getTitle())
                 .setDescription(eventInfo.getDescription());
 
-        Date startDate = new Date();
-        startDate.setTime(eventInfo.getStartMillis());
-        DateTime startDateTime
-                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
-                .format(startDate));
-        EventDateTime start = new EventDateTime().setDateTime(startDateTime)
-                .setTimeZone("Asia/Tokyo");
-        event.setStart(start);
-
-        Date endDate = new Date();
-        endDate.setTime(eventInfo.getEndMillis());
-        DateTime endDateTime
-                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
-                .format(endDate));
-        EventDateTime end = new EventDateTime().setDateTime(endDateTime)
-                .setTimeZone("Asia/Tokyo");
-        event.setEnd(end);
+        event.setStart(convertTimeToRFC3339(eventInfo.getStartMillis()));
+        event.setEnd(convertTimeToRFC3339(eventInfo.getEndMillis()));
 
         //region リマインダーの設定
         /*
@@ -100,7 +113,6 @@ public class EventRemoteDao extends EventDao{
         // endregion
 
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
-        //String calendarId = "pjqmod08j603i4jftjm803sgfo@group.calendar.google.com";
         try{
             event = mService.events().insert(calendarId, event).execute();
         }catch (IOException e){
@@ -109,12 +121,12 @@ public class EventRemoteDao extends EventDao{
         return event.getId();
     }
 
-    public List<String> insertEventItems(List<EventInfo.EventItem> eventItems){
-        List<String> result = new ArrayList<>();
-        for(EventInfo.EventItem item : eventItems){
-            result.add(insertEventItem(item));
+    public List<String> insertEventItems(List<EventItem> eventItems){
+        List<String> eventIds = new ArrayList<>();
+        for(EventItem item : eventItems){
+            eventIds.add(insertEventItem(item));
         }
-        return result;
+        return eventIds;
     }
 
     private void deleteEventItem(String eventId){

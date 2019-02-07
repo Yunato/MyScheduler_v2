@@ -29,7 +29,7 @@ class CalendarRemoteDao extends CalendarDao {
     private CalendarRemoteDao(Context context, GoogleAccountCredential credential) {
         super(context);
 
-        if(mService == null){
+        if (mService == null) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar
@@ -48,7 +48,7 @@ class CalendarRemoteDao extends CalendarDao {
      * 本アプリケーションの起動でリモートにカレンダーが作成されたか確認する．
      * 作成されていなければ新規作成を行う．
      */
-    void checkExistCalendar() throws IOException {
+    void checkExistCalendar() {
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         if (calendarId == null) {
             calendarId = createCalendar();
@@ -59,20 +59,31 @@ class CalendarRemoteDao extends CalendarDao {
     /**
      * リモートカレンダーを作成する．
      * 本アプリケーションで作成するカレンダーと同名のカレンダーがすでに存在すればそれを削除する．
+     *
      * @return カレンダーID
      */
-    private String createCalendar() throws IOException {
-        deleteCalendar();
+    private String createCalendar() {
+        try{
+            deleteCalendar();
+        } catch (IOException e) {
+            Log.e(className + methodName, "IOException", e);
+            return null;
+        }
 
         com.google.api.services.calendar.model.Calendar calendar =
                 new com.google.api.services.calendar.model.Calendar();
         calendar.setSummary("MyScheduler");
         calendar.setTimeZone("Asia/Tokyo");
 
-        com.google.api.services.calendar.model.Calendar createdCalendar =
-                mService.calendars().insert(calendar).execute();
-        Log.d(className + methodName, "Create Remote calendar");
-        return createdCalendar.getId();
+        try {
+            com.google.api.services.calendar.model.Calendar createdCalendar =
+                    mService.calendars().insert(calendar).execute();
+            Log.d(className + methodName, "Create Remote calendar");
+            return createdCalendar.getId();
+        } catch (IOException e) {
+            Log.e(className + methodName, "IOException", e);
+            return null;
+        }
     }
 
     /**
@@ -102,20 +113,25 @@ class CalendarRemoteDao extends CalendarDao {
         String pageToken = null;
         Log.d(className + methodName, "Remote Calendar List");
         do {
-            CalendarList calendarList =
-                    mService.calendarList().list().setPageToken(pageToken).execute();
-            List<CalendarListEntry> entries = calendarList.getItems();
-
-            for (CalendarListEntry entry : entries) {
-                final String id = entry.getId();
-                final String name = entry.getSummary();
-                final String role = entry.getAccessRole();
-                final String description = entry.getDescription();
-                Log.d(className + methodName, id + " " + name);
-                Log.d(className + methodName, role + " " + description);
+            CalendarList calendarList = null;
+            try{
+                calendarList =
+                        mService.calendarList().list().setPageToken(pageToken).execute();
+            } catch (IOException e) {
+                Log.e(className + methodName, "IOException", e);
             }
-            pageToken = calendarList.getNextPageToken();
+            if (calendarList != null){
+                List<CalendarListEntry> entries = calendarList.getItems();
+                for (CalendarListEntry entry : entries) {
+                    final String id = entry.getId();
+                    final String name = entry.getSummary();
+                    final String role = entry.getAccessRole();
+                    final String description = entry.getDescription();
+                    Log.d(className + methodName, id + " " + name);
+                    Log.d(className + methodName, role + " " + description);
+                }
+                pageToken = calendarList.getNextPageToken();
+            }
         } while (pageToken != null);
-        //deleteCalendar();
     }
 }

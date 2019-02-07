@@ -13,6 +13,8 @@ import java.util.Locale;
 
 import io.github.yunato.myscheduler.model.usecase.EventGenerator;
 
+//TODO: EventInfo を repository パッケージへ移す
+//TODO: EventItem を entity パッケージへ移す
 public class EventInfo {
     private Calendar targetDay = Calendar.getInstance();
     public static List<EventItem> ITEMS = new ArrayList<>();

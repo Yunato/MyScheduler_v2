@@ -62,16 +62,16 @@ public class CalendarLocalDao extends CalendarDao {
         final Uri uri = Calendars.CONTENT_URI;
         final String[] projection = CALENDAR_PROJECTION;
         final ContentResolver cr = context.getContentResolver();
+        Cursor cur = null;
         try {
-            Cursor cur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
-            if (cur == null) {
-                throw new IllegalStateException("Cursor is null.");
-            }
-            return cur;
+            cur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
         } catch (SecurityException e) {
             Log.e(className + methodName, "SecurityException", e);
-            return null;
         }
+        if (cur == null) {
+            throw new IllegalStateException("Cursor is null.");
+        }
+        return cur;
     }
 
     /**
@@ -80,25 +80,26 @@ public class CalendarLocalDao extends CalendarDao {
      */
     public void checkExistCalendar() {
         String calendarId = myPreferences.getValue(IDENTIFIER_LOCAL_ID);
-        String accountName = myPreferences.getValue(PREF_ACCOUNT_NAME);
-        if (accountName == null) {
-            throw new IllegalStateException("AccountName isn't selected.");
-        }
 
         if (calendarId == null) {
-            calendarId = createCalendar(accountName);
+            calendarId = createCalendar();
             myPreferences.setValue(IDENTIFIER_LOCAL_ID, calendarId);
         }
     }
 
     /**
      * ローカル上のカレンダーを作成する
-     * @param accountName Google アカウント名
      * @return カレンダーID
      */
-    private String createCalendar(String accountName) {
-        final ContentResolver cr = context.getContentResolver();
+    private String createCalendar() {
+        deleteCalendar();
 
+        String accountName = myPreferences.getValue(PREF_ACCOUNT_NAME);
+        if (accountName == null) {
+            throw new IllegalStateException("AccountName isn't selected.");
+        }
+
+        final ContentResolver cr = context.getContentResolver();
         Uri calUri = Calendars.CONTENT_URI;
         calUri = calUri.buildUpon()
                 .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
@@ -133,7 +134,7 @@ public class CalendarLocalDao extends CalendarDao {
     /**
      * 引数を基にカレンダーを削除する
      */
-    public void deleteCalendar() {
+    private void deleteCalendar() {
         final ContentResolver cr = context.getContentResolver();
         final Uri uri = Calendars.CONTENT_URI;
         final String where = Calendars.NAME+"=?";
