@@ -17,8 +17,10 @@ import java.util.List;
 
 import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
-public class MyCredential {
+public class Credential {
     private final GoogleAccountCredential mCredential;
+
+
     private final Context context;
     private OnGoogleAccountCredentialListener mListener = null;
 
@@ -38,7 +40,7 @@ public class MyCredential {
     public static final int STATE_READ_EVENT_INFO = 2;
     public static final int STATE_WRITE_EVENT_INFO = 3;
 
-    private MyCredential(Context context) {
+    private Credential(Context context) {
         this.context = context;
         this.mListener = (OnGoogleAccountCredentialListener) context;
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -48,8 +50,8 @@ public class MyCredential {
         this.state = STATE_CREATE_CALENDAR;
     }
 
-    public static MyCredential newMyCredential(Context context) {
-        return new MyCredential(context);
+    public static Credential newMyCredential(Context context) {
+        return new Credential(context);
     }
 
     public Intent getChooseAccountIntent() {

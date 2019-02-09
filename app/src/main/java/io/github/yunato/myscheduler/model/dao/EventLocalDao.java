@@ -44,7 +44,7 @@ public class EventLocalDao extends EventDao {
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private EventLocalDao(Context context) {
+    public EventLocalDao(Context context) {
         super(context);
     }
 

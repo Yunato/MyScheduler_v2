@@ -9,7 +9,7 @@ import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static java.util.Calendar.getInstance;
 
-public class EventGenerator {
+public class GenerateEventUsecase {
     // TODO: 自動生成における各工程のメソッドを追加
     public List<EventItem> generate(){
         List<EventItem> newList = new ArrayList<>();

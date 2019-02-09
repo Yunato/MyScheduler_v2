@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import io.github.yunato.myscheduler.model.usecase.EventGenerator;
+import io.github.yunato.myscheduler.model.usecase.GenerateEventUsecase;
 
 //TODO: EventInfo を repository パッケージへ移す
 //TODO: EventItem を entity パッケージへ移す
@@ -52,7 +52,7 @@ public class EventInfo {
 
     //TODO: 本来は引数として日付を受け取り予定一覧を作成する
     public static void createEventList() {
-        EventGenerator generator = new EventGenerator();
+        GenerateEventUsecase generator = new GenerateEventUsecase();
         ITEMS = generator.generate();
     }
 

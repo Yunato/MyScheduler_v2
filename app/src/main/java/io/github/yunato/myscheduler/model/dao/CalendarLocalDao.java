@@ -48,12 +48,8 @@ public class CalendarLocalDao extends CalendarDao {
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private CalendarLocalDao(Context context) {
+    public CalendarLocalDao(Context context) {
         super(context);
-    }
-
-    static CalendarLocalDao newLocalCalendarDao(Context context) {
-        return new CalendarLocalDao(context);
     }
 
     @NonNull
