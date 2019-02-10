@@ -12,44 +12,44 @@ public class LocalDao {
     private CalendarLocalDao calendarDao;
     private EventLocalDao eventDao;
 
-    private LocalDao(Context context){
+    private LocalDao(Context context) {
         calendarDao = new CalendarLocalDao(context);
         eventDao = new EventLocalDao(context);
     }
 
-    public static LocalDao newLocalDao(Context context){
+    public static LocalDao newLocalDao(Context context) {
         return dao != null ? dao : new LocalDao(context);
     }
 
-    public void createCalendar(){
+    public void createCalendar() {
         calendarDao.checkExistCalendar();
     }
 
-    private void deleteCalendar(){
+    private void deleteCalendar() {
         calendarDao.deleteCalendar();
     }
 
-    public void logCalendarInfo(){
+    public void logCalendarInfo() {
         calendarDao.logCalendarInfo();
     }
 
-    public void getAllEventItems(){
+    public void getAllEventItems() {
         eventDao.getAllEventItems();
     }
 
-    public void getEventItemsOnDay(int year, int month, int dayOfMonth){
+    public void getEventItemsOnDay(int year, int month, int dayOfMonth) {
         eventDao.getEventItemsOnDay(year, month, dayOfMonth);
     }
 
-    public String insertEventItem(EventItem eventInfo){
+    public String insertEventItem(EventItem eventInfo) {
         return eventDao.insertEventItem(eventInfo);
     }
 
-    public List<String> insertEventItems(List<EventItem> eventItems){
+    public List<String> insertEventItems(List<EventItem> eventItems) {
         return eventDao.insertEventItems(eventItems);
     }
 
-    public void deleteEventItem(long eventId){
+    public void deleteEventItem(long eventId) {
         eventDao.deleteEventItem(eventId);
     }
 }

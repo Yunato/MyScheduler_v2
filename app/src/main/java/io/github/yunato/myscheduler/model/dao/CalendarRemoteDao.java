@@ -26,7 +26,7 @@ class CalendarRemoteDao extends CalendarDao {
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private CalendarRemoteDao(Context context, GoogleAccountCredential credential) {
+    CalendarRemoteDao(Context context, GoogleAccountCredential credential) {
         super(context);
 
         if (mService == null) {
@@ -37,11 +37,6 @@ class CalendarRemoteDao extends CalendarDao {
                     .setApplicationName(context.getString(R.string.app_name))
                     .build();
         }
-    }
-
-    static CalendarRemoteDao newCalendarRemoteDao(Context context,
-                                                  GoogleAccountCredential credential) {
-        return new CalendarRemoteDao(context, credential);
     }
 
     /**
@@ -89,7 +84,7 @@ class CalendarRemoteDao extends CalendarDao {
     /**
      * 本アプリケーションで作成するリモートカレンダーと同名のカレンダーを削除する．
      */
-    private void deleteCalendar() throws IOException {
+    void deleteCalendar() throws IOException {
         String pageToken = null;
         do {
             CalendarList calendarList =
@@ -109,7 +104,7 @@ class CalendarRemoteDao extends CalendarDao {
     /**
      * 参照できるカレンダーの情報を取得する．
      */
-    void getCalendarInfo() throws IOException {
+    void logCalendarInfo() throws IOException {
         String pageToken = null;
         Log.d(className + methodName, "Remote Calendar List");
         do {

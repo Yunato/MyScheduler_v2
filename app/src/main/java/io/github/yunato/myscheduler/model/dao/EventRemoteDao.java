@@ -27,14 +27,14 @@ import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_REMOTE_ID;
 
-public class EventRemoteDao extends EventDao{
+class EventRemoteDao extends EventDao{
     private static Calendar mService;
 
     /** Debug 用 */
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    private EventRemoteDao(Context context, GoogleAccountCredential credential){
+    EventRemoteDao(Context context, GoogleAccountCredential credential){
         super(context);
 
         if (mService == null) {
@@ -47,12 +47,7 @@ public class EventRemoteDao extends EventDao{
         }
     }
 
-    static EventRemoteDao newEventRemoteDao(Context context,
-                                            GoogleAccountCredential credential) {
-        return new EventRemoteDao(context, credential);
-    }
-
-    public List<EventItem> getAllEventItems(){
+    List<EventItem> getAllEventItems(){
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         List<EventItem> result = new ArrayList<>();
         String pageToken = null;
@@ -92,7 +87,7 @@ public class EventRemoteDao extends EventDao{
         return new EventDateTime().setDateTime(dateTime).setTimeZone("Asia/Tokyo");
     }
 
-    private String insertEventItem(EventItem eventInfo){
+    String insertEventItem(EventItem eventInfo){
         Event event = new Event().setSummary(eventInfo.getTitle())
                 .setDescription(eventInfo.getDescription());
 
@@ -121,7 +116,7 @@ public class EventRemoteDao extends EventDao{
         return event.getId();
     }
 
-    public List<String> insertEventItems(List<EventItem> eventItems){
+    List<String> insertEventItems(List<EventItem> eventItems){
         List<String> eventIds = new ArrayList<>();
         for(EventItem eventItem : eventItems){
             eventIds.add(insertEventItem(eventItem));
@@ -129,7 +124,7 @@ public class EventRemoteDao extends EventDao{
         return eventIds;
     }
 
-    private void deleteEventItem(String eventId){
+    void deleteEventItem(String eventId){
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         try{
             mService.events().delete(calendarId, eventId).execute();
