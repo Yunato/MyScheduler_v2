@@ -21,7 +21,7 @@ import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_LOCAL_ID;
 import static java.util.Calendar.getInstance;
 
-public class EventLocalDao extends EventDao {
+class EventLocalDao extends EventDao {
     /** プロジェクション配列 */
     private static final String[] EVENTS_PROJECTION = new String[]{
             CalendarContract.Events._ID,
@@ -44,7 +44,7 @@ public class EventLocalDao extends EventDao {
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    public EventLocalDao(Context context) {
+    EventLocalDao(Context context) {
         super(context);
     }
 
@@ -66,7 +66,7 @@ public class EventLocalDao extends EventDao {
         return cur;
     }
 
-    public List<EventItem> getAllEventItems() {
+    List<EventItem> getAllEventItems() {
         List<EventItem> eventItems = new ArrayList<>();
         Cursor cur = getEventCursor(null, null, null);
         Log.d(className + methodName, "Events List of Local Calendar");
@@ -86,7 +86,7 @@ public class EventLocalDao extends EventDao {
         return eventItems;
     }
 
-    public List<EventItem> getEventItems(int year, int month, int dayOfMonth) {
+    List<EventItem> getEventItemsOnDay(int year, int month, int dayOfMonth) {
         Calendar calendar = getInstance();
         calendar.set(year, month, dayOfMonth + 1, 0, 0, 0);
         long startTime = calendar.getTimeInMillis();
@@ -128,7 +128,7 @@ public class EventLocalDao extends EventDao {
      * @param eventInfo イベント情報
      * @return イベントID
      */
-    public String insertEventItem(EventItem eventInfo) {
+    String insertEventItem(EventItem eventInfo) {
         final ContentResolver cr = context.getContentResolver();
 
         final ContentValues values = new ContentValues();
@@ -150,7 +150,7 @@ public class EventLocalDao extends EventDao {
         return Long.toString(-1);
     }
 
-    public List<String> insertEventItems(List<EventItem> eventItems) {
+    List<String> insertEventItems(List<EventItem> eventItems) {
         List<String> eventIds = new ArrayList<>();
         for (EventItem eventItem : eventItems) {
             eventIds.add(insertEventItem(eventItem));
@@ -158,7 +158,7 @@ public class EventLocalDao extends EventDao {
         return eventIds;
     }
 
-    public void deleteEventItem(long eventId) {
+    void deleteEventItem(long eventId) {
         final ContentResolver cr = context.getContentResolver();
         Uri deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId);
         try {

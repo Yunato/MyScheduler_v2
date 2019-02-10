@@ -15,7 +15,7 @@ import static android.provider.CalendarContract.Calendars;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_LOCAL_ID;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 
-public class CalendarLocalDao extends CalendarDao {
+class CalendarLocalDao extends CalendarDao {
     /** プロジェクション配列 */
     private static final String[] CALENDAR_PROJECTION = new String[]{
             Calendars._ID,
@@ -48,16 +48,18 @@ public class CalendarLocalDao extends CalendarDao {
     private final String className = Thread.currentThread().getStackTrace()[1].getClassName();
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
-    public CalendarLocalDao(Context context) {
+    CalendarLocalDao(Context context) {
         super(context);
     }
 
     @NonNull
     private Cursor getCalendarCursor(final String selection,
-                                     final String[] selectionArgs, final String sortOrder) {
+                                     final String[] selectionArgs,
+                                     final String sortOrder) {
+        final ContentResolver cr = context.getContentResolver();
         final Uri uri = Calendars.CONTENT_URI;
         final String[] projection = CALENDAR_PROJECTION;
-        final ContentResolver cr = context.getContentResolver();
+
         Cursor cur = null;
         try {
             cur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
@@ -74,9 +76,8 @@ public class CalendarLocalDao extends CalendarDao {
      * 本アプリケーションの起動でローカルにカレンダーが作成されたか確認する．
      * 作成されていなければ新規作成を行う．
      */
-    public void checkExistCalendar() {
+    void checkExistCalendar() {
         String calendarId = myPreferences.getValue(IDENTIFIER_LOCAL_ID);
-
         if (calendarId == null) {
             calendarId = createCalendar();
             myPreferences.setValue(IDENTIFIER_LOCAL_ID, calendarId);
@@ -130,7 +131,7 @@ public class CalendarLocalDao extends CalendarDao {
     /**
      * 引数を基にカレンダーを削除する
      */
-    private void deleteCalendar() {
+    void deleteCalendar() {
         final ContentResolver cr = context.getContentResolver();
         final Uri uri = Calendars.CONTENT_URI;
         final String where = Calendars.NAME+"=?";
@@ -147,7 +148,7 @@ public class CalendarLocalDao extends CalendarDao {
     /**
      * 参照できるカレンダーの情報を取得する
      */
-    public void getCalendarInfo() {
+    void logCalendarInfo() {
         Cursor cur = getCalendarCursor(null, null, null);
         Log.d(className + methodName, "Local Calendar List");
         while (cur.moveToNext()) {
