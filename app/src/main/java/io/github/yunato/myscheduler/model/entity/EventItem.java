@@ -4,9 +4,8 @@ package io.github.yunato.myscheduler.model.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import static io.github.yunato.myscheduler.model.repository.EventItemRepository.convertDateToString;
+import static io.github.yunato.myscheduler.model.repository.EventItemRepository.convertTimeToString;
 
 public class EventItem implements Parcelable {
     private final String eventId;
@@ -40,6 +39,14 @@ public class EventItem implements Parcelable {
         description = in.readString();
         startMillis = in.readLong();
         endMillis = in.readLong();
+    }
+
+    public EventItem(EventItem item){
+        this.eventId = item.eventId;
+        this.title = item.title;
+        this.description = item.description;
+        this.startMillis = item.startMillis;
+        this.endMillis = item.endMillis;
     }
 
     public String getEventId() {
@@ -76,20 +83,6 @@ public class EventItem implements Parcelable {
 
     public String getStrEndTime(){
         return convertTimeToString(endMillis);
-    }
-
-    private String convertDateToString(long time) {
-        Date date = new Date();
-        date.setTime(time);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日", Locale.JAPANESE);
-        return sdf.format(date);
-    }
-
-    private String convertTimeToString(long time) {
-        Date date = new Date();
-        date.setTime(time);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPANESE);
-        return sdf.format(date);
     }
 
     @Override
