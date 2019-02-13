@@ -10,8 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
 import io.github.yunato.myscheduler.ui.adapter.DividerItemDecoration;
 import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
@@ -22,7 +22,8 @@ public class DayFragment extends Fragment {
     /**
      * コンストラクタ
      */
-    public DayFragment() {}
+    public DayFragment() {
+    }
 
     /**
      * インスタンスの生成
@@ -42,8 +43,8 @@ public class DayFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = EventInfo.ITEMS.size() != 0 ?
-                inflater.inflate(R.layout.fragment_day_plan_list, container, false):
+        View view = EventItemRepository.getEventItems().size() != 0 ?
+                inflater.inflate(R.layout.fragment_day_plan_list, container, false) :
                 inflater.inflate(R.layout.fragment_day_plan_list_no_item, container, false);
 
         if (view instanceof RecyclerView) {
@@ -51,7 +52,8 @@ public class DayFragment extends Fragment {
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.addItemDecoration(new DividerItemDecoration(context));
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(new MyPlanRecyclerViewAdapter(EventInfo.ITEMS, mListener));
+            recyclerView.setAdapter(
+                    new MyPlanRecyclerViewAdapter(EventItemRepository.getEventItems(), mListener));
         }
         return view;
     }
@@ -59,8 +61,9 @@ public class DayFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        //TODO:引数を日付に変更
-        ((MainDrawerActivity) context).onFragmentAttached(R.string.menu_title_day);
+
+        ((MainDrawerActivity) context).onFragmentAttached(
+                EventItemRepository.convertDateToString(EventItemRepository.getTimeInMillis()));
     }
 
     @Override

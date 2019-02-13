@@ -186,6 +186,12 @@ public class MainDrawerActivity extends AppCompatActivity
         }
     }
 
+    public void onFragmentAttached(String title) {
+        if (STATE_TODAY == state) {
+            setTitle(title);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main_toolbar, menu);
@@ -301,9 +307,7 @@ public class MainDrawerActivity extends AppCompatActivity
             fragment = CalendarFragment.newInstance(new CalendarFragment.OnSelectedDateListener(){
                 @Override
                 public void onSelectedDate(int year, int month, int dayOfMonth) {
-                    LocalDao localDao = newLocalDao();
-                    EventItemRepository.ITEMS
-                            = localDao.getEventItemsOnDay(year, month, dayOfMonth);
+                    EventItemRepository.setEventItems(year, month, dayOfMonth);
                     switchUserInterface(R.id.top_today);
                 }
             });
