@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
+
 import static org.junit.Assert.assertEquals;
 
 public class EventInfoTest {
@@ -14,7 +16,7 @@ public class EventInfoTest {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日", Locale.JAPAN);
         String str = sdf.format(date);
-        assertEquals(str, EventInfo.convertDateToString(date.getTime()));
+        assertEquals(str, EventItemRepository.convertDateToString(date.getTime()));
     }
 
     @Test
@@ -22,7 +24,7 @@ public class EventInfoTest {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.JAPAN);
         String str = sdf.format(date);
-        assertEquals(str, EventInfo.convertTimeToString(date.getTime()));
+        assertEquals(str, EventItemRepository.convertTimeToString(date.getTime()));
     }
 
 }

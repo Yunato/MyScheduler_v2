@@ -13,14 +13,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
-import io.github.yunato.myscheduler.model.item.EventInfo;
+import io.github.yunato.myscheduler.model.dao.DaoFactory;
+import io.github.yunato.myscheduler.model.dao.LocalDao;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 
@@ -62,11 +62,12 @@ public class MainDrawerActivityTest {
         onView(withId(R.id.nav_view)).check(matches(not(isDisplayed())));
         onView(getAt(withId(R.id.calendarView), 0)).check(matches(isDisplayed()));
 
-        List<EventInfo.EventItem> items = new ArrayList<>();
-        CalendarLocalDao dao = Mockito.mock(CalendarLocalDao.class);
+        List<EventItem> items = new ArrayList<>();
+        LocalDao dao = DaoFactory.getLocalDao();
+        //CalendarLocalDao dao = Mockito.mock(CalendarLocalDao.class);
         //when(dao.getEventItems(anyInt(), anyInt(), anyInt())).thenReturn(items);
 
-        activityRule.getActivity().localDao = dao;
+        //activityRule.getActivity().localDao = dao;
         onView(getAt(withId(R.id.calendarView), 1)).perform(click());
         //verify(dao).getEventItems(2019, 0, 9);
     }
@@ -75,7 +76,7 @@ public class MainDrawerActivityTest {
     public void checkViewItemOnDayList(){
         DayFragment fragment = DayFragment.newInstance(new DayFragment.OnSelectedEventListener() {
             @Override
-            public void onSelectedEvent(EventInfo.EventItem item, View view) {
+            public void onSelectedEvent(EventItem item, View view) {
             }
         });
         activityRule.getActivity().getSupportFragmentManager().beginTransaction()

@@ -10,7 +10,7 @@ import android.widget.Button;
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.entity.EventItem;
 import io.github.yunato.myscheduler.model.repository.EventItemRepository;
-import io.github.yunato.myscheduler.ui.fragment.EditPlanInfoFragment;
+import io.github.yunato.myscheduler.ui.fragment.EditEventItemFragment;
 
 public class EditEventItemActivity extends AppCompatActivity {
 
@@ -34,7 +34,7 @@ public class EditEventItemActivity extends AppCompatActivity {
             Intent intent = getIntent();
             EventItem extraItem = intent.getParcelableExtra(MainDrawerActivity.EXTRA_EVENTITEM);
             EventItem item = extraItem != null ? extraItem : EventItemRepository.createEmpty();
-            EditPlanInfoFragment containerFragment = EditPlanInfoFragment.newInstance(item);
+            EditEventItemFragment containerFragment = EditEventItemFragment.newInstance(item);
 
             Button saveButton = (Button) findViewById(R.id.save_button);
             saveButton.setOnClickListener(containerFragment.getSaveBtnOnClickListener());

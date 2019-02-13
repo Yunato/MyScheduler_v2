@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.repository.EventItemRepository;
-import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
+import io.github.yunato.myscheduler.ui.fragment.ShowEventItemFragment;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -35,7 +35,7 @@ public class ShowEventItemActivityTest {
 
     @Test
     public void checkViewItem() throws Exception {
-        ShowPlanFragment fragment = ShowPlanFragment.newInstance(EventItemRepository.createEmpty());
+        ShowEventItemFragment fragment = ShowEventItemFragment.newInstance(EventItemRepository.createEmpty());
         activityRule.getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment).commit();
         onView(withId(R.id.text_title)).check(matches(isDisplayed()));

@@ -3,7 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
-              tools:context="io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment">
+              tools:context="io.github.yunato.myscheduler.ui.fragment.ShowEventItemFragment">
 
     <Space
         android:layout_width="match_parent"

@@ -9,17 +9,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
 
-public class ShowPlanFragment extends Fragment {
+public class ShowEventItemFragment extends Fragment {
+
     private static final String ARG_PARAM_ITEM = "PLAN_ITEM";
     private EventItem itemInfo;
 
-    public ShowPlanFragment() {}
+    public ShowEventItemFragment() {
+    }
 
-    public static ShowPlanFragment newInstance(@NonNull EventItem item) {
-        ShowPlanFragment fragment = new ShowPlanFragment();
+    public static ShowEventItemFragment newInstance(@NonNull EventItem item) {
+        ShowEventItemFragment fragment = new ShowEventItemFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_PARAM_ITEM, item);
         fragment.setArguments(args);
@@ -33,7 +35,7 @@ public class ShowPlanFragment extends Fragment {
         if (getArguments() != null) {
             itemInfo = getArguments().getParcelable(ARG_PARAM_ITEM);
             if (itemInfo == null) {
-                itemInfo = EventInfo.createEmptyEventItem();
+                itemInfo = EventItemRepository.createEmpty();
             }
         }
     }
@@ -50,11 +52,9 @@ public class ShowPlanFragment extends Fragment {
 
         ((TextView) view.findViewById(R.id.text_title)).setText(itemInfo.getTitle());
         ((TextView) view.findViewById(R.id.text_startMillis))
-                .setText(EventInfo.convertDateToString(itemInfo.getStartMillis())
-                        + "\n" + EventInfo.convertTimeToString(itemInfo.getStartMillis()));
+                .setText(itemInfo.getStrStartDate() + "\n" + itemInfo.getStrStartTime());
         ((TextView) view.findViewById(R.id.text_endMillis))
-                .setText(EventInfo.convertDateToString(itemInfo.getEndMillis())
-                        + "\n" + EventInfo.convertTimeToString(itemInfo.getEndMillis()));
+                .setText(itemInfo.getStrEndDate() + "\n" + itemInfo.getStrEndTime());
         ((TextView) view.findViewById(R.id.text_description)).setText(itemInfo.getDescription());
     }
 }

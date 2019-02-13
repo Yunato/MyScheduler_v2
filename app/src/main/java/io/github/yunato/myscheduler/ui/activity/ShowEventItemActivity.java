@@ -9,7 +9,7 @@ import android.view.MenuItem;
 
 import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.model.entity.EventItem;
-import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
+import io.github.yunato.myscheduler.ui.fragment.ShowEventItemFragment;
 
 import static io.github.yunato.myscheduler.ui.activity.MainDrawerActivity.EXTRA_EVENTITEM;
 
@@ -35,7 +35,7 @@ public class ShowEventItemActivity extends AppCompatActivity {
             Intent intent = getIntent();
             EventItem item = intent.getParcelableExtra(EXTRA_EVENTITEM);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, ShowPlanFragment.newInstance(item)).commit();
+                    .replace(R.id.fragment_container, ShowEventItemFragment.newInstance(item)).commit();
         }
     }
 

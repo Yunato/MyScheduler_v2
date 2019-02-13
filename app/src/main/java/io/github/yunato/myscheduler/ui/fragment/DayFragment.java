@@ -17,6 +17,7 @@ import io.github.yunato.myscheduler.ui.adapter.DividerItemDecoration;
 import io.github.yunato.myscheduler.ui.adapter.MyPlanRecyclerViewAdapter;
 
 public class DayFragment extends Fragment {
+
     private OnSelectedEventListener mListener = null;
 
     /**

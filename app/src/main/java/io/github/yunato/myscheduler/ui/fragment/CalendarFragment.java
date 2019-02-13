@@ -13,6 +13,7 @@ import io.github.yunato.myscheduler.R;
 import io.github.yunato.myscheduler.ui.activity.MainDrawerActivity;
 
 public class CalendarFragment extends Fragment {
+
     private OnSelectedDateListener mListener = null;
 
     /** コンストラクタ */
