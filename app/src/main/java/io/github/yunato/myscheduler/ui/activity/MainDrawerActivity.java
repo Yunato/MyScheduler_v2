@@ -2,7 +2,6 @@ package io.github.yunato.myscheduler.ui.activity;
 
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -27,33 +26,35 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
-import com.google.android.gms.common.GoogleApiAvailability;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.dao.CalendarLocalDao;
-import io.github.yunato.myscheduler.model.dao.DaoFactory;
-import io.github.yunato.myscheduler.model.dao.Credential;
+import io.github.yunato.myscheduler.model.dao.LocalDao;
 import io.github.yunato.myscheduler.model.dao.MyPreferences;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.dao.RemoteDao;
+import io.github.yunato.myscheduler.model.entity.EventItem;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
+import io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase;
+import io.github.yunato.myscheduler.model.usecase.WriteEventToRemoteUseCase;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static io.github.yunato.myscheduler.model.dao.Credential.REQUEST_ACCOUNT_PICKER;
-import static io.github.yunato.myscheduler.model.dao.Credential.REQUEST_AUTHORIZATION;
-import static io.github.yunato.myscheduler.model.dao.Credential.REQUEST_GOOGLE_PLAY_SERVICES;
-import static io.github.yunato.myscheduler.model.dao.Credential.REQUEST_PERMISSION_GET_ACCOUNTS;
+import static io.github.yunato.myscheduler.model.dao.LocalDao.newLocalDao;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
+import static io.github.yunato.myscheduler.model.dao.RemoteDao.newRemoteDao;
+import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_ACCOUNT_PICKER;
+import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_AUTHORIZATION;
+import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_GOOGLE_PLAY_SERVICES;
+import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static java.util.Collections.singletonList;
 
 public class MainDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        EasyPermissions.PermissionCallbacks,
-        Credential.OnGoogleAccountCredentialListener {
+        EasyPermissions.PermissionCallbacks{
+
     /** 要求コード */
     private static final int REQUEST_MULTI_PERMISSIONS = 1;
     private static final int REQUEST_ADD_EVENTITEM = 2;
@@ -67,18 +68,9 @@ public class MainDrawerActivity extends AppCompatActivity
     public static final String EXTRA_EVENTITEM
             = "io.github.yunato.myscheduler.ui.activity.EXTRA_EVENTITEM";
 
-    /** DAO */
-    public CalendarLocalDao localDao = null;
-
-    // TODO: 「同期」ボタンをタップしたときに null チェックの必要あり
-    /** Google 認証 */
-    private Credential mCredential;
-
     // TODO: 画面の回転に対応させる
     // UI情報の保持はsetArguments()
     // データやインプット状況の保持はonSavedInstanceState()
-    // TODO:OnGoogleAccountCredentialListenerの実装の必要性を考え直せ．今のままだとMainDrawerActivityでしか使えない
-    // TODO:Fragmentのリスナーはsetterを設けた方がActivityの責務が減るのでは
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +80,8 @@ public class MainDrawerActivity extends AppCompatActivity
         setContentView(R.layout.activity_main_drawer);
 
         setupUIElements();
-        mCredential = Credential.newMyCredential(this);
         checkPermissions();
+        setUpDao();
     }
 
     /**
@@ -124,7 +116,16 @@ public class MainDrawerActivity extends AppCompatActivity
      * ユーザがアプリケーションに実行に必要な権限を付与しているか確認する
      */
     private void checkPermissions() {
-        ArrayList<String> reqPermissions = new ArrayList<>();
+        ArrayList<String> reqPermissions = getPermissionStatuses();
+        if (!reqPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    reqPermissions.toArray(new String[reqPermissions.size()]),
+                    REQUEST_MULTI_PERMISSIONS);
+        }
+    }
+
+    private ArrayList<String> getPermissionStatuses(){
         int permissionExtStorage = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int permissionReadCalendar = ContextCompat.checkSelfPermission(this,
@@ -132,6 +133,7 @@ public class MainDrawerActivity extends AppCompatActivity
         int permissionWriteCalendar = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_CALENDAR);
 
+        ArrayList<String> reqPermissions = new ArrayList<>();
         if (PackageManager.PERMISSION_GRANTED != permissionExtStorage) {
             reqPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
@@ -141,29 +143,16 @@ public class MainDrawerActivity extends AppCompatActivity
         if (PackageManager.PERMISSION_GRANTED != permissionWriteCalendar) {
             reqPermissions.add(Manifest.permission.WRITE_CALENDAR);
         }
-        if (!reqPermissions.isEmpty()) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    reqPermissions.toArray(new String[reqPermissions.size()]),
-                    REQUEST_MULTI_PERMISSIONS);
-        } else {
-            checkedPermissions();
-        }
+        return reqPermissions;
     }
 
     @AfterPermissionGranted(REQUEST_MULTI_PERMISSIONS)
-    private void checkedPermissions() {
+    private void setUpDao() {
+        LocalDao localDao = LocalDao.newLocalDao(getApplicationContext());
+        localDao.createCalendar();
+        RemoteDao remoteDao = RemoteDao.newRemoteDao(getApplicationContext());
+        remoteDao.createCalendar();
         chooseAccount();
-        localDao = DaoFactory.getLocalDao(this);
-        localDao.checkExistCalendar();
-        mCredential.callGoogleApi(Credential.STATE_CREATE_CALENDAR);
-        localDao.getCalendarInfo();
-        //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_CALENDAR_INFO);
-        //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_READ_EVENT_INFO);
-        // 追加
-        //localDao.insertEventItems(EventInfo.ITEMS);
-        //EventInfo.createEventList();
-        //mCredential.callGoogleApi(MyGoogleAccountCredential.STATE_WRITE_EVENT_INFO, EventInfo.ITEMS);
     }
 
     /**
@@ -176,12 +165,12 @@ public class MainDrawerActivity extends AppCompatActivity
                     getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
             String accountName = preferences.getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
-                mCredential.setAccountName(accountName);
-            } else {
-                this.startActivityForResult(
-                        mCredential.getChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                return;
             }
+            RemoteDao remoteDao = newRemoteDao();
+            this.startActivityForResult(
+                    remoteDao.getChooseAccountIntent(),
+                    REQUEST_ACCOUNT_PICKER);
         } else {
             EasyPermissions.requestPermissions(
                     this,
@@ -218,27 +207,24 @@ public class MainDrawerActivity extends AppCompatActivity
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_MULTI_PERMISSIONS) {
-            if (grantResults.length > 0) {
-                for (int grantResult : grantResults) {
-                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                        finish();
-                    }
-                }
-                EasyPermissions.onRequestPermissionsResult(
-                        requestCode,
-                        permissions,
-                        grantResults,
-                        this);
-            } else {
+            if (grantResults.length <= 0) {
                 finish();
             }
-        } else if (requestCode == REQUEST_PERMISSION_GET_ACCOUNTS) {
-            EasyPermissions.onRequestPermissionsResult(
-                    requestCode,
-                    permissions,
-                    grantResults,
-                    this);
+
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    finish();
+                }
+            }
+        } else if (requestCode != REQUEST_PERMISSION_GET_ACCOUNTS) {
+            return;
         }
+
+        EasyPermissions.onRequestPermissionsResult(
+                requestCode,
+                permissions,
+                grantResults,
+                this);
     }
 
     @Override
@@ -253,27 +239,26 @@ public class MainDrawerActivity extends AppCompatActivity
                                 getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
                         SharedPreferences.Editor e = preferences.edit();
                         e.putString(PREF_ACCOUNT_NAME, accountName).apply();
-                        checkedPermissions();
+                        setUpDao();
                     }
                 }
                 break;
             case REQUEST_GOOGLE_PLAY_SERVICES:
             case REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
-                    mCredential.callGoogleApi();
+                    AccessRemoteUseCase.retryPreUseCase();
                 }
                 break;
             case REQUEST_ADD_EVENTITEM:
                 if (resultCode == RESULT_OK) {
-                    if (localDao == null) {
-                        localDao = DaoFactory.getLocalDao(this);
-                    }
                     EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
-                    //TODO:DAOの調整
-                    //localDao.insertEventItem(eventItem);
-                    mCredential.callGoogleApi(
-                            Credential.STATE_WRITE_EVENT_INFO,
-                            singletonList(eventItem));
+
+                    LocalDao localDao = newLocalDao();
+                    localDao.insertEventItem(eventItem);
+
+                    WriteEventToRemoteUseCase useCase
+                            = new WriteEventToRemoteUseCase(this, singletonList(eventItem));
+                    useCase.run();
                 }
                 break;
         }
@@ -296,36 +281,34 @@ public class MainDrawerActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         Fragment fragment;
-        switch (id) {
-            case R.id.top_today:
-                state = STATE_TODAY;
-                fragment = DayFragment.newInstance(new DayFragment.OnSelectedEventListener() {
-                    @Override
-                    public void onSelectedEvent(EventItem item, View view) {
-                        ActivityOptionsCompat compat =
-                                ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                        MainDrawerActivity.this,
-                                        view,
-                                        view.getTransitionName());
-                        Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
-                        intent.putExtra(EXTRA_EVENTITEM, item);
-                        startActivity(intent, compat.toBundle());
-                    }
-                });
-                break;
-            case R.id.top_calendar:
-                state = STATE_CALENDAR;
-                fragment = CalendarFragment.newInstance(new CalendarFragment.OnSelectedDateListener(){
-                    @Override
-                    public void onSelectedDate(int year, int month, int dayOfMonth) {
-                        //TODO:DAOの調整
-                        //EventInfo.ITEMS = localDao.getEventItems(year, month, dayOfMonth);
-                        switchUserInterface(R.id.top_today);
-                    }
-                });
-                break;
-            default:
-                return;
+        if(id == R.id.top_today){
+            state = STATE_TODAY;
+            fragment = DayFragment.newInstance(new DayFragment.OnSelectedEventListener() {
+                @Override
+                public void onSelectedEvent(EventItem item, View view) {
+                    ActivityOptionsCompat compat =
+                            ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                    MainDrawerActivity.this,
+                                    view,
+                                    view.getTransitionName());
+                    Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
+                    intent.putExtra(EXTRA_EVENTITEM, item);
+                    startActivity(intent, compat.toBundle());
+                }
+            });
+        }else if(id == R.id.top_calendar){
+            state = STATE_CALENDAR;
+            fragment = CalendarFragment.newInstance(new CalendarFragment.OnSelectedDateListener(){
+                @Override
+                public void onSelectedDate(int year, int month, int dayOfMonth) {
+                    LocalDao localDao = newLocalDao();
+                    EventItemRepository.ITEMS
+                            = localDao.getEventItemsOnDay(year, month, dayOfMonth);
+                    switchUserInterface(R.id.top_today);
+                }
+            });
+        }else{
+            return;
         }
 
         transaction.replace(R.id.main_layout, fragment);
@@ -341,23 +324,5 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {}
-    // endregion
-
-    // region MyGoogleAccountCredential#OnGoogleAccountCredentialListener
-    @Override
-    public void showGooglePlayServicesAvailabilityErrorDialog(int connectionStatusCode) {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        Dialog dialog = apiAvailability.getErrorDialog(
-                this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES
-        );
-        dialog.show();
-    }
-
-    @Override
-    public void showUserRecoverableAuthDialog(Intent intent) {
-        startActivityForResult(intent, Credential.REQUEST_AUTHORIZATION);
-    }
     // endregion
 }
