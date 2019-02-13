@@ -11,7 +11,7 @@ import static java.util.Calendar.getInstance;
 
 public class GenerateEventUseCase {
 
-    private Calendar calendar;
+    private final Calendar calendar;
 
     public GenerateEventUseCase(Calendar calendar) {
         this.calendar = calendar;

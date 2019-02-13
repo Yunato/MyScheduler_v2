@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.Window;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
@@ -110,7 +111,6 @@ public class MainDrawerActivity extends AppCompatActivity
         });
 
         ((NavigationView) findViewById(R.id.nav_view)).setNavigationItemSelectedListener(this);
-        switchUserInterface(R.id.top_today);
     }
 
     /**
@@ -168,6 +168,13 @@ public class MainDrawerActivity extends AppCompatActivity
                 localDao.createCalendar();
                 CreateCalendarToRemoteUseCase useCase = new CreateCalendarToRemoteUseCase(this);
                 useCase.run();
+
+                Calendar calendar = Calendar.getInstance();
+                EventItemRepository.setEventItems(
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH));
+                switchUserInterface(R.id.top_today);
                 return;
             }
             RemoteDao remoteDao = DaoFactory.getRemoteDao();

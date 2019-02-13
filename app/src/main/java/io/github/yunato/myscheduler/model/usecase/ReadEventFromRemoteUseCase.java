@@ -21,7 +21,7 @@ public class ReadEventFromRemoteUseCase extends AccessRemoteUseCase{
     @Override
     public void run(){
         useCase = this;
-        if (!isGooglePlayServicesAvailable()) {
+        if (isGooglePlayServicesUnavailable()) {
             acquireGooglePlayServices();
         } else {
             callGoogleApi();

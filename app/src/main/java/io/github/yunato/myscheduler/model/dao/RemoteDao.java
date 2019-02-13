@@ -79,11 +79,7 @@ public class RemoteDao {
     }
 
     public void logCalendarInfo() {
-        try{
-            calendarDao.logCalendarInfo();
-        }catch (IOException e) {
-            Log.e(className + methodName, "IOException", e);
-        }
+        calendarDao.logCalendarInfo();
     }
 
     public List<EventItem> getAllEventItems() {

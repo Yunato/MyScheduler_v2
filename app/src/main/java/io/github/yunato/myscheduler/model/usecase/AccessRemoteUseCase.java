@@ -42,7 +42,7 @@ public abstract class AccessRemoteUseCase {
 
     protected abstract void callGoogleApi();
 
-    private boolean isGooglePlayServicesUnavailable() {
+    boolean isGooglePlayServicesUnavailable() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         return ConnectionResult.SUCCESS != connectionStatusCode;
