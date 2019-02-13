@@ -4,21 +4,29 @@ import android.content.Context;
 
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 
 public class LocalDao {
+
     private static LocalDao dao;
 
     private CalendarLocalDao calendarDao;
     private EventLocalDao eventDao;
 
     private LocalDao(Context context) {
+        if(context == null)
+            throw new RuntimeException("Dao don't exist. Please create it in first.");
         calendarDao = new CalendarLocalDao(context);
         eventDao = new EventLocalDao(context);
     }
 
-    public static LocalDao newLocalDao(Context context) {
-        return dao != null ? dao : new LocalDao(context);
+    static LocalDao newLocalDao(Context context) {
+        dao = dao != null ? dao : new LocalDao(context);
+        return dao;
+    }
+
+    static LocalDao newLocalDao(){
+        return newLocalDao(null);
     }
 
     public void createCalendar() {
@@ -33,12 +41,12 @@ public class LocalDao {
         calendarDao.logCalendarInfo();
     }
 
-    public void getAllEventItems() {
-        eventDao.getAllEventItems();
+    public List<EventItem> getAllEventItems() {
+        return eventDao.getAllEventItems();
     }
 
-    public void getEventItemsOnDay(int year, int month, int dayOfMonth) {
-        eventDao.getEventItemsOnDay(year, month, dayOfMonth);
+    public List<EventItem> getEventItemsOnDay(int year, int month, int dayOfMonth) {
+        return eventDao.getEventItemsOnDay(year, month, dayOfMonth);
     }
 
     public String insertEventItem(EventItem eventInfo) {

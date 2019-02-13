@@ -1,6 +1,8 @@
 package io.github.yunato.myscheduler.model.dao;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -8,11 +10,16 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import java.io.IOException;
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 import io.github.yunato.myscheduler.model.usecase.InitializeCredentialUseCase;
 
+import static android.content.Context.MODE_PRIVATE;
+import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
+
 public class RemoteDao {
+
     private static RemoteDao dao;
+    private static String accountName;
 
     private final GoogleAccountCredential mCredential;
     private CalendarRemoteDao calendarDao;
@@ -23,18 +30,36 @@ public class RemoteDao {
     private final String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 
     private RemoteDao(Context context) {
+        if(context == null)
+            throw new RuntimeException("Dao don't exist. Please create it in first.");
         InitializeCredentialUseCase useCase = new InitializeCredentialUseCase(context);
         mCredential = useCase.run();
         calendarDao = new CalendarRemoteDao(context, mCredential);
         eventDao = new EventRemoteDao(context, mCredential);
     }
 
-    public static RemoteDao newRemoteDao(Context context) {
-        return dao != null ? dao : new RemoteDao(context);
+    static RemoteDao newRemoteDao(Context context) {
+        dao =  dao != null ? dao : new RemoteDao(context);
+        if (accountName == null){
+            setAccountName(context);
+        }
+        return dao;
     }
 
-    public void setAccountName(String accountName) {
-        mCredential.setSelectedAccountName(accountName);
+    static RemoteDao newRemoteDao(){
+        return newRemoteDao(null);
+    }
+
+    private static void setAccountName(Context context) {
+        if(context == null)
+            throw new RuntimeException("AccountName don't exist. Please create it in first.");
+        SharedPreferences pref =
+                context.getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
+        accountName = pref.getString(PREF_ACCOUNT_NAME, null);
+    }
+
+    public Intent getChooseAccountIntent() {
+        return mCredential.newChooseAccountIntent();
     }
 
     public void createCalendar() {
@@ -69,8 +94,7 @@ public class RemoteDao {
         return eventDao.insertEventItems(eventItems);
     }
 
-    // TODO: Localに合わせて String から long にした方が良いのでは？
-    public void deleteEventItem(String eventId) {
+    public void deleteEventItem(long eventId) {
         eventDao.deleteEventItem(eventId);
     }
 }

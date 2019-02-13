@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
+import io.github.yunato.myscheduler.model.dao.DaoFactory;
 import io.github.yunato.myscheduler.model.dao.LocalDao;
 import io.github.yunato.myscheduler.model.dao.MyPreferences;
 import io.github.yunato.myscheduler.model.dao.RemoteDao;
@@ -42,9 +43,7 @@ import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static io.github.yunato.myscheduler.model.dao.LocalDao.newLocalDao;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
-import static io.github.yunato.myscheduler.model.dao.RemoteDao.newRemoteDao;
 import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_ACCOUNT_PICKER;
 import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_AUTHORIZATION;
 import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_GOOGLE_PLAY_SERVICES;
@@ -148,9 +147,9 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @AfterPermissionGranted(REQUEST_MULTI_PERMISSIONS)
     private void setUpDao() {
-        LocalDao localDao = LocalDao.newLocalDao(getApplicationContext());
+        LocalDao localDao = DaoFactory.getLocalDao(getApplicationContext());
         localDao.createCalendar();
-        RemoteDao remoteDao = RemoteDao.newRemoteDao(getApplicationContext());
+        RemoteDao remoteDao = DaoFactory.getRemoteDao(getApplicationContext());
         remoteDao.createCalendar();
         chooseAccount();
     }
@@ -167,7 +166,7 @@ public class MainDrawerActivity extends AppCompatActivity
             if (accountName != null) {
                 return;
             }
-            RemoteDao remoteDao = newRemoteDao();
+            RemoteDao remoteDao = DaoFactory.getRemoteDao();
             this.startActivityForResult(
                     remoteDao.getChooseAccountIntent(),
                     REQUEST_ACCOUNT_PICKER);
@@ -259,7 +258,7 @@ public class MainDrawerActivity extends AppCompatActivity
                 if (resultCode == RESULT_OK) {
                     EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
 
-                    LocalDao localDao = newLocalDao();
+                    LocalDao localDao = DaoFactory.getLocalDao();
                     localDao.insertEventItem(eventItem);
 
                     WriteEventToRemoteUseCase useCase

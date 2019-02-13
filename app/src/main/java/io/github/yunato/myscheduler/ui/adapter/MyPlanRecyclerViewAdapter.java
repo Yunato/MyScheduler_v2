@@ -10,11 +10,11 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment.OnSelectedEventListener;
 
 public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecyclerViewAdapter.ViewHolder> {
+
     private final List<EventItem> mItems;
     private final OnSelectedEventListener mListener;
 
@@ -38,7 +38,7 @@ public class MyPlanRecyclerViewAdapter extends RecyclerView.Adapter<MyPlanRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mItems.get(position);
-        holder.mStatTimeView.setText(EventInfo.convertTimeToString(holder.mItem.getStartMillis()));
+        holder.mStatTimeView.setText(holder.mItem.getStrStartTime());
         holder.mTitleView.setText(holder.mItem.getTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

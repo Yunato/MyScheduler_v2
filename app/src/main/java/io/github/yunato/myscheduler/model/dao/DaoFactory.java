@@ -2,12 +2,18 @@ package io.github.yunato.myscheduler.model.dao;
 
 import android.content.Context;
 
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-
 public class DaoFactory {
-    public static CalendarRemoteDao getRemoteDao(Context context,
-                                                 GoogleAccountCredential credential) {
-        return CalendarRemoteDao.newCalendarRemoteDao(context, credential);
+
+    public static RemoteDao getRemoteDao() {
+        return RemoteDao.newRemoteDao();
+    }
+
+    public static RemoteDao getRemoteDao(Context context) {
+        return RemoteDao.newRemoteDao(context);
+    }
+
+    public static LocalDao getLocalDao() {
+        return LocalDao.newLocalDao();
     }
 
     public static LocalDao getLocalDao(Context context) {

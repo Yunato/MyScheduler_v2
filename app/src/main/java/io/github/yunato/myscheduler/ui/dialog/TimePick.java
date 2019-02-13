@@ -11,6 +11,7 @@ import java.util.Calendar;
 
 public class TimePick extends DialogFragment implements
         TimePickerDialog.OnTimeSetListener {
+
     private OnSetTextToUItListener mListener = null;
 
     public TimePick() {}
