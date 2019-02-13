@@ -10,6 +10,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
 public abstract class AccessRemoteUseCase {
+
+    protected static AccessRemoteUseCase useCase = null;
     protected final Activity activity;
 
     /** 要求コード */
@@ -18,12 +20,12 @@ public abstract class AccessRemoteUseCase {
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    // int nextState, List<EventItem> eventItems 必要なクラスはコンストラクタで受け取る
     AccessRemoteUseCase(Activity activity) {
         this.activity = activity;
     }
 
     public void run() {
+        useCase = this;
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else {
@@ -31,15 +33,22 @@ public abstract class AccessRemoteUseCase {
         }
     }
 
+    public static void retryPreUseCase(){
+        if(useCase == null){
+            return;
+        }
+        useCase.run();
+    }
+
     protected abstract void callGoogleApi();
 
-    private boolean isGooglePlayServicesAvailable() {
+    protected boolean isGooglePlayServicesAvailable() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         return ConnectionResult.SUCCESS == connectionStatusCode;
     }
 
-    private void acquireGooglePlayServices() {
+    protected void acquireGooglePlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
@@ -47,7 +56,7 @@ public abstract class AccessRemoteUseCase {
         }
     }
 
-    private void showGooglePlayServicesAvailabilityErrorDialog(int connectionStatusCode) {
+    protected void showGooglePlayServicesAvailabilityErrorDialog(int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         apiAvailability.getErrorDialog(
                 activity,
@@ -56,26 +65,29 @@ public abstract class AccessRemoteUseCase {
         ).show();
     }
 
-    private void showUserRecoverableAuthDialog(Intent intent) {
+    protected void showUserRecoverableAuthDialog(Intent intent) {
         activity.startActivityForResult(intent, REQUEST_AUTHORIZATION);
     }
 
-    abstract class RequestTask extends AsyncTask<Void, Void, Void>{
+    abstract class RequestTask extends AsyncTask<Void, Void, Void> {
+
         Exception mLastError = null;
 
         @Override
         protected void onCancelled() {
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    GooglePlayServicesAvailabilityIOException exception =
-                            (GooglePlayServicesAvailabilityIOException) mLastError;
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            exception.getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    UserRecoverableAuthIOException exception =
-                            (UserRecoverableAuthIOException) mLastError;
-                    showUserRecoverableAuthDialog(exception.getIntent());
-                }
+            if (mLastError == null) {
+                return;
+            }
+
+            if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+                GooglePlayServicesAvailabilityIOException exception =
+                        (GooglePlayServicesAvailabilityIOException) mLastError;
+                showGooglePlayServicesAvailabilityErrorDialog(
+                        exception.getConnectionStatusCode());
+            } else if (mLastError instanceof UserRecoverableAuthIOException) {
+                UserRecoverableAuthIOException exception =
+                        (UserRecoverableAuthIOException) mLastError;
+                showUserRecoverableAuthDialog(exception.getIntent());
             }
         }
     }

@@ -86,8 +86,8 @@ public class RemoteDao {
         }
     }
 
-    public void getAllEventItems() {
-        eventDao.getAllEventItems();
+    public List<EventItem> getAllEventItems() {
+        return eventDao.getAllEventItems();
     }
 
     public String insertEventItem(EventItem eventInfo) {

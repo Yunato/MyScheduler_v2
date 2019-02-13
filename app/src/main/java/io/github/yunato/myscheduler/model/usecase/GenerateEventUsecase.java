@@ -4,14 +4,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
 
 import static java.util.Calendar.getInstance;
 
-public class GenerateEventUsecase {
+public class GenerateEventUseCase {
+
+    private Calendar calendar;
+
+    public GenerateEventUseCase(Calendar calendar) {
+        this.calendar = calendar;
+    }
+
     // TODO: 自動生成における各工程のメソッドを追加
-    public List<EventItem> generate(){
+    // TODO: calendar のフィールドを基にリストを作成する
+    public List<EventItem> generate() {
         List<EventItem> newList = new ArrayList<>();
 
         Calendar calendar = getInstance();
@@ -23,13 +31,13 @@ public class GenerateEventUsecase {
 
         final int HOUR = 24;
         int count = 0;
-        for(int index = dayOfMonth - 3; index < dayOfMonth + 3; index++){
+        for (int index = dayOfMonth - 3; index < dayOfMonth + 3; index++) {
             for (int i = 0; i < HOUR; i++) {
                 String name = "テスト" + count;
                 long start = calendar.getTimeInMillis();
                 calendar.add(Calendar.HOUR_OF_DAY, 1);
                 long end = calendar.getTimeInMillis();
-                newList.add(EventInfo.createEventItem("NO_ID", name, name, start, end));
+                newList.add(EventItemRepository.create("NO_ID", name, name, start, end));
                 count++;
             }
         }
