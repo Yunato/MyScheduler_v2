@@ -11,8 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.ui.fragment.EditPlanInfoFragment;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
+import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -20,13 +20,13 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
-public class EditPlanInfoActivityTest {
+public class ShowEventItemActivityTest {
     @Rule
-    public ActivityTestRule<EditPlanInfoActivity> activityRule
-            = new ActivityTestRule<>(EditPlanInfoActivity.class, false ,false);
+    public ActivityTestRule<ShowEventItemActivity> activityRule
+            = new ActivityTestRule<>(ShowEventItemActivity.class, false ,false);
 
     private static final Intent MY_ACTIVITY_INTENT
-            = new Intent(InstrumentationRegistry.getTargetContext(), EditPlanInfoActivity.class);
+            = new Intent(InstrumentationRegistry.getTargetContext(), ShowEventItemActivity.class);
 
     @Before
     public void setUp() throws Exception {
@@ -35,14 +35,12 @@ public class EditPlanInfoActivityTest {
 
     @Test
     public void checkViewItem() throws Exception {
-        EditPlanInfoFragment fragment = EditPlanInfoFragment.newInstance(EventInfo.createEmptyEventItem());
+        ShowPlanFragment fragment = ShowPlanFragment.newInstance(EventItemRepository.createEmpty());
         activityRule.getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment).commit();
-        onView(withId(R.id.input_text_title)).check(matches(isDisplayed()));
-        onView(withId(R.id.input_text_startTime)).check(matches(isDisplayed()));
-        onView(withId(R.id.input_text_endTime)).check(matches(isDisplayed()));
-        onView(withId(R.id.input_text_startDate)).check(matches(isDisplayed()));
-        onView(withId(R.id.input_text_endDate)).check(matches(isDisplayed()));
-        onView(withId(R.id.input_text_description)).check(matches(isDisplayed()));
+        onView(withId(R.id.text_title)).check(matches(isDisplayed()));
+        onView(withId(R.id.text_startMillis)).check(matches(isDisplayed()));
+        onView(withId(R.id.text_endMillis)).check(matches(isDisplayed()));
+        onView(withId(R.id.text_description)).check(matches(isDisplayed()));
     }
 }

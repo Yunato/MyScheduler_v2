@@ -4,20 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
-import io.github.yunato.myscheduler.ui.fragment.EditPlanInfoFragment;
+import io.github.yunato.myscheduler.model.entity.EventItem;
+import io.github.yunato.myscheduler.ui.fragment.ShowPlanFragment;
 
-public class EditPlanInfoActivity extends AppCompatActivity {
+import static io.github.yunato.myscheduler.ui.activity.MainDrawerActivity.EXTRA_EVENTITEM;
+
+public class ShowEventItemActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_plan_info);
+        setContentView(R.layout.activity_show_plan_info);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -31,16 +32,17 @@ public class EditPlanInfoActivity extends AppCompatActivity {
                 return;
             }
 
-            Button saveButton = (Button) findViewById(R.id.save_button);
             Intent intent = getIntent();
-            EventItem tempItem = intent.getParcelableExtra(MainDrawerActivity.EXTRA_EVENTITEM);
-            EventItem item = tempItem != null ? tempItem : EventInfo.createEmptyEventItem();
-            EditPlanInfoFragment containerFragment =
-                    EditPlanInfoFragment.newInstance(item);
-            saveButton.setOnClickListener(containerFragment.getSaveBtnOnClickListener());
+            EventItem item = intent.getParcelableExtra(EXTRA_EVENTITEM);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, containerFragment).commit();
+                    .replace(R.id.fragment_container, ShowPlanFragment.newInstance(item)).commit();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_edit_plan_info, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -48,13 +50,13 @@ public class EditPlanInfoActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             finish();
+        } else if (id == R.id.action_edit) {
+            EventItem editItem = getIntent().getParcelableExtra(EXTRA_EVENTITEM);
+            Intent intent = new Intent(getApplication(), EditEventItemActivity.class);
+            intent.putExtra(EXTRA_EVENTITEM, editItem);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(0, 0);
     }
 }

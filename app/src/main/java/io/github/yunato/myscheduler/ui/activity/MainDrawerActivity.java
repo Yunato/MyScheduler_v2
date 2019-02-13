@@ -102,7 +102,7 @@ public class MainDrawerActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 startActivityForResult(
-                        new Intent(getApplication(), EditPlanInfoActivity.class)
+                        new Intent(getApplication(), EditEventItemActivity.class)
                         , REQUEST_ADD_EVENTITEM);
                 overridePendingTransition(0, 0);
             }
@@ -291,7 +291,7 @@ public class MainDrawerActivity extends AppCompatActivity
                                     MainDrawerActivity.this,
                                     view,
                                     view.getTransitionName());
-                    Intent intent = new Intent(getApplication(), ShowPlanInfoActivity.class);
+                    Intent intent = new Intent(getApplication(), ShowEventItemActivity.class);
                     intent.putExtra(EXTRA_EVENTITEM, item);
                     startActivity(intent, compat.toBundle());
                 }
