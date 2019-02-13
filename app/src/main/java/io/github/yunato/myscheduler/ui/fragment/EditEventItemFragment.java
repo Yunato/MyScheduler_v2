@@ -28,8 +28,8 @@ public class EditEventItemFragment extends Fragment {
     private EventItem itemInfo;
 
     /** 入力情報保持 */
-    private Calendar startCalendar = Calendar.getInstance();
-    private Calendar endCalendar = Calendar.getInstance();
+    private final Calendar startCalendar = Calendar.getInstance();
+    private final Calendar endCalendar = Calendar.getInstance();
 
     private TextInputLayout titleTextInputLayout;
     private TextView descriptionTextView;

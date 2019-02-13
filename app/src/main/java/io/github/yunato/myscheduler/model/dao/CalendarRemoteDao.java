@@ -103,7 +103,7 @@ class CalendarRemoteDao extends CalendarDao {
     /**
      * 参照できるカレンダーの情報を取得する．
      */
-    void logCalendarInfo() throws IOException {
+    void logCalendarInfo() {
         String pageToken = null;
         Log.d(className + methodName, "Remote Calendar List");
         while (true) {

@@ -59,7 +59,7 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        ((MainDrawerActivity) context).onFragmentAttached(R.string.menu_title_calendar);
+        ((MainDrawerActivity) context).onFragmentAttached(R.string.title_calendar);
     }
 
     @Override

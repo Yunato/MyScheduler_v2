@@ -9,6 +9,9 @@
     <!-- ToolbarMenu -->
     <string name="menu_synchronization">"同期"</string>
 
+    <!-- Title -->
+    <string name="title_calendar">"日付の選択"</string>
+
     <!-- DrawerMenu -->
     <string name="drawer_title">"Menu"</string>
     <string name="menu_title_day">"Day"</string>

@@ -17,7 +17,7 @@ import io.github.yunato.myscheduler.model.usecase.GenerateEventUseCase;
 public class EventItemRepository {
 
     private static List<EventItem> ITEMS = new ArrayList<>();
-    private static Calendar calendar = Calendar.getInstance();
+    private static final Calendar calendar = Calendar.getInstance();
     //private static final Map<String, PlanItem> ITEM_MAP = new HashMap<>();
 
     public static void setEventItems(int year, int month, int dayOfMonth){

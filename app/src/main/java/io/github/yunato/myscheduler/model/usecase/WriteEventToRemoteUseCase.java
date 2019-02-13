@@ -11,7 +11,7 @@ import io.github.yunato.myscheduler.model.entity.EventItem;
 
 public class WriteEventToRemoteUseCase extends AccessRemoteUseCase {
 
-    private ArrayList<EventItem> eventItems;
+    private final ArrayList<EventItem> eventItems;
 
     public WriteEventToRemoteUseCase(Activity activity, List<EventItem> items) {
         super(activity);

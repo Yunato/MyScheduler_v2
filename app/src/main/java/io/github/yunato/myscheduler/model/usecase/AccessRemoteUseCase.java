@@ -11,8 +11,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 
 public abstract class AccessRemoteUseCase {
 
-    protected static AccessRemoteUseCase useCase = null;
-    protected final Activity activity;
+    static AccessRemoteUseCase useCase = null;
+    private final Activity activity;
 
     /** 要求コード */
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -26,7 +26,7 @@ public abstract class AccessRemoteUseCase {
 
     public void run() {
         useCase = this;
-        if (!isGooglePlayServicesAvailable()) {
+        if (isGooglePlayServicesUnavailable()) {
             acquireGooglePlayServices();
         } else {
             callGoogleApi();
@@ -42,13 +42,13 @@ public abstract class AccessRemoteUseCase {
 
     protected abstract void callGoogleApi();
 
-    protected boolean isGooglePlayServicesAvailable() {
+    private boolean isGooglePlayServicesUnavailable() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(activity);
-        return ConnectionResult.SUCCESS == connectionStatusCode;
+        return ConnectionResult.SUCCESS != connectionStatusCode;
     }
 
-    protected void acquireGooglePlayServices() {
+    void acquireGooglePlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         final int connectionStatusCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
@@ -56,7 +56,7 @@ public abstract class AccessRemoteUseCase {
         }
     }
 
-    protected void showGooglePlayServicesAvailabilityErrorDialog(int connectionStatusCode) {
+    void showGooglePlayServicesAvailabilityErrorDialog(int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         apiAvailability.getErrorDialog(
                 activity,
@@ -65,7 +65,7 @@ public abstract class AccessRemoteUseCase {
         ).show();
     }
 
-    protected void showUserRecoverableAuthDialog(Intent intent) {
+    void showUserRecoverableAuthDialog(Intent intent) {
         activity.startActivityForResult(intent, REQUEST_AUTHORIZATION);
     }
 
