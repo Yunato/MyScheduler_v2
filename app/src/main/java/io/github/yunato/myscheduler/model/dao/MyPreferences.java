@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import static android.content.Context.MODE_PRIVATE;
 
 public class MyPreferences {
+
     private final SharedPreferences preferences;
 
     /** 識別子 */

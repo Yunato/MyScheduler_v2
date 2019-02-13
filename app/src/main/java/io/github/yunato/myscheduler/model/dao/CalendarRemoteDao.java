@@ -20,6 +20,7 @@ import io.github.yunato.myscheduler.R;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_REMOTE_ID;
 
 class CalendarRemoteDao extends CalendarDao {
+
     private static Calendar mService;
 
     /** Debug 用 */
@@ -54,7 +55,6 @@ class CalendarRemoteDao extends CalendarDao {
     /**
      * リモートカレンダーを作成する．
      * 本アプリケーションで作成するカレンダーと同名のカレンダーがすでに存在すればそれを削除する．
-     *
      * @return カレンダーID
      */
     private String createCalendar() {
@@ -92,7 +92,6 @@ class CalendarRemoteDao extends CalendarDao {
             List<CalendarListEntry> entries = calendarList.getItems();
 
             for (CalendarListEntry entry : entries) {
-                //TODO: ユニークな値で調べた方が良い
                 if (context.getString(R.string.app_name).equals(entry.getSummary())) {
                     mService.calendars().delete(entry.getId()).execute();
                 }
@@ -115,6 +114,7 @@ class CalendarRemoteDao extends CalendarDao {
             } catch (IOException e) {
                 Log.e(className + methodName, "IOException", e);
             }
+
             if (calendarList != null){
                 List<CalendarListEntry> entries = calendarList.getItems();
                 for (CalendarListEntry entry : entries) {
@@ -127,6 +127,6 @@ class CalendarRemoteDao extends CalendarDao {
                 }
                 pageToken = calendarList.getNextPageToken();
             }
-        } while (pageToken != null);
+        }while(pageToken != null);
     }
 }

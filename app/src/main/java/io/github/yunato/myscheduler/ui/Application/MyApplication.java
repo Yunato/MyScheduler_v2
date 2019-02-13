@@ -6,6 +6,7 @@ import io.github.yunato.myscheduler.R;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 public class MyApplication extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();

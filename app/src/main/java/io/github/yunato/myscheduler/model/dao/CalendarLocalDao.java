@@ -16,7 +16,7 @@ import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_LO
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 
 class CalendarLocalDao extends CalendarDao {
-    /** プロジェクション配列 */
+
     private static final String[] CALENDAR_PROJECTION = new String[]{
             Calendars._ID,
             Calendars.NAME,
@@ -31,7 +31,6 @@ class CalendarLocalDao extends CalendarDao {
             Calendars.OWNER_ACCOUNT,
     };
 
-    /** プロジェクション配列インデックス */
     private static final int CALENDAR_PROJECTION_IDX_ID = 0;
     private static final int CALENDAR_PROJECTION_IDX_NAME = 1;
     private static final int CALENDAR_PROJECTION_IDX_ACCOUNT_NAME = 2;

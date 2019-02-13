@@ -37,12 +37,15 @@ import io.github.yunato.myscheduler.model.dao.RemoteDao;
 import io.github.yunato.myscheduler.model.entity.EventItem;
 import io.github.yunato.myscheduler.model.repository.EventItemRepository;
 import io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase;
+import io.github.yunato.myscheduler.model.usecase.CreateCalendarToRemoteUseCase;
+import io.github.yunato.myscheduler.model.usecase.ReadCalendarInfoFromRemoteUseCase;
 import io.github.yunato.myscheduler.model.usecase.WriteEventToRemoteUseCase;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static io.github.yunato.myscheduler.model.dao.DaoFactory.getLocalDao;
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.PREF_ACCOUNT_NAME;
 import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_ACCOUNT_PICKER;
 import static io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase.REQUEST_AUTHORIZATION;
@@ -147,10 +150,8 @@ public class MainDrawerActivity extends AppCompatActivity
 
     @AfterPermissionGranted(REQUEST_MULTI_PERMISSIONS)
     private void setUpDao() {
-        LocalDao localDao = DaoFactory.getLocalDao(getApplicationContext());
-        localDao.createCalendar();
-        RemoteDao remoteDao = DaoFactory.getRemoteDao(getApplicationContext());
-        remoteDao.createCalendar();
+        DaoFactory.getRemoteDao(getApplicationContext());
+        DaoFactory.getLocalDao(getApplicationContext());
         chooseAccount();
     }
 
@@ -164,6 +165,12 @@ public class MainDrawerActivity extends AppCompatActivity
                     getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
             String accountName = preferences.getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
+                LocalDao localDao = DaoFactory.getLocalDao();
+                localDao.createCalendar();
+                CreateCalendarToRemoteUseCase useCase = new CreateCalendarToRemoteUseCase(this);
+                useCase.run();
+                ReadCalendarInfoFromRemoteUseCase readUseCase = new ReadCalendarInfoFromRemoteUseCase(this);
+                readUseCase.run();
                 return;
             }
             RemoteDao remoteDao = DaoFactory.getRemoteDao();
@@ -258,7 +265,7 @@ public class MainDrawerActivity extends AppCompatActivity
                 if (resultCode == RESULT_OK) {
                     EventItem eventItem = data.getParcelableExtra(EXTRA_EVENTITEM);
 
-                    LocalDao localDao = DaoFactory.getLocalDao();
+                    LocalDao localDao = getLocalDao();
                     localDao.insertEventItem(eventItem);
 
                     WriteEventToRemoteUseCase useCase

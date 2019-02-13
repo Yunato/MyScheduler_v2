@@ -42,6 +42,9 @@ public class RemoteDao {
         dao =  dao != null ? dao : new RemoteDao(context);
         if (accountName == null){
             setAccountName(context);
+            if (accountName != null){
+                dao.mCredential.setSelectedAccountName(accountName);
+            }
         }
         return dao;
     }
@@ -51,8 +54,9 @@ public class RemoteDao {
     }
 
     private static void setAccountName(Context context) {
-        if(context == null)
-            throw new RuntimeException("AccountName don't exist. Please create it in first.");
+        if(context == null) {
+            return;
+        }
         SharedPreferences pref =
                 context.getSharedPreferences(MyPreferences.IDENTIFIER_PREF , MODE_PRIVATE);
         accountName = pref.getString(PREF_ACCOUNT_NAME, null);
