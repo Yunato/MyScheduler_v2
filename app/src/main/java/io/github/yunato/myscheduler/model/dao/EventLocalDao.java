@@ -15,14 +15,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_LOCAL_ID;
 import static java.util.Calendar.getInstance;
 
 class EventLocalDao extends EventDao {
-    /** プロジェクション配列 */
+
     private static final String[] EVENTS_PROJECTION = new String[]{
             CalendarContract.Events._ID,
             CalendarContract.Events.CALENDAR_ID,
@@ -32,7 +32,6 @@ class EventLocalDao extends EventDao {
             CalendarContract.Events.DTEND,
     };
 
-    /** プロジェクション配列インデックス */
     private static final int EVENTS_PROJECTION_IDX_ID = 0;
     private static final int EVENTS_PROJECTION_IDX_CALENDAR_ID = 1;
     private static final int EVENTS_PROJECTION_IDX_TITLE = 2;
@@ -54,12 +53,14 @@ class EventLocalDao extends EventDao {
         final Uri uri = CalendarContract.Events.CONTENT_URI;
         final String[] projection = EVENTS_PROJECTION;
         final ContentResolver cr = context.getContentResolver();
+
         Cursor cur = null;
         try {
             cur = cr.query(uri, projection, selection, selectionArgs, sortOrder);
         } catch (SecurityException e) {
             Log.e(className + methodName, "SecurityException", e);
         }
+
         if (cur == null) {
             throw new IllegalStateException("Cursor is null.");
         }
@@ -80,7 +81,7 @@ class EventLocalDao extends EventDao {
             Log.d(className + methodName, id + " " + calendar_id + " " + title);
             Log.d(className + methodName, description + " " + start + " " + end);
             eventItems.add(
-                    EventInfo.createEventItem(Long.toString(id), title, description, start, end));
+                    EventItemRepository.create(Long.toString(id), title, description, start, end));
         }
         cur.close();
         return eventItems;
@@ -117,7 +118,7 @@ class EventLocalDao extends EventDao {
             Log.d(className + methodName, id + " " + calendar_id + " " + title);
             Log.d(className + methodName, description + " " + start + " " + end);
             eventItems.add(
-                    EventInfo.createEventItem(Long.toString(id), title, description, start, end));
+                    EventItemRepository.create(Long.toString(id), title, description, start, end));
         }
         cur.close();
         return eventItems;

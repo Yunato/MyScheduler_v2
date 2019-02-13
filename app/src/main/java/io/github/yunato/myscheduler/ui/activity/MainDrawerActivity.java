@@ -38,7 +38,6 @@ import io.github.yunato.myscheduler.model.entity.EventItem;
 import io.github.yunato.myscheduler.model.repository.EventItemRepository;
 import io.github.yunato.myscheduler.model.usecase.AccessRemoteUseCase;
 import io.github.yunato.myscheduler.model.usecase.CreateCalendarToRemoteUseCase;
-import io.github.yunato.myscheduler.model.usecase.ReadCalendarInfoFromRemoteUseCase;
 import io.github.yunato.myscheduler.model.usecase.WriteEventToRemoteUseCase;
 import io.github.yunato.myscheduler.ui.fragment.CalendarFragment;
 import io.github.yunato.myscheduler.ui.fragment.DayFragment;
@@ -169,8 +168,6 @@ public class MainDrawerActivity extends AppCompatActivity
                 localDao.createCalendar();
                 CreateCalendarToRemoteUseCase useCase = new CreateCalendarToRemoteUseCase(this);
                 useCase.run();
-                ReadCalendarInfoFromRemoteUseCase readUseCase = new ReadCalendarInfoFromRemoteUseCase(this);
-                readUseCase.run();
                 return;
             }
             RemoteDao remoteDao = DaoFactory.getRemoteDao();

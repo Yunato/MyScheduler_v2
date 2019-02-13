@@ -22,12 +22,13 @@ import java.util.List;
 import java.util.Locale;
 
 import io.github.yunato.myscheduler.R;
-import io.github.yunato.myscheduler.model.item.EventInfo;
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.repository.EventItemRepository;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 
 import static io.github.yunato.myscheduler.model.dao.MyPreferences.IDENTIFIER_REMOTE_ID;
 
 class EventRemoteDao extends EventDao{
+
     private static Calendar mService;
 
     /** Debug 用 */
@@ -49,16 +50,17 @@ class EventRemoteDao extends EventDao{
 
     List<EventItem> getAllEventItems(){
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
-        List<EventItem> result = new ArrayList<>();
+        List<EventItem> eventItems = new ArrayList<>();
         String pageToken = null;
         Log.d(className + methodName, "Events List of Remote Calendar");
-        do {
+        while (true) {
             Events events = null;
             try{
                 events = mService.events().list(calendarId).setPageToken(pageToken).execute();
             }catch(IOException e){
                 Log.e(className + methodName, "IOException", e);
             }
+
             if(events != null){
                 List<Event> eventList = events.getItems();
                 for (Event event : eventList){
@@ -70,26 +72,28 @@ class EventRemoteDao extends EventDao{
                     Log.d(className + methodName, id + " " + name);
                     Log.d(className + methodName, description);
                     Log.d(className + methodName, Long.toString(start) + " " + Long.toString(end));
-                    result.add(EventInfo.createEventItem(id, name, description, start, end));
+                    eventItems.add(EventItemRepository.create(id, name, description, start, end));
                 }
                 pageToken = events.getNextPageToken();
             }
-        } while (pageToken != null);
-        return result;
+
+            if(pageToken == null){
+                break;
+            }
+        }
+        return eventItems;
     }
 
     private EventDateTime convertTimeToRFC3339(long time){
         Date date = new Date();
         date.setTime(time);
-        DateTime dateTime
-                = new DateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN)
-                .format(date));
+        DateTime dateTime = new DateTime(
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.JAPAN).format(date));
         return new EventDateTime().setDateTime(dateTime).setTimeZone("Asia/Tokyo");
     }
 
     String insertEventItem(EventItem eventInfo){
-        Event event = new Event().setSummary(eventInfo.getTitle())
-                .setDescription(eventInfo.getDescription());
+        Event event = new Event().setSummary(eventInfo.getTitle()).setDescription(eventInfo.getDescription());
 
         event.setStart(convertTimeToRFC3339(eventInfo.getStartMillis()));
         event.setEnd(convertTimeToRFC3339(eventInfo.getEndMillis()));
@@ -124,10 +128,10 @@ class EventRemoteDao extends EventDao{
         return eventIds;
     }
 
-    void deleteEventItem(String eventId){
+    void deleteEventItem(long eventId){
         String calendarId = myPreferences.getValue(IDENTIFIER_REMOTE_ID);
         try{
-            mService.events().delete(calendarId, eventId).execute();
+            mService.events().delete(calendarId, Long.toString(eventId)).execute();
         }catch (IOException e){
             Log.e(className + methodName, "IOException", e);
         }

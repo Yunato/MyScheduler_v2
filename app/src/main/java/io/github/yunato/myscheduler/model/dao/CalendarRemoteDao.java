@@ -106,16 +106,16 @@ class CalendarRemoteDao extends CalendarDao {
     void logCalendarInfo() throws IOException {
         String pageToken = null;
         Log.d(className + methodName, "Remote Calendar List");
-        do {
+        while (true) {
             CalendarList calendarList = null;
-            try{
+            try {
                 calendarList =
                         mService.calendarList().list().setPageToken(pageToken).execute();
             } catch (IOException e) {
                 Log.e(className + methodName, "IOException", e);
             }
 
-            if (calendarList != null){
+            if (calendarList != null) {
                 List<CalendarListEntry> entries = calendarList.getItems();
                 for (CalendarListEntry entry : entries) {
                     final String id = entry.getId();
@@ -127,6 +127,10 @@ class CalendarRemoteDao extends CalendarDao {
                 }
                 pageToken = calendarList.getNextPageToken();
             }
-        }while(pageToken != null);
+
+            if (pageToken == null) {
+                break;
+            }
+        }
     }
 }

@@ -4,9 +4,10 @@ import android.content.Context;
 
 import java.util.List;
 
-import io.github.yunato.myscheduler.model.item.EventInfo.EventItem;
+import io.github.yunato.myscheduler.model.entity.EventItem;
 
 abstract class EventDao {
+
     final Context context;
     final MyPreferences myPreferences;
 
