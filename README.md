@@ -1,2 +1,2 @@
 # MyScheduler
-ユーザの予定を管理するAndroidアプリケーション
+This application manage user schedules.
